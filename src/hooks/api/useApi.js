@@ -2,36 +2,78 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 // Base API configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = 'https://myfoodport.com/api';
 
-// HTTP client with error handling
-const httpClient = async (url, options = {}) => {
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
+// Default headers configuration - single place to manage all headers
+const getDefaultHeaders = (method = 'GET') => {
+  const headers = {
+    'Accept': 'application/json',
   };
+
+  // Add Content-Type for methods that send data
+  if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // Add auth token if available
   const token = localStorage.getItem('access_token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${url}`, config);
+  return headers;
+};
+
+// HTTP client with error handling
+const httpClient = async (url, options = {}) => {
+  const method = options.method || 'GET';
   
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+  const config = {
+    method,
+    headers: {
+      ...getDefaultHeaders(method),
+      ...options.headers,
+    },
+    // Prevent browser from following redirects automatically
+    redirect: 'manual',
+    ...options,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${url}`, config);
+    
+    // Handle redirects (302, 301, etc.)
+    if (response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400)) {
+      throw {
+        status: response.status,
+        message: 'Redirect detected. Please check your API endpoint configuration.',
+        errors: {},
+      };
+    }
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw {
+        status: response.status,
+        message: errorData.message || 'An error occurred',
+        errors: errorData.errors || {},
+      };
+    }
+
+    return response.json();
+  } catch (error) {
+    // Re-throw our custom errors
+    if (error.status) {
+      throw error;
+    }
+    
+    // Handle network errors
     throw {
-      status: response.status,
-      message: errorData.message || 'An error occurred',
-      errors: errorData.errors || {},
+      status: 0,
+      message: 'Network error. Please check your connection.',
+      errors: {},
     };
   }
-
-  return response.json();
 };
 
 // GET Hook - useApiQuery
@@ -58,12 +100,22 @@ export const useApiQuery = (
     return url.toString().replace(API_BASE_URL, '');
   };
 
+  // Create a stable query key to prevent unnecessary re-renders
+  const stableQueryKey = Array.isArray(queryKey) 
+    ? [...queryKey, JSON.stringify(params)] 
+    : [queryKey, JSON.stringify(params)];
+
   return useQuery({
-    queryKey: Array.isArray(queryKey) ? [...queryKey, params] : [queryKey, params],
-    queryFn: () => httpClient(buildUrl(endpoint, params)),
+    queryKey: stableQueryKey,
+    queryFn: () => httpClient(buildUrl(endpoint, params), { method: 'GET' }),
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
+    refetchOnMount: false, // Prevent refetch on mount if data exists
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnReconnect: true, // Only refetch on reconnect
+    // Prevent duplicate requests for the same query
+    structuralSharing: true,
     ...options,
   });
 };
@@ -103,6 +155,9 @@ export const useApiMutation = (
       }
     },
     onError: (error, variables, context) => {
+      console.log("useApi onError error", error);
+      console.log("useApi onError variables", variables);
+      console.log("useApi onError context", context);
       // Handle validation errors
       if (error.errors && Object.keys(error.errors).length > 0) {
         // Show first error for each field

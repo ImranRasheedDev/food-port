@@ -1,8 +1,7 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Create a client
+// Create a client with optimized settings to prevent duplicate calls
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -12,23 +11,24 @@ const queryClient = new QueryClient({
       retry: 2,
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+      refetchOnMount: false, // Prevent refetch on component mount if data exists
+      refetchInterval: false, // Disable automatic refetching
+      // Prevent duplicate requests
+      networkMode: "online",
     },
     mutations: {
       // Global mutation options
-      retry: 1,
+      retry: 0, // Disable retry for mutations to prevent duplicates
+      networkMode: "online",
+      // Add mutation deduplication
+      gcTime: 0, // Don't cache mutation results
     },
   },
 });
 
 const QueryProvider = ({ children }) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {/* Add React Query Devtools in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
 
