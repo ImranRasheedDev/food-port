@@ -12,6 +12,7 @@ import OTP from './pages/auth/OTP';
 import ResetPassword from './pages/auth/ResetPassword';
 import Layout from './components/Layout';
 import Home from './pages/Home';
+import AllResturants from './pages/AllResturants';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} /> {/* Your landing page */}
+          <Route index path="/all-resturants" element={<AllResturants />} /> {/* Your landing page */}
         </Route>
 
         {/* Auth routes that do not have a layout */}

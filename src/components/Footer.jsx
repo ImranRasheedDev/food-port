@@ -4,101 +4,93 @@ import { Input } from "./ui/input";
 
 export default function Footer() {
     return (
-        <footer className="bg-gradient-to-r from-red-400 to-pink-400 py-12">
-            <div className="container mx-auto px-4">
-                {/* Newsletter section */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-12 pb-8 border-b border-white/20">
+        <footer className="bg-white">
+            <hr className="mt-10" />
+            <div className="container mx-auto px-4 mt-10">
+                <div className="flex flex-col md:flex-row justify-between items-center">
                     <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
-                            Join Our <span className="text-red-800">Newsletter</span>
+                        <h3 className="text-3xl font-bold mb-1">
+                            Join Our <span className="text-primary-50">Newsletter</span>
                         </h3>
-                        <p className="text-white/90">Be the first to know about our latest updates, exclusive offers, and more.</p>
+                        <p className="text-primary-800 font-medium text-lg">Be the first to know about our latest updates, exclusive offers, and more.</p>
                     </div>
-                    <div className="flex mt-4 md:mt-0">
+                    <div className="flex md:mt-0 gap-x-3">
                         <Input
                             placeholder="Enter your email address"
-                            className="bg-white/90 border-0 rounded-l-lg rounded-r-none w-80"
+                            className="border border-primary-700 h-14 w-80"
                         />
-                        <Button className="bg-red-600 hover:bg-red-700 text-white rounded-l-none rounded-r-lg px-8">
+                        <Button className="bg-primary-50 rounded-lg px-8 h-14 cursor-pointer">
                             Subscribe
                         </Button>
                     </div>
                 </div>
-
-                {/* Main footer content */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                    {/* Logo and description */}
-                    <div className="md:col-span-1">
-                        <div className="flex items-center space-x-2 mb-4">
-                            <div className="text-red-800 text-2xl font-bold">FOOD</div>
-                            <div className="text-white text-2xl font-bold">PORT</div>
-                            <div className="w-8 h-6 bg-red-800 rounded-sm flex items-center justify-center">
-                                <div className="w-4 h-3 bg-white rounded-sm"></div>
-                            </div>
-                        </div>
-                        <p className="text-white/80 text-sm leading-relaxed">
+            </div>
+            <hr className="pb-10 mt-10" />
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 items-end ">
+                    <div>
+                        <img src="/images/footer-logo.png" alt="" className="" />
+                        <p className="text-primary-800 leading-relaxed mt-5">
                             Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with
                             established players. They needed to attract the hungry foodies, restaurant and food truck owners.
                         </p>
                     </div>
-
-                    {/* Links columns */}
+                    <div></div>
                     <div>
-                        <ul className="space-y-3">
+                        <ul className="space-y-5">
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className="text-primary-900">
                                     About
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className="text-primary-900">
                                     Jobs
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className="text-primary-900">
                                     FAQs
                                 </a>
                             </li>
                         </ul>
                     </div>
-
                     <div>
-                        <ul className="space-y-3">
+                        <ul className="space-y-5">
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className="text-primary-900">
                                     Terms and Conditions
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className="text-primary-900">
                                     Privacy Policy
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-white hover:text-red-200 transition-colors">
+                                <a href="#" className=" text-primary-900">
                                     Cookie Policy
                                 </a>
                             </li>
                         </ul>
                     </div>
-
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Let's chat!</h4>
-                        <p className="text-white/80 mb-4">info@foodport.com</p>
+                        <h4 className=" font-semibold mb-4">Let's chat!</h4>
+                        <p className="mb-4">info@foodport.com</p>
                         <div className="flex space-x-3">
-                            <Facebook className="w-6 h-6 text-white hover:text-red-200 cursor-pointer transition-colors" />
-                            <Twitter className="w-6 h-6 text-white hover:text-red-200 cursor-pointer transition-colors" />
-                            <Instagram className="w-6 h-6 text-white hover:text-red-200 cursor-pointer transition-colors" />
+                            <Facebook className="w-6 h-6  text-primary-50 cursor-pointer" />
+                            <Twitter className="w-6 h-6  text-primary-50 cursor-pointer" />
+                            <Instagram className="w-6 h-6  text-primary-50 cursor-pointer" />
                         </div>
                     </div>
                 </div>
-
-                {/* Copyright */}
-                <div className="text-center pt-8 border-t border-white/20">
-                    <p className="text-white/70 text-sm">© 2024 The Top Notch Designs. All Rights Reserved.</p>
-                </div>
             </div>
+            <hr className="pb-10 mt-10" />
+            {/* Copyright */}
+            <div className="text-center pb-4 text-primary-800">
+                <p >© 2024 The Top Notch Designs. All Rights Reserved.</p>
+            </div>
+
         </footer>
     )
 }
