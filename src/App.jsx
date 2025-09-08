@@ -1,17 +1,17 @@
-import { Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import Home from './pages/Home';
 // import NotFound from './pages/NotFound';
 
 // Import your new auth pages
-import Login from './pages/auth/Login';
-import Signup from './pages/auth/Signup';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import OTP from './pages/auth/OTP';
-import ResetPassword from './pages/auth/ResetPassword';
-import Layout from './components/Layout';
-import Home from './pages/Home';
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import OTP from "./pages/auth/OTP";
+import ResetPassword from "./pages/auth/ResetPassword";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
 
 function App() {
   return (

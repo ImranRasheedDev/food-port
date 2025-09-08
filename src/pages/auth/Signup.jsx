@@ -7,7 +7,7 @@ import { useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useRegisterUser } from "@/hooks/api";
-
+import { toast } from "react-toastify";
 // Validation patterns
 const VALIDATION_PATTERNS = {
   name: /^[A-Za-z\s\-']+$/,
@@ -44,14 +44,9 @@ function Signup() {
   const registerUser = useRegisterUser({
     onSuccess: (data) => {
       isSubmittingRef.current = false;
-      // Success message is automatically shown by the API hook
-      // TODO: Redirect to login or dashboard after successful signup
-      // navigate('/auth/login')
     },
     onError: (error) => {
       isSubmittingRef.current = false;
-      // Error messages are automatically shown by the API hook
-      console.error("Registration error:", error);
     },
   });
 

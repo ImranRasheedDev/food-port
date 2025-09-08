@@ -7,8 +7,9 @@ const API_BASE_URL = 'https://myfoodport.com/api';
 // Default headers configuration - single place to manage all headers
 const getDefaultHeaders = (method = 'GET') => {
   const headers = {
-    'Accept': 'application/json',
+    Accept: 'application/json',
   };
+  console.log("working");
 
   // Add Content-Type for methods that send data
   if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
@@ -24,228 +25,214 @@ const getDefaultHeaders = (method = 'GET') => {
   return headers;
 };
 
-// HTTP client with error handling
 const httpClient = async (url, options = {}) => {
-  const method = options.method || 'GET';
-  
+  const method = options.method || "GET";
+
   const config = {
     method,
     headers: {
       ...getDefaultHeaders(method),
       ...options.headers,
     },
-    // Prevent browser from following redirects automatically
-    redirect: 'manual',
+    redirect: "manual",
     ...options,
   };
 
   try {
     const response = await fetch(`${API_BASE_URL}${url}`, config);
+    const data = await response.json().catch(() => ({}));
+    console.log("API Response:", response.status, data);
     
-    // Handle redirects (302, 301, etc.)
-    if (response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400)) {
-      throw {
+    if (
+      response.type === "opaqueredirect" ||
+      (response.status >= 300 && response.status < 400)
+    ) {
+      const error = {
         status: response.status,
-        message: 'Redirect detected. Please check your API endpoint configuration.',
+        message: "Redirect detected. Please check your API endpoint configuration.",
+        errors: {},
+      };
+      throw error;
+    }
+
+    if (!response.ok) {
+      const error = {
+        status: response.status,
+        message: data.message || "An error occurred",
+        errors: data.errors || {},
+      };
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("API Error:", error);
+    // Ensure the error has the correct structure
+    if (error.status) {
+      throw error;
+    } else {
+      throw {
+        status: 0,
+        message: "Network error. Please check your connection.",
         errors: {},
       };
     }
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw {
-        status: response.status,
-        message: errorData.message || 'An error occurred',
-        errors: errorData.errors || {},
-      };
-    }
-
-    return response.json();
-  } catch (error) {
-    // Re-throw our custom errors
-    if (error.status) {
-      throw error;
-    }
-    
-    // Handle network errors
-    throw {
-      status: 0,
-      message: 'Network error. Please check your connection.',
-      errors: {},
-    };
   }
 };
 
 // GET Hook - useApiQuery
-export const useApiQuery = (
-  queryKey,
-  endpoint,
-  params = {},
-  options = {}
-) => {
+export const useApiQuery = (queryKey, endpoint, params = {}, options = {}) => {
   const buildUrl = (endpoint, params) => {
     const url = new URL(`${API_BASE_URL}${endpoint}`);
-    
-    // Handle query parameters, search, filters, pagination
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
-          value.forEach(v => url.searchParams.append(key, v));
+          value.forEach((v) => url.searchParams.append(key, v));
         } else {
           url.searchParams.append(key, value);
         }
       }
     });
-    
+
     return url.toString().replace(API_BASE_URL, '');
   };
 
-  // Create a stable query key to prevent unnecessary re-renders
-  const stableQueryKey = Array.isArray(queryKey) 
-    ? [...queryKey, JSON.stringify(params)] 
+  const stableQueryKey = Array.isArray(queryKey)
+    ? [...queryKey, JSON.stringify(params)]
     : [queryKey, JSON.stringify(params)];
 
   return useQuery({
     queryKey: stableQueryKey,
     queryFn: () => httpClient(buildUrl(endpoint, params), { method: 'GET' }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
     retry: 2,
-    refetchOnMount: false, // Prevent refetch on mount if data exists
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnReconnect: true, // Only refetch on reconnect
-    // Prevent duplicate requests for the same query
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
     structuralSharing: true,
+    onError: (error) => handleApiError(error),
     ...options,
   });
 };
 
-// POST Hook - useApiMutation
-export const useApiMutation = (
-  endpoint,
-  options = {}
-) => {
-  const queryClient = useQueryClient();
+export const handleApiError = (error) => {
+  console.error("🔥 handleApiError", error);
+
+  // Check if we have field-specific errors
+  if (error?.errors && typeof error.errors === "object") {
+    // Show all field errors
+    let hasFieldErrors = false;
+    
+    Object.values(error.errors).forEach((messages) => {
+      if (Array.isArray(messages) && messages.length > 0) {
+        hasFieldErrors = true;
+        messages.forEach(message => {
+          console.log("Showing toast for message:", message);
+          toast.error(message);
+        });
+      }
+    });
+    
+    if (hasFieldErrors) return; // Exit after showing field errors
+  }
   
+  // If no field errors, check for a general message
+  if (error?.message) {
+    console.log("Showing general error message:", error.message);
+    toast.error(error.message);
+  } else {
+    console.log("Showing generic error message");
+    toast.error("An unexpected error occurred");
+  }
+};
+
+// POST Hook - useApiMutation
+export const useApiMutation = (endpoint, options = {}) => {
+  const queryClient = useQueryClient();
+  const { onSuccess, onError, invalidateQueries, ...otherOptions } = options;
+
   return useMutation({
-    mutationFn: (data) => httpClient(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: (data) =>
+      httpClient(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: (data, variables, context) => {
-      // Show success toast
       if (data.message) {
         toast.success(data.message);
       }
-      
-      // Invalidate queries if specified
-      if (options.invalidateQueries) {
-        const queries = Array.isArray(options.invalidateQueries) 
-          ? options.invalidateQueries 
-          : [options.invalidateQueries];
-        
-        queries.forEach(queryKey => {
+
+      if (invalidateQueries) {
+        const queries = Array.isArray(invalidateQueries)
+          ? invalidateQueries
+          : [invalidateQueries];
+
+        queries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
-      
-      // Call custom onSuccess if provided
-      if (options.onSuccess) {
-        options.onSuccess(data, variables, context);
+
+      if (onSuccess) {
+        onSuccess(data, variables, context);
       }
     },
     onError: (error, variables, context) => {
-      console.log("useApi onError error", error);
-      console.log("useApi onError variables", variables);
-      console.log("useApi onError context", context);
-      // Handle validation errors
-      if (error.errors && Object.keys(error.errors).length > 0) {
-        // Show first error for each field
-        Object.entries(error.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            toast.error(`${field}: ${messages[0]}`);
-          }
-        });
-      } else if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error('An unexpected error occurred');
-      }
-      
-      // Call custom onError if provided
-      if (options.onError) {
-        options.onError(error, variables, context);
+      handleApiError(error);
+      if (onError) {
+        onError(error, variables, context);
       }
     },
-    ...options,
+    ...otherOptions,
   });
 };
 
 // PUT/PATCH Hook - useApiUpdateMutation
-export const useApiUpdateMutation = (
-  endpoint,
-  method = 'PUT',
-  options = {}
-) => {
+export const useApiUpdateMutation = (endpoint, method = 'PUT', options = {}) => {
   const queryClient = useQueryClient();
-  
+  const { onSuccess, onError, invalidateQueries, ...otherOptions } = options;
+
   return useMutation({
-    mutationFn: (data) => httpClient(endpoint, {
-      method: method.toUpperCase(),
-      body: JSON.stringify(data),
-    }),
+    mutationFn: (data) =>
+      httpClient(endpoint, {
+        method: method.toUpperCase(),
+        body: JSON.stringify(data),
+      }),
     onSuccess: (data, variables, context) => {
-      // Show success toast
       if (data.message) {
         toast.success(data.message);
       }
-      
-      // Invalidate queries if specified
-      if (options.invalidateQueries) {
-        const queries = Array.isArray(options.invalidateQueries) 
-          ? options.invalidateQueries 
-          : [options.invalidateQueries];
-        
-        queries.forEach(queryKey => {
+
+      if (invalidateQueries) {
+        const queries = Array.isArray(invalidateQueries)
+          ? invalidateQueries
+          : [invalidateQueries];
+
+        queries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
-      
-      // Call custom onSuccess if provided
-      if (options.onSuccess) {
-        options.onSuccess(data, variables, context);
+
+      if (onSuccess) {
+        onSuccess(data, variables, context);
       }
     },
     onError: (error, variables, context) => {
-      // Handle validation errors
-      if (error.errors && Object.keys(error.errors).length > 0) {
-        Object.entries(error.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            toast.error(`${field}: ${messages[0]}`);
-          }
-        });
-      } else if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error('An unexpected error occurred');
-      }
-      
-      // Call custom onError if provided
-      if (options.onError) {
-        options.onError(error, variables, context);
+      handleApiError(error);
+      if (onError) {
+        onError(error, variables, context);
       }
     },
-    ...options,
+    ...otherOptions,
   });
 };
 
 // DELETE Hook - useApiDeleteMutation
-export const useApiDeleteMutation = (
-  endpoint,
-  options = {}
-) => {
+export const useApiDeleteMutation = (endpoint, options = {}) => {
   const queryClient = useQueryClient();
-  
+  const { onSuccess, onError, invalidateQueries, ...otherOptions } = options;
+
   return useMutation({
     mutationFn: (id) => {
       const deleteEndpoint = id ? `${endpoint}/${id}` : endpoint;
@@ -254,64 +241,61 @@ export const useApiDeleteMutation = (
       });
     },
     onSuccess: (data, variables, context) => {
-      // Show success toast
       if (data.message) {
         toast.success(data.message);
       } else {
         toast.success('Deleted successfully');
       }
-      
-      // Invalidate queries if specified
-      if (options.invalidateQueries) {
-        const queries = Array.isArray(options.invalidateQueries) 
-          ? options.invalidateQueries 
-          : [options.invalidateQueries];
-        
-        queries.forEach(queryKey => {
+
+      if (invalidateQueries) {
+        const queries = Array.isArray(invalidateQueries)
+          ? invalidateQueries
+          : [invalidateQueries];
+
+        queries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }
-      
-      // Call custom onSuccess if provided
-      if (options.onSuccess) {
-        options.onSuccess(data, variables, context);
+
+      if (onSuccess) {
+        onSuccess(data, variables, context);
       }
     },
     onError: (error, variables, context) => {
-      if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error('Failed to delete');
-      }
-      
-      // Call custom onError if provided
-      if (options.onError) {
-        options.onError(error, variables, context);
+      handleApiError(error);
+      if (onError) {
+        onError(error, variables, context);
       }
     },
-    ...options,
+    ...otherOptions,
   });
 };
 
-// Utility hook for form integration
 export const useApiForm = (mutation, form) => {
-  const handleSubmit = form.handleSubmit(async (data) => {
-    try {
-      await mutation.mutateAsync(data);
-      form.reset(); // Reset form on success
-    } catch (error) {
-      // Set form errors if they exist
-      if (error.errors) {
-        Object.entries(error.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            form.setError(field, {
-              type: 'server',
-              message: messages[0],
-            });
-          }
-        });
+  const handleSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data, {
+      onSuccess: (...args) => {
+        form.reset();
+        if (mutation.options.onSuccess) {
+          mutation.options.onSuccess(...args);
+        }
+      },
+      onError: (error, ...args) => {
+        if (error.errors) {
+          Object.entries(error.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field, {
+                type: 'server',
+                message: messages[0],
+              });
+            }
+          });
+        }
+        if (mutation.options.onError) {
+          mutation.options.onError(error, ...args);
+        }
       }
-    }
+    });
   });
 
   return {
