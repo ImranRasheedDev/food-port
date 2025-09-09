@@ -5,17 +5,7 @@ import {
   useApiDeleteMutation 
 } from './useApi';
 
-// Get all users with pagination, search, and filters
-export const useUsers = (params = {}) => {
-  return useApiQuery(
-    ['users'],
-    '/users',
-    params,
-    {
-      keepPreviousData: true, // For pagination
-    }
-  );
-};
+
 
 // Get single user
 export const useUser = (id, options = {}) => {
@@ -30,13 +20,7 @@ export const useUser = (id, options = {}) => {
   );
 };
 
-// Create user
-export const useCreateUser = (options = {}) => {
-  return useApiMutation('/users', {
-    invalidateQueries: ['users'],
-    ...options,
-  });
-};
+
 
 // Update user
 export const useUpdateUser = (id, options = {}) => {
@@ -54,14 +38,11 @@ export const useDeleteUser = (options = {}) => {
   });
 };
 
-// Register user (special case)
+// Register user
 export const useRegisterUser = (options = {}) => {
   return useApiMutation('/register', {
     onSuccess: (data) => {
-      // Store token if registration includes it
-      if (data.data?.access_token) {
-        localStorage.setItem('access_token', data.data.access_token);
-      }
+      
     },
     ...options,
   });
@@ -71,10 +52,17 @@ export const useRegisterUser = (options = {}) => {
 export const useLoginUser = (options = {}) => {
   return useApiMutation('/login', {
     onSuccess: (data) => {
-      // Store token on successful login
-      if (data.data?.access_token) {
-        localStorage.setItem('access_token', data.data.access_token);
-      }
+    
+    },
+    ...options,
+  });
+};
+
+// Forgot Password
+export const useForgotPassword = (options = {}) => {
+  return useApiMutation('/forget-password', {
+    onSuccess: (data) => {
+      // optional: handle success, e.g. toast
     },
     ...options,
   });

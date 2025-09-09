@@ -5,16 +5,24 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Calendar, Mail, Phone, User } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRegisterUser } from "@/hooks/api";
-import { toast } from "react-toastify";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 // Validation patterns
 const VALIDATION_PATTERNS = {
   name: /^[A-Za-z\s\-']+$/,
   email: /^\S+@\S+\.\S+$/,
   password: /^.{8,}$/,
   phone: /^[\d]{10,15}$/,
-  countryCode: /^\+\d{1,4}$/,
+  countryCode: /^\d{1,4}$/,
   dateOfBirth: /^\d{4}-\d{2}-\d{2}$/,
 };
 
@@ -24,6 +32,7 @@ function Signup() {
     handleSubmit,
     watch,
     formState: { errors },
+    reset,
   } = useForm({
     mode: "onBlur",
     defaultValues: {
@@ -32,18 +41,23 @@ function Signup() {
       password: "",
       password_confirmation: "",
       number: "",
-      country_code: "+92",
+      country_code: "",
       dob: "",
+      gender: "",
     },
   });
-
+  const navigate = useNavigate();
   const password = watch("password");
   const isSubmittingRef = useRef(false);
 
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       isSubmittingRef.current = false;
+      reset();
+      await window.helper.setStorageData("user", data?.data);
+      window.user = data?.data;
+      navigate("/");
     },
     onError: (error) => {
       isSubmittingRef.current = false;
@@ -53,13 +67,20 @@ function Signup() {
   const onSubmit = useCallback(
     (data) => {
       if (registerUser.isPending || isSubmittingRef.current) {
-        console.log("Submission blocked - already in progress");
         return;
       }
 
       isSubmittingRef.current = true;
 
-      // Transform the data to match the API payload structure
+      let phone = data.number.replace(/\D/g, ""); // sirf digits
+      let country_code = "";
+      let number = "";
+
+      if (phone.length > 10) {
+        country_code = phone.slice(0, phone.length - 10); // prefix as country code
+        number = phone.slice(phone.length - 10); // last 10 digits as local number
+      }
+
       const payload = {
         name: data.name,
         email: data.email,
@@ -68,9 +89,10 @@ function Signup() {
         number: data.number,
         country_code: data.country_code,
         dob: data.dob,
+        gender: 1,
       };
 
-      console.log("Registration payload:", payload);
+      console.log("Final Payload:", payload);
       registerUser.mutate(payload);
     },
     [registerUser]
@@ -108,7 +130,6 @@ function Signup() {
           })}
           error={errors.name?.message}
         />
-
         {/* Email */}
         <InputWithIcon
           id="email"
@@ -124,7 +145,6 @@ function Signup() {
           })}
           error={errors.email?.message}
         />
-
         {/* Password */}
         <PasswordInput
           id="password"
@@ -142,7 +162,6 @@ function Signup() {
           })}
           error={errors.password?.message}
         />
-
         {/* Confirm Password */}
         <PasswordInput
           id="password_confirmation"
@@ -154,39 +173,40 @@ function Signup() {
           })}
           error={errors.password_confirmation?.message}
         />
-
-        {/* Country Code */}
-        {/* <InputWithIcon
-          id="country_code"
-          type="text"
-          placeholder="Country Code (e.g., +92)"
-          icon={<Phone className="w-5 h-5" />}
-          {...register("country_code", {
-            required: "Country code is required",
-            pattern: {
-              value: VALIDATION_PATTERNS.countryCode,
-              message: "Please enter a valid country code (e.g., +92)",
-            },
-          })}
-          error={errors.country_code?.message}
-        /> */}
-
-        {/* Phone Number */}
-        <InputWithIcon
-          id="number"
-          type="tel"
-          placeholder="Phone Number "
-          icon={<Phone className="w-5 h-5" />}
-          {...register("number", {
-            required: "Phone number is required",
-            pattern: {
-              value: VALIDATION_PATTERNS.phone,
-              message: "Please enter a valid phone number (10-15 digits)",
-            },
-          })}
-          error={errors.number?.message}
-        />
-
+        <div className="flex gap-2">
+          <div className="basis-1/4">
+            <InputWithIcon
+              id="country_code"
+              type="text"
+              placeholder="Country Code (e.g., 92)"
+              icon={<Phone className="w-5 h-5" />}
+              {...register("country_code", {
+                required: "Country code is required",
+                pattern: {
+                  value: VALIDATION_PATTERNS.countryCode,
+                  message: "Please enter a valid country code (e.g., +92)",
+                },
+              })}
+              error={errors.country_code?.message}
+            />
+          </div>
+          <div className="basis-3/4">
+            <InputWithIcon
+              id="number"
+              type="tel"
+              placeholder="Phone Number "
+              icon={<Phone className="w-5 h-5" />}
+              {...register("number", {
+                required: "Phone number is required",
+                pattern: {
+                  value: VALIDATION_PATTERNS.phone,
+                  message: "Please enter a valid phone number (10-15 digits)",
+                },
+              })}
+              error={errors.number?.message}
+            />
+          </div>
+        </div>
         {/* Date of Birth */}
         <InputWithIcon
           id="dob"
@@ -199,32 +219,21 @@ function Signup() {
               value: VALIDATION_PATTERNS.dateOfBirth,
               message: "Please enter a valid date",
             },
-            validate: (value) => {
-              const birthDate = new Date(value);
-              const today = new Date();
-              let age = today.getFullYear() - birthDate.getFullYear(); // use let
-              const monthDiff = today.getMonth() - birthDate.getMonth();
-
-              if (
-                monthDiff < 0 ||
-                (monthDiff === 0 && today.getDate() < birthDate.getDate())
-              ) {
-                age--; // now allowed
-              }
-
-              if (age < 13) {
-                return "You must be at least 13 years old";
-              }
-              if (age > 120) {
-                return "Please enter a valid birth year";
-              }
-
-              return true;
-            },
           })}
           error={errors.dob?.message}
         />
-
+        <Select>
+          <SelectTrigger className="w-[100]">
+            <SelectValue placeholder="Select Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Select Gender</SelectLabel>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         {/* Create Account Button */}
         <div className="pt-6">
           <AuthButton
@@ -237,7 +246,6 @@ function Signup() {
               : "Create an account"}
           </AuthButton>
         </div>
-
         {/* Login Link */}
         <div className="text-center pt-4">
           <p className="text-sm text-gray-600">

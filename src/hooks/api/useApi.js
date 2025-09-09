@@ -9,7 +9,7 @@ const getDefaultHeaders = (method = 'GET') => {
   const headers = {
     Accept: 'application/json',
   };
-  console.log("working");
+  
 
   // Add Content-Type for methods that send data
   if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
@@ -41,8 +41,6 @@ const httpClient = async (url, options = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${url}`, config);
     const data = await response.json().catch(() => ({}));
-    console.log("API Response:", response.status, data);
-    
     if (
       response.type === "opaqueredirect" ||
       (response.status >= 300 && response.status < 400)
@@ -66,7 +64,7 @@ const httpClient = async (url, options = {}) => {
 
     return data;
   } catch (error) {
-    console.error("API Error:", error);
+    
     // Ensure the error has the correct structure
     if (error.status) {
       throw error;
@@ -118,8 +116,6 @@ export const useApiQuery = (queryKey, endpoint, params = {}, options = {}) => {
 };
 
 export const handleApiError = (error) => {
-  console.error("🔥 handleApiError", error);
-
   // Check if we have field-specific errors
   if (error?.errors && typeof error.errors === "object") {
     // Show all field errors
@@ -140,10 +136,8 @@ export const handleApiError = (error) => {
   
   // If no field errors, check for a general message
   if (error?.message) {
-    console.log("Showing general error message:", error.message);
     toast.error(error.message);
   } else {
-    console.log("Showing generic error message");
     toast.error("An unexpected error occurred");
   }
 };

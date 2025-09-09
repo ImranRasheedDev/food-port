@@ -3,13 +3,14 @@ import HeroBanner from "@/components/home/HeroBanner";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 function Home() {
-    return (
-        <>
-            <HeroBanner />
-            <WhyChooseUs />
-            <CuisineForYou />
-        </>
-    )
+  console.log("window.user", window.user);
+  return (
+    <>
+      <HeroBanner />
+      <WhyChooseUs />
+      <CuisineForYou />
+    </>
+  );
 }
 
 export default Home;

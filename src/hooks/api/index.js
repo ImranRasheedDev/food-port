@@ -9,13 +9,13 @@ export {
 
 // User-specific hooks
 export {
-  useUsers,
+  
   useUser,
-  useCreateUser,
   useUpdateUser,
   useDeleteUser,
   useRegisterUser,
   useLoginUser,
+  useForgotPassword,
 } from './useUsers';
 
 // Generic resource hooks
