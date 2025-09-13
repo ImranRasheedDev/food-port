@@ -39,12 +39,26 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --bg-testimonials: linear-gradient(179.95deg, #e03000 38.6%, #000000 144.03%);
   --color-primary-50: #ff0000;
   --color-primary-100: #1d1d21;
   --color-primary-200: #8a8a8a;
   --color-primary-300: #6c6c6c;
   --color-primary-400: #434343;
   --color-primary-500: #e8e8e8;
+  --color-primary-600: #cccccc;
+  --color-primary-700: #d6d6d6;
+  --color-primary-800: #5c5c5c;
+  --color-primary-900: #1f1f1f;
+  --color-primary-950: #39434d;
+  --color-primary-990: #e9e9e9;
+  --color-primary-995: #f7f7f7;
+  --color-primary-999: #b9b9b9;
+  --color-primary-1000: #f6f6f6;
+  --color-primary-1001: #3b3b3b;
+  --color-primary-1002: #ffb413;
+  --color-primary-1003: #2f2f2f;
+  --color-primary-1004: #008a2f;
 }
 
 :root {

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { ChevronRight } from "lucide-react"
+import { Star, Heart, MapPin, Clock, ChevronRight } from "lucide-react"
 import { RestaurantCard } from "../Cards/PrimaryCard"
 
 const restaurants = [
@@ -95,16 +95,16 @@ const restaurants = [
     },
 ]
 
-export default function PopularRestaurants({ user = false }) {
+export default function PopularTruckFood({ user = false }) {
     return (
         <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center mb-12">
                     <div>
                         <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                            Most Popular <span className="text-primary-50">Restaurants</span>
+                            Most Popular <span className="text-primary-50">Food truck</span>
                         </h2>
-                        <p className="text-gray-600">Find nearby popular Restaurants.</p>
+                        <p className="text-gray-600">Find nearby popular Foodtruck.</p>
                     </div>
                 </div>
 
