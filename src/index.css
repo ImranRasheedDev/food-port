@@ -59,6 +59,11 @@
   --color-primary-1002: #ffb413;
   --color-primary-1003: #2f2f2f;
   --color-primary-1004: #008a2f;
+  --color-primary-1005: #ffb30e;
+  --color-primary-1006: #ebebeb;
+  --color-primary-1007: #dcdcdc;
+  --color-primary-1008: #3d3d3d;
+  --color-primary-1009: #dedede;
 }
 
 :root {
@@ -151,4 +156,20 @@
 }
 .card-after:last-child:after {
   opacity: 0;
+}
+
+.deals-swiper .swiper-pagination-bullet {
+  width: 18px;
+  height: 6px;
+  border-radius: 10px;
+  opacity: 1;
+}
+
+.deals-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
+  background: var(--color-primary-50);
+}
+
+.deals-swiper .swiper-pagination {
+  position: static;
+  margin-top: 20px;
 }

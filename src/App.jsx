@@ -1,8 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-// import Home from './pages/Home';
-// import NotFound from './pages/NotFound';
+import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 // Import your new auth pages
 import Login from './pages/auth/Login';
@@ -13,14 +12,21 @@ import ResetPassword from './pages/auth/ResetPassword';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import AllResturants from './pages/AllResturants';
+import AccountSettings from './pages/AccountSettings';
+import SetLocation from './pages/SetLocation';
+import Favourites from './pages/Favourites';
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} /> {/* Your landing page */}
-          <Route index path="/all-resturants" element={<AllResturants />} /> {/* Your landing page */}
+          <Route index element={<Home />} />
+          <Route index path="/all-resturants" element={<AllResturants />} />
+          <Route index path="/account-settings" element={<AccountSettings />} />
+          <Route index path="/set-location" element={<SetLocation />} />
+          <Route index path="/favourites" element={<Favourites />} />
+
         </Route>
 
         {/* Auth routes that do not have a layout */}
@@ -32,8 +38,6 @@ function App() {
           <Route path="reset-password" element={<ResetPassword />} />
         </Route>
 
-        {/* A catch-all route for 404 pages, always at the end */}
-        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
 
       {/* Global Toast Container */}
