@@ -109,9 +109,11 @@ const Helper = {
       title: title,
       text: msg,
       icon: type,
+      showCancelButton: true,     // 👈 Cancel button add
       confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
     }).then(callback);
-  },
+}
 };
 
 export default Helper;

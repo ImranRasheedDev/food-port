@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const API_BASE_URL = 'https://myfoodport.com/api';
 
 // Default headers configuration - single place to manage all headers
-const getDefaultHeaders = (method = 'GET') => {
+const getDefaultHeaders = async(method = 'GET') => {
   const headers = {
     Accept: 'application/json',
   };
@@ -17,9 +17,12 @@ const getDefaultHeaders = (method = 'GET') => {
   }
 
   // Add auth token if available
-  const token = localStorage.getItem('access_token');
+  const token = window.user.access_token;
+  
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    const secret = "my-secret-password"; 
+    const encryptedToken = await window.helper.encrypt(token, secret);
+    headers["Authorization"] = `Bearer ${encryptedToken}`;
   }
 
   return headers;

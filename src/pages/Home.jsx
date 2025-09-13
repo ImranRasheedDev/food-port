@@ -10,7 +10,8 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 function Home() {
-  const user = true;
+  const user = window.lodash.isEmpty(window.user) ? false : true;
+
   return (
     <>
       <HeroBanner user={user} />

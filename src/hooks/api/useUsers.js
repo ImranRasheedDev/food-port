@@ -67,3 +67,13 @@ export const useForgotPassword = (options = {}) => {
     ...options,
   });
 };
+
+// Logout
+export const useLogout = (options = {}) => {
+  return useApiMutation('/logout', {
+    onSuccess: (data) => {
+      // optional: handle success, e.g. toast
+    },
+    ...options,
+  });
+};
