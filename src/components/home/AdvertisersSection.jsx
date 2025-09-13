@@ -33,7 +33,6 @@ const AdvisersData = [
 ]
 const AdvertisersSection = () => {
     const swiperRef = useRef(null);
-    // const [activeIndex, setActiveIndex] = useState(0);
     return (
         <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
@@ -64,7 +63,7 @@ const AdvertisersSection = () => {
                                 spaceBetween: 40,
                             },
                         }}
-                        className="mySwiper "
+                        className="mySwiper"
                     >
                         {
                             AdvisersData.map((adviser, index) => (
