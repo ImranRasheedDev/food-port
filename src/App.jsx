@@ -1,8 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-// import Home from './pages/Home';
-// import NotFound from './pages/NotFound';
+import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 // Import your new auth pages
 import Login from './pages/auth/Login';
@@ -27,6 +26,7 @@ function App() {
           <Route index path="/account-settings" element={<AccountSettings />} />
           <Route index path="/set-location" element={<SetLocation />} />
           <Route index path="/favourites" element={<Favourites />} />
+
         </Route>
 
         {/* Auth routes that do not have a layout */}
