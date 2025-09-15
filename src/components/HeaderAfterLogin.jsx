@@ -27,22 +27,16 @@ export default function HeaderAfterLogin() {
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
 
-  const logoutUser = useLogout({
-    onSuccess: async (data) => {
-      await window.helper.removeStorageData();
-      window.user = "";
-      navigate("/");
-    },
-    onError: (error) => {},
-  });
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
       "Are you sure?",
       "You want to logout?",
-      (result) => {
+      async (result) => {
         if (result.isConfirmed) {
-          logoutUser.mutate(); // 👈 API call trigger
+          await window.helper.removeStorageData();
+          window.user = "";
+          window.location.reload();
         }
       }
     );

@@ -20,9 +20,9 @@ const getDefaultHeaders = async(method = 'GET') => {
   const token = window.user.access_token;
   
   if (token) {
-    const secret = "my-secret-password"; 
-    const encryptedToken = await window.helper.encrypt(token, secret);
-    headers["Authorization"] = `Bearer ${encryptedToken}`;
+    // const secret = "my-secret-password"; 
+    // const encryptedToken = await window.helper.encrypt(token, secret);
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return headers;
@@ -30,11 +30,11 @@ const getDefaultHeaders = async(method = 'GET') => {
 
 const httpClient = async (url, options = {}) => {
   const method = options.method || "GET";
-
-  const config = {
+  const defaultHeaders = await getDefaultHeaders(method);
+   const config = {
     method,
     headers: {
-      ...getDefaultHeaders(method),
+      ...defaultHeaders,
       ...options.headers,
     },
     redirect: "manual",
