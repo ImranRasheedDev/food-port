@@ -21,12 +21,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useLogout } from "@/hooks/api";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
-
+  console.log("window.user", window.user);
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
@@ -79,7 +78,7 @@ export default function HeaderAfterLogin() {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
                 <User />
-                Kevin
+                {window.user?.name}
                 <ChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
