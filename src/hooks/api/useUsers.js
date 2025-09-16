@@ -42,7 +42,6 @@ export const useDeleteUser = (options = {}) => {
 export const useRegisterUser = (options = {}) => {
   return useApiMutation('/register', {
     onSuccess: (data) => {
-      
     },
     ...options,
   });
@@ -52,7 +51,6 @@ export const useRegisterUser = (options = {}) => {
 export const useLoginUser = (options = {}) => {
   return useApiMutation('/login', {
     onSuccess: (data) => {
-    
     },
     ...options,
   });
@@ -62,7 +60,15 @@ export const useLoginUser = (options = {}) => {
 export const useForgotPassword = (options = {}) => {
   return useApiMutation('/forget-password', {
     onSuccess: (data) => {
-      // optional: handle success, e.g. toast
+    },
+    ...options,
+  });
+};
+
+// Reset Password
+export const useResetPassword = (options = {}) => {
+  return useApiMutation('/reset-password', {
+    onSuccess: (data) => {
     },
     ...options,
   });
@@ -72,7 +78,6 @@ export const useForgotPassword = (options = {}) => {
 export const useLogout = (options = {}) => {
   return useApiMutation('/logout', {
     onSuccess: (data) => {
-      // optional: handle success, e.g. toast
     },
     ...options,
   });
