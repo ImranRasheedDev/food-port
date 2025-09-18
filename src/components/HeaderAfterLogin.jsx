@@ -12,7 +12,7 @@ import {
   Megaphone,
   FileCheck2,
 } from "lucide-react";
-import { Link, Links } from "react-router-dom";
+import { Link, Links, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +25,7 @@ export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
-  console.log("window.user", window.user);
+  const navigate = useNavigate();
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
@@ -35,7 +35,7 @@ export default function HeaderAfterLogin() {
         if (result.isConfirmed) {
           await window.helper.removeStorageData();
           window.user = "";
-          window.location.reload();
+          navigate("/");
         }
       }
     );

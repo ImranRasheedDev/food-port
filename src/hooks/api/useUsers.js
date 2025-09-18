@@ -23,9 +23,8 @@ export const useUser = (id, options = {}) => {
 
 
 // Update user
-export const useUpdateUser = (id, options = {}) => {
-  return useApiUpdateMutation(`/users/${id}`, 'PUT', {
-    invalidateQueries: [['users'], ['users', id]],
+export const useUpdateUser = (options = {}) => {
+  return useApiUpdateMutation("/profile", "POST", {
     ...options,
   });
 };
