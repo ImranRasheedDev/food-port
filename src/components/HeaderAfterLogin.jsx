@@ -12,7 +12,7 @@ import {
   Megaphone,
   FileCheck2,
 } from "lucide-react";
-import { Link, Links } from "react-router-dom";
+import { Link, Links, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,28 +21,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useLogout } from "@/hooks/api";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
-
-  const logoutUser = useLogout({
-    onSuccess: async (data) => {
-      await window.helper.removeStorageData();
-      window.user = "";
-      navigate("/");
-    },
-    onError: (error) => {},
-  });
+  const navigate = useNavigate();
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
       "Are you sure?",
       "You want to logout?",
-      (result) => {
+      async (result) => {
         if (result.isConfirmed) {
-          logoutUser.mutate(); // 👈 API call trigger
+          await window.helper.removeStorageData();
+          window.user = "";
+          navigate("/");
         }
       }
     );
@@ -85,7 +78,7 @@ export default function HeaderAfterLogin() {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
                 <User />
-                Kevin
+                {window.user?.name}
                 <ChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>

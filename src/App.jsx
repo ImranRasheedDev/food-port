@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 // Import your new auth pages
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
@@ -40,7 +39,6 @@ function App() {
           <Route path="reset-password" element={<ResetPassword />} />
           {/* <Route path="reset-password" element={<ResetPassword />} /> */}
         </Route>
-
       </Routes>
 
       {/* Global Toast Container */}

@@ -91,8 +91,6 @@ function Signup() {
         dob: data.dob,
         gender: 1,
       };
-
-      console.log("Final Payload:", payload);
       registerUser.mutate(payload);
     },
     [registerUser]
