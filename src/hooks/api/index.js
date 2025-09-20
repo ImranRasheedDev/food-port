@@ -17,7 +17,8 @@ export {
   useRegisterUser,
   useLoginUser,
   useForgotPassword,
-   useLogout,
+  useLogout,
+   useResetPassword,
 } from './useUsers';
 
 // Generic resource hooks

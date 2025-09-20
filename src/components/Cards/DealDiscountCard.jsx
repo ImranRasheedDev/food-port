@@ -1,19 +1,43 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const DealDiscountCard = ({ title, companyName, link, image }) => {
+const DealDiscountCard = ({ title, companyName, link, image, cardIndex = 0 }) => {
+    // Determine card style based on index (cycles through 0, 1, 2)
+    const styleIndex = cardIndex % 3;
+
+    // Card style configurations
+    const cardStyles = {
+        0: { // First card
+            containerClass: 'bg-[url("/images/deal-bg-1.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-primary-1002',
+            buttonClass: 'bg-white text-primary-1004'
+        },
+        1: { // Second card
+            containerClass: 'bg-[url("/images/deal-bg-3.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-primary-1002',
+            buttonClass: 'bg-primary-50 text-white'
+        },
+        2: { // Third card
+            containerClass: 'bg-[url("/images/deal-bg-2.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-white',
+            buttonClass: 'bg-black text-white'
+        }
+    };
+
+    const currentStyle = cardStyles[styleIndex];
+
     return (
-        <div className={` text-white  bg-amber-900`}>
-            <div className='pl-4 w-3/5'>
+        <div className={`text-white items-center flex ${currentStyle.containerClass} rounded-sm bg-cover bg-center bg-no-repeat`}>
+            <div className='pl-4 w-[64%] py-6'>
                 <h3 className='text-lg leading-5 font-bold mb-3'>
-                    {title} <span className='text-primary-1002'>{companyName}</span>
+                    <span className={currentStyle.titleClass}>{title}</span> <span className={currentStyle.companyClass}>{companyName}</span>
                 </h3>
-                <Link to={link} className={`bg-white rounded-4xl inline-block px-10 py-2 font-medium text-primary-50`}>
+                <Link to={link} className={`${currentStyle.buttonClass} rounded-4xl inline-block px-6 py-2 font-medium text-sm`}>
                     Order Now
                 </Link>
-            </div>
-            <div className='ml-auto ronded-tr-4xl rounded-br-4xl  flex justify-end h-32'>
-                <img src={image} alt={companyName} className='object-cover ronded-tr-4xl rounded-br-4xl block' />
             </div>
         </div>
     )

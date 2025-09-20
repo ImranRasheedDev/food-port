@@ -5,104 +5,14 @@ import DealDiscountCard from '../Cards/DealDiscountCard'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-const restaurants = [
-    {
-        name: "KFC",
-        description: "Chicken quesadilla, avocado...",
-        rating: 3.2,
-        image: "/images/popular-1.png",
-        location: "California",
-        distance: "1 km",
-        time: "30 min",
-    },
-    {
-        name: "Poultry Palace",
-        description: "Chicken quesadilla, avocado...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "New Jersey",
-        distance: "3.2 km",
-        time: "25 min",
-    },
-    {
-        name: "The Grill Master's Cafe",
-        description: "Bread, Eggs, Butter, Fries...",
-        rating: 4.3,
-        image: "/images/popular-1.png",
-        location: "New York",
-        distance: "5 km",
-        time: "40 min",
-    },
-    {
-        name: "Cozy Cuppa Cafe",
-        description: "Cheesecake, waffles, Cakes...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "Dallas",
-        distance: "4 km",
-        time: "30 min",
-    },
-    {
-        name: "KFC",
-        description: "Chicken quesadilla, avocado...",
-        rating: 3.2,
-        image: "/images/popular-1.png",
-        location: "California",
-        distance: "1 km",
-        time: "30 min",
-    },
-    {
-        name: "Poultry Palace",
-        description: "Chicken quesadilla, avocado...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "New Jersey",
-        distance: "3.2 km",
-        time: "25 min",
-    },
-    {
-        name: "The Grill Master's Cafe",
-        description: "Bread, Eggs, Butter, Fries...",
-        rating: 4.3,
-        image: "/images/popular-1.png",
-        location: "New York",
-        distance: "5 km",
-        time: "40 min",
-    },
-    {
-        name: "Cozy Cuppa Cafe",
-        description: "Cheesecake, waffles, Cakes...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "Dallas",
-        distance: "4 km",
-        time: "30 min",
-    },
-    {
-        name: "Cozy Cuppa Cafe",
-        description: "Cheesecake, waffles, Cakes...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "Dallas",
-        distance: "4 km",
-        time: "30 min",
-    },
-    {
-        name: "Cozy Cuppa Cafe",
-        description: "Cheesecake, waffles, Cakes...",
-        rating: 3.8,
-        image: "/images/popular-1.png",
-        location: "Dallas",
-        distance: "4 km",
-        time: "30 min",
-    },
-]
+import { dealsAndDiscounts, restaurants } from '../MockData'
+
 const DealsAndDiscounts = () => {
     const swiperRef = useRef(null);
     return (
         <div>
             <SectionInfo title={"Deals & Discounts"} description={"We're committed to cook healthy to ensure they retain their freshness and nutritional value, guaranteeing a delightful experience."} />
-            <div className="relative">
+            <div className="relative mb-14">
                 <Swiper
                     slidesPerView={1}
                     spaceBetween={10}
@@ -125,26 +35,24 @@ const DealsAndDiscounts = () => {
                         },
                     }}
                     className="mySwiper">
-                    <SwiperSlide>
-                        <DealDiscountCard title="Make Your First Order and Get 25% Off From" companyName="Restaurant Name" link="" image="/images/deals-12.png" />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <DealDiscountCard title="Make Your First Order and Get 25% Off From" companyName="Restaurant Name" link="" image="/images/deals-12.png" />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <DealDiscountCard title="Make Your First Order and Get 25% Off From" companyName="Restaurant Name" link="" image="/images/deals-12.png" />
-                    </SwiperSlide>
+                    {
+                        dealsAndDiscounts.map((deal, index) => (
+                            <SwiperSlide key={index}>
+                                <DealDiscountCard title={deal.title} companyName={deal.companyName} link={deal.link} image={deal.image} cardIndex={index} />
+                            </SwiperSlide>
+                        ))
+                    }
                 </Swiper>
                 <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10">
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="w-14 h-14 relative -left-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
+                        className="w-10 h-10 relative -left-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010"
                     >
                         <ArrowLeft className="w-6 h-6 text-primary-100" />
                     </button>
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="w-14 h-14 relative -right-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
+                        className="w-10 h-10 relative -right-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010"
                     >
                         <ArrowRight className="w-6 h-6 text-primary-100" />
                     </button>

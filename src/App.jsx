@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 // Import your new auth pages
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
@@ -15,6 +14,7 @@ import AllResturants from './pages/AllResturants';
 import AccountSettings from './pages/AccountSettings';
 import SetLocation from './pages/SetLocation';
 import Favourites from './pages/Favourites';
+import ResturantsDetail from "./pages/ResturantsDetail";
 
 function App() {
   return (
@@ -23,10 +23,10 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route index path="/all-resturants" element={<AllResturants />} />
+          <Route index path="/resturants-detail" element={<ResturantsDetail />} />
           <Route index path="/account-settings" element={<AccountSettings />} />
           <Route index path="/set-location" element={<SetLocation />} />
           <Route index path="/favourites" element={<Favourites />} />
-
         </Route>
 
         {/* Auth routes that do not have a layout */}
@@ -39,7 +39,6 @@ function App() {
           <Route path="reset-password" element={<ResetPassword />} />
           {/* <Route path="reset-password" element={<ResetPassword />} /> */}
         </Route>
-
       </Routes>
 
       {/* Global Toast Container */}

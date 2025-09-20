@@ -12,11 +12,10 @@ function ForgotPassword() {
   const navigate = useNavigate();
 
   const forgotPassword = useForgotPassword({
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       reset();
-      navigate("/auth/otp");
+      navigate("/auth/otp", { state: { email: variables.email } });
     },
-    onError: (error) => {},
   });
 
   const {

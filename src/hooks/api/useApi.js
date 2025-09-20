@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
-// Base API configuration
-const API_BASE_URL = 'https://myfoodport.com/api';
+
 
 // Default headers configuration - single place to manage all headers
 const getDefaultHeaders = async(method = 'GET') => {
@@ -20,9 +19,7 @@ const getDefaultHeaders = async(method = 'GET') => {
   const token = window.user.access_token;
   
   if (token) {
-    const secret = "my-secret-password"; 
-    const encryptedToken = await window.helper.encrypt(token, secret);
-    headers["Authorization"] = `Bearer ${encryptedToken}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return headers;
@@ -30,11 +27,11 @@ const getDefaultHeaders = async(method = 'GET') => {
 
 const httpClient = async (url, options = {}) => {
   const method = options.method || "GET";
-
-  const config = {
+  const defaultHeaders = await getDefaultHeaders(method);
+   const config = {
     method,
     headers: {
-      ...getDefaultHeaders(method),
+      ...defaultHeaders,
       ...options.headers,
     },
     redirect: "manual",
@@ -42,7 +39,7 @@ const httpClient = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${url}`, config);
+    const response = await fetch(`${window.constants.api_base_url}${url}`, config);
     const data = await response.json().catch(() => ({}));
     if (
       response.type === "opaqueredirect" ||

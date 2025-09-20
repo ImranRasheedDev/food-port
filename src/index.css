@@ -64,6 +64,12 @@
   --color-primary-1007: #dcdcdc;
   --color-primary-1008: #3d3d3d;
   --color-primary-1009: #dedede;
+  --color-primary-1010: #C7CDD1;
+  --color-primary-1011: #E59D00;
+  --color-primary-1012: #A1A1A1;
+  --color-primary-1013: #707070;
+  --color-primary-1014: #f0f0f0;
+  --color-primary-1015: #7E8392;
 }
 
 :root {
@@ -172,4 +178,14 @@
 .deals-swiper .swiper-pagination {
   position: static;
   margin-top: 20px;
+}
+
+.product-detail-menu-link::after {
+  content: "";
+  position: absolute;
+  bottom: -28px ;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--color-primary-50);
 }
