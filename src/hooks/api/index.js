@@ -40,3 +40,8 @@ export {
   useUpdateCategory,
   useDeleteCategory,
 } from './useResource';
+
+export  {
+  useRestaurants,
+  useRestaurant,
+} from './useResource' ;
