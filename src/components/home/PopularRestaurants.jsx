@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
 import { useRestaurants } from "@/hooks/api";
-const restaurants = [
+import { SkeletonCard } from "@/components/ui/skeleton";
+import { NoData } from "@/components/ui/empty";
+const sampleRestaurants = [
   {
     name: "KFC",
     description: "Chicken quesadilla, avocado...",
@@ -94,47 +96,79 @@ const restaurants = [
     time: "30 min",
   },
 ];
-
+function mapApiRestaurantToCard(r) {
+  return {
+    key: r.id,
+    name: r.name,
+    description:
+      (r.restaurant_categories &&
+        r.restaurant_categories.map((c) => c.name).join(", ")) ||
+      r.address,
+    image: r.bg_image_url,
+    location: r.address || r.type || "-",
+    distance: r.distance ? `${r.distance} km` : "-",
+    time: r.time || "-",
+    rating: r.rating,
+    onFavoriteClick: () => {},
+  };
+}
 export default function PopularRestaurants({ user = false }) {
   const { data, isLoading } = useRestaurants({
     page: 1,
     per_page: 10,
-    featured: 1,
+    featured: "1",
+    moveable: "0",
   });
-  console.log("PopularRestaurants data", data);
+  const apiArray = data?.data;
+  const hasApiData = apiArray && apiArray.length > 0;
+  const apiReturnedEmpty = apiArray && apiArray.length === 0;
+  const maxCards = user ? 8 : 4;
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Most Popular <span className="text-primary-50">Restaurants</span>
+              Restaurants <span className="text-primary-50">near you</span>
             </h2>
             <p className="text-gray-600">Find nearby popular Restaurants.</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {user ? (
-            <>
-              {restaurants.slice(0, 8).map((restaurant, index) => (
+          {isLoading ? (
+            Array.from({ length: maxCards }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))
+          ) : // 2) API returned with data -> render API cards
+          hasApiData ? (
+            apiArray.slice(0, maxCards).map((r) => {
+              const card = mapApiRestaurantToCard(r);
+              return (
                 <RestaurantCard
-                  description={restaurant.description}
-                  distance={restaurant.distance}
-                  image={restaurant.image}
-                  location={restaurant.location}
-                  name={restaurant.name}
-                  onFavoriteClick={() => {}}
-                  rating={restaurant.rating}
-                  time={restaurant.time}
-                  key={index}
+                  key={card.key}
+                  name={card.name}
+                  description={card.description}
+                  image={card.image}
+                  location={card.location}
+                  distance={card.distance}
+                  rating={card.rating}
+                  time={card.time}
+                  onFavoriteClick={card.onFavoriteClick}
                 />
-              ))}
-            </>
+              );
+            })
+          ) : // 3) API returned but returned empty array -> show "No Data" (Radix-style empty)
+          apiReturnedEmpty ? (
+            <NoData title="No Popular Restaurants" />
           ) : (
-            <>
-              {restaurants.slice(0, 4).map((restaurant, index) => (
+            // 4) Hook didn't return any data object -> fall back to static sample UI
+            sampleRestaurants
+              .slice(0, maxCards)
+              .map((restaurant, index) => (
                 <RestaurantCard
+                  key={index}
                   description={restaurant.description}
                   distance={restaurant.distance}
                   image={restaurant.image}
@@ -143,10 +177,8 @@ export default function PopularRestaurants({ user = false }) {
                   onFavoriteClick={() => {}}
                   rating={restaurant.rating}
                   time={restaurant.time}
-                  key={index}
                 />
-              ))}
-            </>
+              ))
           )}
         </div>
 

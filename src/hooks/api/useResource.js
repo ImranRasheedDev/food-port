@@ -8,7 +8,6 @@ import {
 // Generic resource hook factory
 export const createResourceHooks = (resourceName, endpoint) => {
   const queryKey = [resourceName];
-  console.log("endpoint", endpoint);
   return {
     // Get all resources
     [`use${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`]: (params = {}) => {
@@ -81,10 +80,8 @@ export const {
 export const {
   useCategories,
   useCategory,
-  useCreateCategory,
-  useUpdateCategory,
-  useDeleteCategory,
-} = createResourceHooks('categories', '/categories');
+ 
+} = createResourceHooks('categories', '/restaurant/category');
 
 export const {
   useRestaurants,

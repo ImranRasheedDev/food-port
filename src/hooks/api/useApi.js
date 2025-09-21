@@ -21,8 +21,6 @@ const getDefaultHeaders = async (method = 'GET') => {
 
 // Centralized HTTP client
 const httpClient = async (url, options = {}) => {
-  console.log("url", url);
-  console.log("options", options);
   const method = options.method || 'GET';
   const defaultHeaders = await getDefaultHeaders(method);
 
