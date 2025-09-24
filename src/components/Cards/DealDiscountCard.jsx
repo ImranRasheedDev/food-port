@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const DealDiscountCard = ({ title, companyName, link, image, cardIndex = 0 }) => {
+const DealDiscountCard = ({ title, companyName, link, cardIndex = 0 }) => {
     // Determine card style based on index (cycles through 0, 1, 2)
     const styleIndex = cardIndex % 3;
 

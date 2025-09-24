@@ -15,9 +15,9 @@ function AllResturants() {
                 <div className="w-[260px]">
                     <ProductFilters />
                     <div className="my-6">
-                        <CardOne image="/images/add-card-one.png" percentage="25" restaurantName="Restaurant Name" />
+                        <CardOne link="/resturants-detail" image="/images/add-card-one.png" percentage="25" restaurantName="Restaurant Name" />
                     </div>
-                    <CardOne image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" />
+                    <CardOne link="/resturants-detail" image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" />
                 </div>
                 <div className="w-[1067px] ">
                     <DialyDeals />

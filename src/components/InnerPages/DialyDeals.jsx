@@ -11,13 +11,13 @@ const DialyDeals = () => {
 
             <Swiper pagination={true} modules={[Pagination]} className="deals-swiper">
                 <SwiperSlide>
-                    <DialyDealsCard title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." link="" />
+                    <DialyDealsCard link="/resturants-detail" title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <DialyDealsCard title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." link="" />
+                    <DialyDealsCard link="/resturants-detail" title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <DialyDealsCard title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." link="" />
+                    <DialyDealsCard link="/resturants-detail" title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." />
                 </SwiperSlide>
             </Swiper>
             {/* <DialyDealsCard title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." link="" /> */}

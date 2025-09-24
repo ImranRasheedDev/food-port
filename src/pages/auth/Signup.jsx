@@ -89,7 +89,7 @@ function Signup() {
         number: data.number,
         country_code: data.country_code,
         dob: data.dob,
-        gender: 1,
+        gender: data.gender,
       };
       registerUser.mutate(payload);
     },
@@ -220,7 +220,7 @@ function Signup() {
           })}
           error={errors.dob?.message}
         />
-        <Select>
+        <Select {...register("gender", { required: "Gender is required" })} className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400">
           <SelectTrigger className="w-[100]">
             <SelectValue placeholder="Select Gender" />
           </SelectTrigger>
@@ -257,7 +257,7 @@ function Signup() {
           </p>
         </div>
       </form>
-    </AuthLayout>
+    </AuthLayout >
   );
 }
 
