@@ -1,4 +1,5 @@
 import { Heart, Star, MapPin, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function RestaurantCard({
     image,
@@ -9,9 +10,10 @@ export function RestaurantCard({
     distance,
     time,
     onFavoriteClick,
+    link = "/resturants-detail"
 }) {
     return (
-        <div className="bg-white border border-primary-500 rounded-lg p-3 shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <Link to={link} className="bg-white border border-primary-500 rounded-lg p-3 shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             <div className="relative">
                 <img
                     src={image || "/placeholder.svg"}
@@ -32,7 +34,6 @@ export function RestaurantCard({
                     <div className="flex items-center space-x-1">
                         <div className="w-6 h-6 rounded-full bg-yellow-400 text-white flex justify-center items-center">
                             <Star className="w-4 h-4" />
-
                         </div>
                         <span className="text-sm text-gray-600">{rating}</span>
                     </div>
@@ -63,6 +64,6 @@ export function RestaurantCard({
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
