@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Heart, MapPin, Clock, ChevronRight } from "lucide-react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
@@ -96,7 +97,23 @@ const sampleRestaurants = [
     time: "30 min",
   },
 ];
-function mapApiRestaurantToCard(r) {
+async function mapApiRestaurantToCard(r, userLat, userLng) {
+  let distance = "-";
+  let time = "-";
+  let city = r.address || r.type || "-";
+
+  if (r.coordinates?.latitude && r.coordinates?.longitude) {
+    const info = await window.helper.getLocationDetails(
+      r.coordinates.latitude,
+      r.coordinates.longitude,
+      userLat, // user current lat
+      userLng // user current lng
+    );
+    distance = info.distance;
+    time = info.duration;
+    city = info.city;
+  }
+
   return {
     key: r.id,
     name: r.name,
@@ -106,9 +123,9 @@ function mapApiRestaurantToCard(r) {
       r.address ||
       "No description",
     image: r.bg_image_url,
-    location: r.address || r.type || "-",
-    distance: r.distance ? `${r.distance} km` : "-",
-    time: r.time || "-",
+    location: city,
+    distance,
+    time,
     rating: r.rating,
     onFavoriteClick: () => {},
   };
@@ -120,10 +137,24 @@ export default function PopularTruckFood({ user = false }) {
     featured: "0",
     moveable: "1",
   });
+  const [restaurants, setRestaurants] = useState([]);
   const apiArray = data?.data;
   const hasApiData = apiArray && apiArray.length > 0;
   const apiReturnedEmpty = apiArray && apiArray.length === 0;
   const maxCards = user ? 8 : 4;
+  useEffect(() => {
+    async function loadCards() {
+      if (apiArray?.length > 0) {
+        const cards = await Promise.all(
+          apiArray.slice(0, maxCards).map(
+            (r) => mapApiRestaurantToCard(r, 40.650426, -73.943136) // 👈 yahan user ki lat/lng pass karo
+          )
+        );
+        setRestaurants(cards);
+      }
+    }
+    loadCards();
+  }, [apiArray]);
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -141,29 +172,24 @@ export default function PopularTruckFood({ user = false }) {
             Array.from({ length: maxCards }).map((_, i) => (
               <SkeletonCard key={i} />
             ))
-          ) : // 2) API returned with data -> render API cards
-          hasApiData ? (
-            apiArray.slice(0, maxCards).map((r) => {
-              const card = mapApiRestaurantToCard(r);
-              return (
-                <RestaurantCard
-                  key={card.key}
-                  name={card.name}
-                  description={card.description}
-                  image={card.image}
-                  location={card.location}
-                  distance={card.distance}
-                  rating={card.rating}
-                  time={card.time}
-                  onFavoriteClick={card.onFavoriteClick}
-                />
-              );
-            })
-          ) : // 3) API returned but returned empty array -> show "No Data" (Radix-style empty)
-          apiReturnedEmpty ? (
-            <NoData title="No Popular Restaurants" />
+          ) : hasApiData ? (
+            restaurants.map((card) => (
+              <RestaurantCard
+                key={card.key}
+                name={card.name}
+                description={card.description}
+                image={card.image}
+                location={card.location}
+                distance={card.distance}
+                rating={card.rating}
+                time={card.time}
+                onFavoriteClick={card.onFavoriteClick}
+              />
+            ))
+          ) : apiReturnedEmpty ? (
+            <NoData title="No Popular Food Trucks" />
           ) : (
-            // 4) Hook didn't return any data object -> fall back to static sample UI
+            // fallback static UI
             sampleRestaurants
               .slice(0, maxCards)
               .map((restaurant, index) => (
