@@ -1,9 +1,11 @@
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import DealDiscountCard from "./DealDiscountCard";
+import { useNavigate } from "react-router-dom";
 
 export default function CartCountCard({ image, productName, price, count, totalPrice, vatPrice, platformFee }) {
     const [countValue, setCountValue] = useState(count);
+    const navigate = useNavigate();
     return (
         <div className="border border-primary-1007 rounded-lg p-4">
             <div className="flex gap-3 border-b border-primary-1007 pb-6">
@@ -56,6 +58,13 @@ export default function CartCountCard({ image, productName, price, count, totalP
                 <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={2} />
                 <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={0} />
                 <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={1} />
+            </div>
+            <div className="pt-10 pb-3">
+                <div className="flex justify-between items-center mb-3">
+                    <p className="font-semibold text-lg">Total <span className="font-bold text-xs">(Incl. VAT)</span></p>
+                    <p className="font-semibold">$. 0.00</p>
+                </div>
+                <button onClick={() => navigate("/order-confirmation")} className="bg-primary-50 text-white block w-full py-3 cursor-pointer rounded-full text-sm">Confirm order</button>
             </div>
         </div>
     )
