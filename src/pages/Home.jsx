@@ -11,7 +11,7 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 function Home() {
   const user = window.lodash.isEmpty(window.user) ? false : true;
-  console.log("window.user", window.user);
+
   return (
     <>
       <HeroBanner user={user} />
