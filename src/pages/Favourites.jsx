@@ -1,5 +1,5 @@
+import FavouritesResturants from "@/components/Cards/FavouritesResturants"
 import FavouritesFoodTrucks from "@/components/InnerPages/FavouritesFoodTrucks"
-import FavouritesResturants from "@/components/InnerPages/FavouritesResturants"
 
 function Favourites() {
     return (

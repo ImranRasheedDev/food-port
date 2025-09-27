@@ -1,6 +1,6 @@
 import React from 'react'
-import SectionInfo from './SectionInfo'
 import { RestaurantCard } from '../Cards/PrimaryCard'
+import SectionInfo from '../InnerPages/SectionInfo'
 const restaurants = [
     {
         name: "KFC",

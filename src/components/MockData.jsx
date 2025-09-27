@@ -147,11 +147,189 @@ export const distanceFilters = [
 ]
 
 export const productDetailMenu = [
-    { name: "Everyday Value", to: "#", count: 8 },
-    { name: "Meal Box", to: "#", count: 5 },
-    { name: "Family Deals", to: "#", count: 4 },
-    { name: "Chicky Meals", to: "#", count: 4 },
-    { name: "Make It a Meal", to: "#", count: 10 },
-    { name: "Snacks", to: "#", count: 19 },
-    { name: "Beverages", to: "#", count: 5 },
+    { name: "Everyday Value", id: "everyday-value", count: 4 },
+    { name: "Meal Box", id: "meal-box", count: 4 },
+    { name: "Family Deals", id: "family-deals", count: 2 },
+    { name: "Chicky Meals", id: "chicky-meals", count: 4 },
+    { name: "Make It a Meal", id: "make-it-a-meal", count: 10 },
+    { name: "Snacks", id: "snacks", count: 19 },
+    { name: "Beverages", id: "beverages", count: 5 },
+]
+
+export const menuSections = [
+    {
+        id: "popular",
+        title: "Popular",
+        description: "Most ordered right now.",
+        products: [
+            {
+                id: 1,
+                title: "Midnight Deal 01",
+                price: "12.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 2,
+                title: "Midnight Deal 02",
+                price: "10.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 3,
+                title: "Midnight Deal 03",
+                price: "15.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 4,
+                title: "Midnight Deal 04",
+                price: "8.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 5,
+                title: "Midnight Deal 05",
+                price: "11.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 6,
+                title: "Midnight Deal 06",
+                price: "9.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            }
+        ]
+    },
+    {
+        id: "everyday-value",
+        title: "Everyday Value",
+        products: [
+            {
+                id: 7,
+                title: "Value Deal 01",
+                price: "6.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 8,
+                title: "Value Deal 02",
+                price: "7.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 9,
+                title: "Value Deal 03",
+                price: "5.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 10,
+                title: "Value Deal 04",
+                price: "8.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            }
+        ]
+    },
+    {
+        id: "meal-box",
+        title: "Meal Box",
+        products: [
+            {
+                id: 11,
+                title: "Meal Box 01",
+                price: "18.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 12,
+                title: "Meal Box 02",
+                price: "20.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 13,
+                title: "Meal Box 03",
+                price: "16.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 14,
+                title: "Meal Box 04",
+                price: "22.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            }
+        ]
+    },
+    {
+        id: "family-deals",
+        title: "Family Deals",
+        products: [
+            {
+                id: 15,
+                title: "Family Deal 01",
+                price: "35.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            },
+            {
+                id: 16,
+                title: "Family Deal 02",
+                price: "40.00",
+                description: "2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…",
+                image: "/images/product-1.png"
+            }
+        ]
+    }
+]
+
+export const testimonialCards = [
+    {
+        img: "/images/product-1.png",
+        name: "Dianne Russell",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ullamcorper ut lectus nec tincidunt. Nunc mattis dignissim arcu, sit amet consequat sem auctor a.",
+        date: "Just now",
+        rating: 3,
+    },
+    {
+        img: "/images/product-1.png",
+        name: "Dianne Russell",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ullamcorper ut lectus nec tincidunt. Nunc mattis dignissim arcu, sit amet consequat sem auctor a.",
+        date: "2 mins ago",
+        rating: 2.2,
+    },
+    {
+        img: "/images/product-1.png",
+        name: "Dianne Russell",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ullamcorper ut lectus nec tincidunt. Nunc mattis dignissim arcu, sit amet consequat sem auctor a.",
+        date: "1 hour ago",
+        rating: 3,
+    },
+    {
+        img: "/images/product-1.png",
+        name: "Dianne Russell",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ullamcorper ut lectus nec tincidunt. Nunc mattis dignissim arcu, sit amet consequat sem auctor a.",
+        date: "Just now",
+        rating: 4.5,
+    },
+    {
+        img: "/images/product-1.png",
+        name: "Dianne Russell",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ullamcorper ut lectus nec tincidunt. Nunc mattis dignissim arcu, sit amet consequat sem auctor a.",
+        date: "1 day ago",
+        rating: 5,
+    },
 ]

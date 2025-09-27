@@ -2,16 +2,16 @@ import { Heart } from "lucide-react";
 
 export default function ProductDetailBanner({ image, tags, restaurantName, minOrderUnit, restaurantOpenTime, restaurantCloseTime, location, rating, ratingCount }) {
     return (
-        <div className="bg-primary-1014 h-[300px] flex items-center">
-            <div className="container mx-auto">
-                <div className="flex">
-                    <div className="flex gap-x-10">
-                        <div className="flex-shrink-0">
-                            <img src={image} alt="Product Detail Banner" className="w-[156px] h-[156px] object-cover rounded-lg" />
+        <div className="bg-primary-1014 lg:h-[300px] h-[400px] flex items-center">
+            <div className="container mx-auto lg:px-0 px-6">
+                <div className="flex flex-wrap">
+                    <div className="min-sm:flex md:gap-x-10 gap-x-4">
+                        <div className="flex-shrink-0 max-sm:mb-4">
+                            <img src={image} alt="Product Detail Banner" className="lg:w-[156px] lg:h-[156px] w-[100px] h-[100px] object-cover rounded-lg" />
                         </div>
                         <div>
-                            <div className="flex mb-3">
-                                <ul className="flex gap-x-6 text-primary-1013">
+                            <div className="flex  mb-3">
+                                <ul className="flex flex-wrap gap-x-6 text-primary-1013">
                                     {
                                         tags.map((tag, index) => (
                                             <li key={index}>{tag}</li>
@@ -20,7 +20,7 @@ export default function ProductDetailBanner({ image, tags, restaurantName, minOr
                                 </ul>
                             </div>
                             <h1 className="text-black text-4xl font-bold mb-3">{restaurantName}</h1>
-                            <div className="flex gap-x-3 mb-2">
+                            <div className="flex flex-wrap gap-x-3 mb-2">
                                 <div className="flex items-center gap-x-2">
                                     <span>
                                         <svg
@@ -72,7 +72,7 @@ export default function ProductDetailBanner({ image, tags, restaurantName, minOr
                                 </div>
                             </div>
                             <div>
-                                <p className="flex items-center gap-x-2">
+                                <p className="flex flex-wrap items-center gap-x-2">
                                     <span className="text-primary-1004 font-semibold">Open</span>
                                     <span className="text-primary-950 font-semibold">{restaurantOpenTime} - {restaurantCloseTime}</span>
                                     <span className="text-black font-semibold">{location}</span>
