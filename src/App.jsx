@@ -15,6 +15,9 @@ import AccountSettings from './pages/AccountSettings';
 import SetLocation from './pages/SetLocation';
 import Favourites from './pages/Favourites';
 import ResturantsDetail from "./pages/ResturantsDetail";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import AddCard from "./pages/AddCard";
+import OrderWaiting from "./pages/OrderWaiting";
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
           <Route index path="/account-settings" element={<AccountSettings />} />
           <Route index path="/set-location" element={<SetLocation />} />
           <Route index path="/favourites" element={<Favourites />} />
+          <Route index path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route index path="/add-card" element={<AddCard />} />
+          <Route index path="/order-waiting" element={<OrderWaiting />} />
         </Route>
 
         {/* Auth routes that do not have a layout */}

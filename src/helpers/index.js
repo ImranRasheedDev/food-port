@@ -32,7 +32,6 @@ const Helper = {
   },
 
   async setStorageData(key, value) {
-   
     try {
       const ciphertext = await this.encrypt(JSON.stringify(value), secretKey);
       localStorage.setItem(key, ciphertext);
@@ -83,11 +82,7 @@ const Helper = {
       "decrypt",
     ]);
 
-    const plainBuffer = await cryptoObj.subtle.decrypt(
-      alg,
-      key,
-      ciphertext
-    );
+    const plainBuffer = await cryptoObj.subtle.decrypt(alg, key, ciphertext);
     return textDecoder.decode(plainBuffer);
   },
 
@@ -104,15 +99,60 @@ const Helper = {
     return result.join("");
   },
 
-  sweetAlert(type = "success", title = "Success", msg = "success", callback = () => {}) {
+  sweetAlert(
+    type = "success",
+    title = "Success",
+    msg = "success",
+    callback = () => {}
+  ) {
     return Swal.fire({
       title: title,
       text: msg,
       icon: type,
-      showCancelButton: true,     // 👈 Cancel button add
+      showCancelButton: true, // 👈 Cancel button add
       confirmButtonText: "OK",
       cancelButtonText: "Cancel",
     }).then(callback);
+  },
+ async  getLocationDetails(lat, lng, destLat, destLng) {
+  try {
+    // 1) Reverse Geocoding -> Get City name
+    const geoRes = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${window.constants.google_api_key}`
+    );
+    const geoData = await geoRes.json();
+
+    const city =
+      geoData.results[0]?.address_components.find((c) =>
+        c.types.includes("locality")
+      )?.long_name ||
+      geoData.results[0]?.address_components.find((c) =>
+        c.types.includes("administrative_area_level_1")
+      )?.long_name ||
+      geoData.results[0]?.formatted_address ||
+      "Unknown";
+
+    // 2) Distance Matrix -> Distance + Duration
+    let distance = "-";
+    let duration = "-";
+
+    if (destLat && destLng) {
+      const distanceRes = await fetch(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${lat},${lng}&destinations=${destLat},${destLng}&key=${window.constants.google_api_key}`
+      );
+      const distanceData = await distanceRes.json();
+
+      if (distanceData.rows?.[0]?.elements?.[0]?.status === "OK") {
+        distance = distanceData.rows[0].elements[0].distance.text;
+        duration = distanceData.rows[0].elements[0].duration.text;
+      }
+    }
+
+    return { city, distance, duration };
+  } catch (err) {
+    console.error("Error in getLocationDetails:", err);
+    return { city: "Unknown", distance: "-", duration: "-" };
+  }
 }
 };
 

@@ -35,7 +35,7 @@ export default function HeaderAfterLogin() {
         if (result.isConfirmed) {
           await window.helper.removeStorageData();
           window.user = "";
-          navigate("/");
+          window.location.reload();
         }
       }
     );

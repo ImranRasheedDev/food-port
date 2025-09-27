@@ -36,7 +36,9 @@ export {
   useDeleteOrder,
   useCategories,
   useCategory,
-  useCreateCategory,
-  useUpdateCategory,
-  useDeleteCategory,
 } from './useResource';
+
+export  {
+  useRestaurants,
+  useRestaurant,
+} from './useResource' ;

@@ -59,7 +59,7 @@ export default function ProductModal({ open, setOpen, image, title, description,
                             </button>
                         </div>
                         <div className="w-full">
-                            <button className="bg-primary-50 text-white px-4 py-2 rounded-full w-full block">Add to cart</button>
+                            <button onClick={() => setOpen(false)} className="bg-primary-50 cursor-pointer text-white px-4 py-2 rounded-full w-full block">Add to cart</button>
                         </div>
                     </div>
                 </div>
