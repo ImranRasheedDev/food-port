@@ -3,17 +3,17 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Import your new auth pages
-import Login from './pages/auth/Login';
-import Signup from './pages/auth/Signup';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import OTP from './pages/auth/OTP';
-import ResetPassword from './pages/auth/ResetPassword';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import AllResturants from './pages/AllResturants';
-import AccountSettings from './pages/AccountSettings';
-import SetLocation from './pages/SetLocation';
-import Favourites from './pages/Favourites';
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import OTP from "./pages/auth/OTP";
+import ResetPassword from "./pages/auth/ResetPassword";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import AllResturants from "./pages/AllResturants";
+import AccountSettings from "./pages/AccountSettings";
+import SetLocation from "./pages/SetLocation";
+import Favourites from "./pages/Favourites";
 import ResturantsDetail from "./pages/ResturantsDetail";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import AddCard from "./pages/AddCard";
@@ -26,11 +26,19 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route index path="/all-resturants" element={<AllResturants />} />
-          <Route index path="/resturants-detail" element={<ResturantsDetail />} />
+          <Route
+            index
+            path="/resturants-detail"
+            element={<ResturantsDetail />}
+          />
           <Route index path="/account-settings" element={<AccountSettings />} />
           <Route index path="/set-location" element={<SetLocation />} />
           <Route index path="/favourites" element={<Favourites />} />
-          <Route index path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route
+            index
+            path="/order-confirmation"
+            element={<OrderConfirmation />}
+          />
           <Route index path="/add-card" element={<AddCard />} />
           <Route index path="/order-waiting" element={<OrderWaiting />} />
         </Route>

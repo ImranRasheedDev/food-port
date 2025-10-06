@@ -5,6 +5,7 @@ import { RestaurantCard } from "../Cards/PrimaryCard";
 import { useRestaurants } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { NoData } from "@/components/ui/empty";
+import { Link } from "react-router-dom";
 
 const sampleRestaurants = [
   {
@@ -208,12 +209,15 @@ export default function PopularRestaurants({ user = false }) {
         </div>
 
         <div className="text-center">
-          <Button className="bg-primary-50 hover:bg-red-600 text-white px-10 h-12 rounded-full shadow-lg cursor-pointer">
+          <Link
+            to={"/all-resturants"}
+            className="bg-primary-50 inline-flex justify-center items-center gap-x-3 hover:bg-red-600 text-white px-10 h-12 rounded-full shadow-lg cursor-pointer"
+          >
             See All
             <span className="w-6 h-6 bg-white rounded-full flex justify-center items-center text-center">
               <ChevronRight className="w-4 h-4 stroke-primary-50 " />
             </span>
-          </Button>
+          </Link>
         </div>
       </div>
     </section>

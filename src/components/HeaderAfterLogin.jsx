@@ -131,7 +131,9 @@ export default function HeaderAfterLogin() {
               <ChevronDown className="w-4 h-4" />
             </div>
             <ShoppingCart className="w-6 h-6  cursor-pointer" />
-            <Heart className="w-6 h-6  cursor-pointer" />
+            <Link to={"/favourites"}>
+              <Heart className="w-6 h-6  cursor-pointer" />
+            </Link>
           </div>
         </div>
       </div>
