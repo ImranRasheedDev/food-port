@@ -2,7 +2,7 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { InputWithIcon } from "@/components/auth/InputWithIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { Calendar, Mail, Phone, User } from "lucide-react";
+import { Calendar, Mail, Phone, User, MapPin } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -24,6 +24,9 @@ const VALIDATION_PATTERNS = {
   phone: /^[\d]{10,15}$/,
   countryCode: /^\d{1,4}$/,
   dateOfBirth: /^\d{4}-\d{2}-\d{2}$/,
+  address: /^[A-Za-z\s\-']+$/,
+  city: /^[A-Za-z\s\-']+$/,
+  zip_code: /^[0-9]{5}$/,
 };
 
 function Signup() {
@@ -44,6 +47,9 @@ function Signup() {
       country_code: "",
       dob: "",
       gender: "",
+      address: "",
+      city: "",
+      zip_code: "",
     },
   });
   const navigate = useNavigate();
@@ -90,6 +96,9 @@ function Signup() {
         country_code: data.country_code,
         dob: data.dob,
         gender: data.gender,
+        address: data.address,
+        city: data.city,
+        zip_code: data.zip_code,
       };
       registerUser.mutate(payload);
     },
@@ -189,6 +198,7 @@ function Signup() {
             />
           </div>
           <div className="basis-3/4">
+
             <InputWithIcon
               id="number"
               type="tel"
@@ -205,7 +215,75 @@ function Signup() {
             />
           </div>
         </div>
+
         {/* Date of Birth */}
+
+        <InputWithIcon
+          id="address"
+          type="text"
+          placeholder="Address"
+          icon={<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="26"
+            fill="none"
+            viewBox="0 0 28 26"
+          >
+            <path
+              fill="#8A8A8A"
+              d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
+            ></path>
+          </svg>}
+          {...register("address", {
+            required: "Address is required",
+            pattern: {
+              value: VALIDATION_PATTERNS.address,
+              message: "Please enter a valid address",
+            },
+          })}
+          error={errors.address?.message}
+        />
+        <InputWithIcon
+          id="city"
+          type="text"
+          placeholder="City"
+          icon={<MapPin className="w-5 h-5" />}
+          {...register("city", {
+            required: "City is required",
+            pattern: {
+              value: VALIDATION_PATTERNS.address,
+              message: "Please enter a valid city",
+            },
+          })}
+          error={errors.city?.message}
+        />
+        <InputWithIcon
+          id="zip_code"
+          type="text"
+          placeholder="Zip Code"
+          icon={<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            fill="none"
+            viewBox="0 0 26 26"
+          >
+            <path
+              stroke="#8A8A8A"
+              strokeLinecap="square"
+              strokeWidth="1.8"
+              d="M13 1.8v22.4m11.2-11.208H1.8m20.8 0A9.61 9.61 0 0 1 13 22.6c-5.3 0-9.6-4.31-9.6-9.608a9.598 9.598 0 0 1 16.386-6.784 9.6 9.6 0 0 1 2.814 6.784Z"
+            ></path>
+          </svg>}
+          {...register("zip_code", {
+            required: "Zip code is required",
+            pattern: {
+              value: VALIDATION_PATTERNS.address,
+              message: "Please enter a valid zip code",
+            },
+          })}
+          error={errors.zip_code?.message}
+        />
         <InputWithIcon
           id="dob"
           type="date"
