@@ -19,7 +19,7 @@ export function AuthLayout({ children, showBack = false, onClose, bgImage }) {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+            className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat py-10"
             style={{
                 backgroundImage: `url('${bgImage}')`,
             }}
