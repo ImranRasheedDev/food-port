@@ -81,3 +81,12 @@ export const useLogout = (options = {}) => {
     ...options,
   });
 };
+
+
+export const useAddAddress = (options = {}) => {
+  return useApiMutation('/address/add', {
+    onSuccess: (data) => {
+    },
+    ...options,
+  });
+};

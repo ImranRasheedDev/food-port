@@ -35,7 +35,7 @@ const httpClient = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${window.constants.api_base_url}${url}`, config);
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, config);
     const data = await response.json().catch(() => ({}));
 
     if (
