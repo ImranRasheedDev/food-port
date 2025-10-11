@@ -6,7 +6,9 @@ import { Calendar, Mail, Phone, User, MapPin } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useRegisterUser } from "@/hooks/api";
+import { useRegisterUser, useAddAddress } from "@/hooks/api";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
+
 import {
   Select,
   SelectContent,
@@ -34,8 +36,10 @@ function Signup() {
     register,
     handleSubmit,
     watch,
+    getValues,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     mode: "onBlur",
     defaultValues: {
@@ -50,12 +54,17 @@ function Signup() {
       address: "",
       city: "",
       zip_code: "",
+      latitude: "",
+      longitude: "",
     },
   });
   const navigate = useNavigate();
   const password = watch("password");
   const isSubmittingRef = useRef(false);
 
+  const addAddress = useAddAddress({
+    onSuccess: (data) => {},
+  });
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
     onSuccess: async (data) => {
@@ -63,6 +72,24 @@ function Signup() {
       reset();
       await window.helper.setStorageData("user", data?.data);
       window.user = data?.data;
+      navigate("/");
+      try {
+        const values = getValues();
+        console.log("values", values);
+        const addressPayload = {
+          name: values.name || data?.data?.name || "",
+          address: values.address || "",
+          latitude: values.latitude || "",
+          longitude: values.longitude || "",
+        };
+        if (addressPayload.address && addressPayload.address.trim() !== "") {
+          addAddress.mutate(addressPayload);
+        } else {
+        }
+      } catch (err) {
+        console.error("Error preparing address payload:", err);
+      }
+
       navigate("/");
     },
     onError: (error) => {
@@ -72,10 +99,11 @@ function Signup() {
 
   const onSubmit = useCallback(
     (data) => {
+      alert("✅ onSubmit triggered!");
       if (registerUser.isPending || isSubmittingRef.current) {
         return;
       }
-
+      console.log("working");
       isSubmittingRef.current = true;
 
       let phone = data.number.replace(/\D/g, ""); // sirf digits
@@ -198,7 +226,6 @@ function Signup() {
             />
           </div>
           <div className="basis-3/4">
-
             <InputWithIcon
               id="number"
               type="tel"
@@ -216,24 +243,44 @@ function Signup() {
           </div>
         </div>
 
-        {/* Date of Birth */}
-
-        <InputWithIcon
+        <AddressAutocomplete
+          id="address"
+          placeholder="Search address"
+          setValue={setValue}
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="26"
+              fill="none"
+              viewBox="0 0 28 26"
+            >
+              <path
+                fill="#8A8A8A"
+                d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
+              ></path>
+            </svg>
+          }
+          error={errors.address?.message}
+        />
+        {/* <InputWithIcon
           id="address"
           type="text"
           placeholder="Address"
-          icon={<svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="26"
-            fill="none"
-            viewBox="0 0 28 26"
-          >
-            <path
-              fill="#8A8A8A"
-              d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
-            ></path>
-          </svg>}
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="26"
+              fill="none"
+              viewBox="0 0 28 26"
+            >
+              <path
+                fill="#8A8A8A"
+                d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
+              ></path>
+            </svg>
+          }
           {...register("address", {
             required: "Address is required",
             pattern: {
@@ -242,7 +289,7 @@ function Signup() {
             },
           })}
           error={errors.address?.message}
-        />
+        /> */}
         <InputWithIcon
           id="city"
           type="text"
@@ -261,24 +308,26 @@ function Signup() {
           id="zip_code"
           type="text"
           placeholder="Zip Code"
-          icon={<svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="26"
-            height="26"
-            fill="none"
-            viewBox="0 0 26 26"
-          >
-            <path
-              stroke="#8A8A8A"
-              strokeLinecap="square"
-              strokeWidth="1.8"
-              d="M13 1.8v22.4m11.2-11.208H1.8m20.8 0A9.61 9.61 0 0 1 13 22.6c-5.3 0-9.6-4.31-9.6-9.608a9.598 9.598 0 0 1 16.386-6.784 9.6 9.6 0 0 1 2.814 6.784Z"
-            ></path>
-          </svg>}
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              fill="none"
+              viewBox="0 0 26 26"
+            >
+              <path
+                stroke="#8A8A8A"
+                strokeLinecap="square"
+                strokeWidth="1.8"
+                d="M13 1.8v22.4m11.2-11.208H1.8m20.8 0A9.61 9.61 0 0 1 13 22.6c-5.3 0-9.6-4.31-9.6-9.608a9.598 9.598 0 0 1 16.386-6.784 9.6 9.6 0 0 1 2.814 6.784Z"
+              ></path>
+            </svg>
+          }
           {...register("zip_code", {
             required: "Zip code is required",
             pattern: {
-              value: VALIDATION_PATTERNS.address,
+              value: VALIDATION_PATTERNS.zip_code,
               message: "Please enter a valid zip code",
             },
           })}
@@ -298,7 +347,10 @@ function Signup() {
           })}
           error={errors.dob?.message}
         />
-        <Select {...register("gender", { required: "Gender is required" })} className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400">
+        <Select
+          {...register("gender", { required: "Gender is required" })}
+          className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
+        >
           <SelectTrigger className="w-[100]">
             <SelectValue placeholder="Select Gender" />
           </SelectTrigger>
@@ -335,7 +387,7 @@ function Signup() {
           </p>
         </div>
       </form>
-    </AuthLayout >
+    </AuthLayout>
   );
 }
 

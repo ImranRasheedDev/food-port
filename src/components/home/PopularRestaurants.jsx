@@ -134,7 +134,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
 export default function PopularRestaurants({ user = false }) {
   const { data, isLoading } = useRestaurants({
     page: 1,
-    per_page: 10,
+    limit: 10,
     featured: "1",
     moveable: "0",
   });
