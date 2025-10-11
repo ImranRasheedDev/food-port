@@ -96,7 +96,7 @@ export default function HeaderAfterLogin() {
                   className={"p-0 bg-white hover:bg-primary-990"}
                 >
                   <Link
-                    to={""}
+                    to={"/account-settings"}
                     className="flex items-center gap-x-2 w-full p-5"
                   >
                     <User /> Profile
