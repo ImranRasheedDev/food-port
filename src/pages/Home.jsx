@@ -14,8 +14,8 @@ function Home() {
 
   return (
     <>
-      <HeroBanner user={user} />
-      {user && <SearchBar />}
+      <HeroBanner user={user} />  
+      {user && <SearchBar />} 
       {user && <AdvertisersSection />}
       {!user && <WhyChooseUs />}
       <CuisineForYou />

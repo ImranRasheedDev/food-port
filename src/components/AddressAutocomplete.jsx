@@ -4,7 +4,7 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from "use-places-autocomplete";
 
-export default function AddressAutocomplete({ setValue, error, icon }) {
+export default function AddressAutocomplete({ id = "address", placeholder = "Address", setValue, error, icon }) {
   const {
     ready,
     value,
@@ -63,8 +63,10 @@ export default function AddressAutocomplete({ setValue, error, icon }) {
         <input
           value={value}
           onChange={handleInput}
-          placeholder="Address"
+          name={id}
+          placeholder={placeholder}
           disabled={!ready}
+          autoComplete="street-address"
           className="w-full rounded border p-3"
         />
       </div>

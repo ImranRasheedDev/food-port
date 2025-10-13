@@ -87,6 +87,20 @@ export const useAddAddress = (options = {}) => {
   return useApiMutation('/address/add', {
     onSuccess: (data) => {
     },
+    disableToast: true, // Disable automatic toast for address
     ...options,
   });
+};
+
+// Get specific address by ID
+export const useAddress = (address_id, options = {}) => {
+  return useApiQuery(
+    ['address', address_id],
+    `/address/${address_id}`,
+    {},
+    {
+      enabled: !!address_id,
+      ...options,
+    }
+  );
 };

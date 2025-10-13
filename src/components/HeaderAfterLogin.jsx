@@ -26,6 +26,8 @@ export default function HeaderAfterLogin() {
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
+  
+
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
@@ -70,7 +72,7 @@ export default function HeaderAfterLogin() {
           <div className="flex items-center gap-x-1">
             <MapPin className="text-primary-950" />
             <p className="text-primary-950">
-              Your address : 13th Street 47 W 13th St, New York, NY 10011, USA
+              Your address: { window.user?.address || "No address set"}
             </p>
           </div>
           {/* Right side buttons */}

@@ -137,7 +137,7 @@ export const handleApiError = (error) => {
 // ----------------------
 export const useApiMutation = (endpoint, options = {}) => {
   const queryClient = useQueryClient();
-  const { onSuccess, onError, invalidateQueries, ...otherOptions } = options;
+  const { onSuccess, onError, invalidateQueries, disableToast, ...otherOptions } = options;
 
   return useMutation({
     mutationFn: (data) =>
@@ -146,7 +146,7 @@ export const useApiMutation = (endpoint, options = {}) => {
         body: JSON.stringify(data),
       }),
     onSuccess: (data, variables, context) => {
-      if (data.message) toast.success(data.message);
+      if (data.message && !disableToast) toast.success(data.message);
 
       if (invalidateQueries) {
         (Array.isArray(invalidateQueries) ? invalidateQueries : [invalidateQueries]).forEach((queryKey) => {

@@ -2,11 +2,11 @@ export default function AppSection() {
     return (
         <section className="py-16 ">
             <div className="container mx-auto px-4 bg-[url(/images/app-bg.png)] bg-no-repeat bg-cover rounded-md h-[590px] flex justify-center items-center">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    {/* Left side - Phone mockup */}
-                    <div className="relative">
-                        <div className="relative max-w-sm mx-auto">
-                            <img src="/iphone-mockup-with-food-delivery-app-interface-sho.png" alt="Food Port Mobile App" className="w-full h-auto" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
+                    {/* Left side - Phone mockup (fill left, cover) */}
+                    <div className="relative h-full flex items-end justify-start">
+                        <div className="relative w-full h-full">
+                            <img src="/images/iphone-mockup-with-food-delivery-app-interface-sho.png" alt="Food Port Mobile App" className="w-full h-full object-cover object-left" />
                         </div>
                     </div>
 

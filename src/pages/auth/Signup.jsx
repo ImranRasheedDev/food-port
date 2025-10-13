@@ -4,7 +4,7 @@ import { InputWithIcon } from "@/components/auth/InputWithIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Calendar, Mail, Phone, User, MapPin } from "lucide-react";
 import { useCallback, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegisterUser, useAddAddress } from "@/hooks/api";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
@@ -37,11 +37,12 @@ function Signup() {
     handleSubmit,
     watch,
     getValues,
+    control,
     formState: { errors },
     reset,
     setValue,
   } = useForm({
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: {
       name: "",
       email: "",
@@ -63,34 +64,93 @@ function Signup() {
   const isSubmittingRef = useRef(false);
 
   const addAddress = useAddAddress({
-    onSuccess: (data) => {},
+    onSuccess: () => {},
   });
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
     onSuccess: async (data) => {
-      isSubmittingRef.current = false;
+      // Show success toast for registration only
+      // Capture form values BEFORE reset
+      const formValues = getValues();
+      console.log("formValues before reset", formValues);
+      
+      // Create user data with form values included
+      const userWithAddress = {
+        ...data?.data,
+        address: formValues.address || "",
+        latitude: formValues.latitude || "",
+        longitude: formValues.longitude || "",
+        city: formValues.city || "",
+        zip_code: formValues.zip_code || "",
+      };
+      
+      // Save to storage and global user store
+      await window.helper.setStorageData("user", userWithAddress);
+      window.user = userWithAddress;
+      
+      // Reset form after saving values
       reset();
-      await window.helper.setStorageData("user", data?.data);
-      window.user = data?.data;
-      navigate("/");
+      
       try {
-        const values = getValues();
-        console.log("values", values);
         const addressPayload = {
-          name: values.name || data?.data?.name || "",
-          address: values.address || "",
-          latitude: values.latitude || "",
-          longitude: values.longitude || "",
+          name: formValues.name || data?.data?.name || "",
+          address: formValues.address || "",
+          latitude: formValues.latitude || "",
+          longitude: formValues.longitude || "",
         };
-        if (addressPayload.address && addressPayload.address.trim() !== "") {
-          addAddress.mutate(addressPayload);
+        
+        // Only add address if address data is available
+        if (addressPayload.address && addressPayload.address.trim() !== "" && 
+            addressPayload.latitude && addressPayload.longitude) {
+          addAddress.mutate(addressPayload, {
+            onSuccess: (addressData) => {
+        
+              // Merge address data with existing user data in global store
+              const updatedUser = {
+                ...window.user,
+                address: formValues.address || "",
+                latitude: formValues.latitude || "",
+                longitude: formValues.longitude || "",
+                city: formValues.city || "",
+                zip_code: formValues.zip_code || "",
+                address_data: addressData?.data || null // Store the full address response
+              };
+              
+              // Update global user store with address data
+              window.helper.setStorageData("user", updatedUser);
+              window.user = updatedUser;
+              
+              isSubmittingRef.current = false;
+              navigate("/");
+            },
+            onError: () => {
+              isSubmittingRef.current = false;
+              navigate("/"); // Still navigate even if address fails
+            }
+          });
         } else {
+          // No address to add, but still save form address data to user store
+          const updatedUser = {
+            ...window.user,
+            address: formValues.address || "",
+            latitude: formValues.latitude || "",
+            longitude: formValues.longitude || "",
+            city: formValues.city || "",
+            zip_code: formValues.zip_code || ""
+          };
+          
+          // Update global user store with form address data
+          window.helper.setStorageData("user", updatedUser);
+          window.user = updatedUser;
+          
+          isSubmittingRef.current = false;
+          navigate("/");
         }
       } catch (err) {
         console.error("Error preparing address payload:", err);
+        isSubmittingRef.current = false;
+        navigate("/");
       }
-
-      navigate("/");
     },
     onError: (error) => {
       isSubmittingRef.current = false;
@@ -99,23 +159,12 @@ function Signup() {
 
   const onSubmit = useCallback(
     (data) => {
-      alert("✅ onSubmit triggered!");
-      if (registerUser.isPending || isSubmittingRef.current) {
+      if (registerUser.isPending || addAddress.isPending || isSubmittingRef.current) {
         return;
       }
-      console.log("working");
       isSubmittingRef.current = true;
 
-      let phone = data.number.replace(/\D/g, ""); // sirf digits
-      let country_code = "";
-      let number = "";
-
-      if (phone.length > 10) {
-        country_code = phone.slice(0, phone.length - 10); // prefix as country code
-        number = phone.slice(phone.length - 10); // last 10 digits as local number
-      }
-
-      const payload = {
+      const userPayload = {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -123,12 +172,14 @@ function Signup() {
         number: data.number,
         country_code: data.country_code,
         dob: data.dob,
-        gender: data.gender,
+        gender: data.gender === 'male' ? 1 : 0, // Convert to number: male=1, female=0
         address: data.address,
         city: data.city,
         zip_code: data.zip_code,
       };
-      registerUser.mutate(payload);
+
+      // Call register API first
+      registerUser.mutate(userPayload);
     },
     [registerUser]
   );
@@ -263,6 +314,9 @@ function Signup() {
           }
           error={errors.address?.message}
         />
+        <input type="hidden" {...register("address", { required: "Address is required" })} />
+        <input type="hidden" {...register("latitude", { required: "Latitude missing. Please select a suggestion" })} />
+        <input type="hidden" {...register("longitude", { required: "Longitude missing. Please select a suggestion" })} />
         {/* <InputWithIcon
           id="address"
           type="text"
@@ -347,29 +401,50 @@ function Signup() {
           })}
           error={errors.dob?.message}
         />
-        <Select
-          {...register("gender", { required: "Gender is required" })}
-          className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
-        >
-          <SelectTrigger className="w-[100]">
-            <SelectValue placeholder="Select Gender" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Select Gender</SelectLabel>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="gender"
+          control={control}
+          rules={{ required: "Gender is required" }}
+          render={({ field, fieldState }) => (
+            <div>
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Trigger validation after selection
+                  setTimeout(() => {
+                    if (!value) {
+                      field.onBlur();
+                    }
+                  }, 0);
+                }}
+                className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
+              >
+                <SelectTrigger className={`w-[100] ${fieldState.error ? 'border-red-500' : ''}`}>
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Select Gender</SelectLabel>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        />
+        {errors.gender && (
+          <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
+        )}
         {/* Create Account Button */}
         <div className="pt-6">
           <AuthButton
             type="submit"
-            loading={registerUser.isPending}
-            disabled={registerUser.isPending}
+            loading={registerUser.isPending || addAddress.isPending || isSubmittingRef.current}
+            disabled={registerUser.isPending || addAddress.isPending || isSubmittingRef.current}
           >
-            {registerUser.isPending
+            {registerUser.isPending || addAddress.isPending
               ? "Creating Account..."
               : "Create an account"}
           </AuthButton>
