@@ -20,6 +20,12 @@ export {
   useLogout,
   useResetPassword,
   useAddAddress,
+  useAddress,
+  useUserAddresses,
+  useAllAddresses,
+  useUpdateAddress,
+  useDeleteAddress,
+  useSetDefaultAddress,
 } from './useUsers';
 
 // Generic resource hooks

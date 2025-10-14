@@ -4,6 +4,11 @@ import {
   useApiUpdateMutation, 
   useApiDeleteMutation 
 } from './useApi';
+import { 
+  useUpdateAddress, 
+  useDeleteAddress, 
+  useSetDefaultAddress 
+} from './useAddressMutations';
 
 
 
@@ -85,8 +90,7 @@ export const useLogout = (options = {}) => {
 
 export const useAddAddress = (options = {}) => {
   return useApiMutation('/address/add', {
-    onSuccess: (data) => {
-    },
+    invalidateQueries: [['addresses'], ['user-addresses'], ['address']],
     disableToast: true, // Disable automatic toast for address
     ...options,
   });
@@ -104,3 +108,33 @@ export const useAddress = (address_id, options = {}) => {
     }
   );
 };
+
+// Get user addresses by user ID
+export const useUserAddresses = (user_id, options = {}) => {
+  return useApiQuery(
+    ['user-addresses', user_id],
+    `/users/${user_id}/addresses`,
+    {},
+    {
+      enabled: !!user_id,
+      ...options,
+    }
+  );
+};
+
+// Get all addresses
+export const useAllAddresses = (options = {}) => {
+  return useApiQuery(
+    ['addresses'],
+    '/address',
+    {},
+    {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      ...options,
+    }
+  );
+};
+
+// Re-export the custom address mutation hooks
+export { useUpdateAddress, useDeleteAddress, useSetDefaultAddress } from './useAddressMutations';

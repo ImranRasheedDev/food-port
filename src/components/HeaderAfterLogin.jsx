@@ -21,12 +21,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useAllAddresses } from "../hooks/api";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
   
+  // Fetch all addresses using the /address endpoint
+  const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
+
+  console.log(addresses,"addresses",window.user)
+
+  // Get the first address (index 0) - addresses come directly in response, not nested under data
+  const firstAddress = addresses?.data.filter(address => address.default === true)[0] || null;
 
   const handleLogout = () => {
     window.helper.sweetAlert(
@@ -71,8 +79,14 @@ export default function HeaderAfterLogin() {
           </Link>
           <div className="flex items-center gap-x-1">
             <MapPin className="text-primary-950" />
-            <p className="text-primary-950">
-              Your address: { window.user?.address || "No address set"}
+            <p className="text-primary-950 max-w-xl truncate">
+              Your address: {
+                addressesLoading 
+                  ? "Loading..." 
+                  : firstAddress 
+                    ? `${firstAddress.address }`|| ""
+                    : window.user?.address || "No address set"
+              }
             </p>
           </div>
           {/* Right side buttons */}

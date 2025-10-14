@@ -20,7 +20,7 @@ const getDefaultHeaders = async (method = 'GET') => {
 };
 
 // Centralized HTTP client
-const httpClient = async (url, options = {}) => {
+export const httpClient = async (url, options = {}) => {
   const method = options.method || 'GET';
   const defaultHeaders = await getDefaultHeaders(method);
 

@@ -88,7 +88,7 @@ export default function CuisineForYou() {
         {isLoading ? (
           <SkeletonGrid />
         ) : itemsToRender === null ? (
-          <NoData title="No Popular Restaurants" />
+          <NoData title="No Cuisines Found" />
         ) : (
           <CuisineGrid items={itemsToRender} />
         )}
