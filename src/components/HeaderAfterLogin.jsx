@@ -13,6 +13,7 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { Link, Links, useNavigate } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ export default function HeaderAfterLogin() {
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
+  const { getCartItemCount } = useCart();
   
   // Fetch all addresses using the /address endpoint
   const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
@@ -146,7 +148,14 @@ export default function HeaderAfterLogin() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div>
-            <ShoppingCart className="w-6 h-6  cursor-pointer" />
+            <div className="relative cursor-pointer" onClick={() => navigate('/order-confirmation')}>
+              <ShoppingCart className="w-6 h-6" />
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </div>
             <Link to={"/favourites"}>
               <Heart className="w-6 h-6  cursor-pointer" />
             </Link>
@@ -201,7 +210,15 @@ export default function HeaderAfterLogin() {
                 onClick={closeDrawer}
                 className="flex items-center text-lg hover:text-primary-50"
               >
-                <ShoppingCart className="w-5 h-5 mr-2" /> Cart
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  {getCartItemCount() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary-50 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {getCartItemCount()}
+                    </span>
+                  )}
+                </div>
+                Cart
               </button>
             </nav>
           </div>

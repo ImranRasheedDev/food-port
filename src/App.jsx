@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { CartProvider } from "./contexts/CartContext";
 
 // Import your new auth pages
 import Login from "./pages/auth/Login";
@@ -21,14 +22,14 @@ import OrderWaiting from "./pages/OrderWaiting";
 
 function App() {
   return (
-    <>
+    <CartProvider>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route index path="/all-resturants" element={<AllResturants />} />
           <Route
             index
-            path="/resturants-detail"
+            path="/resturants-detail/:restaurant_id"
             element={<ResturantsDetail />}
           />
           <Route index path="/account-settings" element={<AccountSettings />} />
@@ -69,7 +70,7 @@ function App() {
         theme="light"
         toastClassName="rounded-lg"
       />
-    </>
+    </CartProvider>
   );
 }
 

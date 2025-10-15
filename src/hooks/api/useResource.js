@@ -87,3 +87,60 @@ export const {
   useRestaurants,
   useRestaurant,
 } = createResourceHooks('restaurants', '/restaurant');
+
+// Specialized restaurant detail hook with includes
+export const useRestaurantDetail = (restaurantId, options = {}) => {
+  return useApiQuery(
+    ['restaurants', restaurantId, 'detail'],
+    `/restaurant/single/${restaurantId}?includes=productCategories.products,ratings.customer.user`,
+    {},
+    {
+      enabled: !!restaurantId,
+      ...options,
+    }
+  );
+};
+
+// Liked restaurants hook
+export const useLikedRestaurants = (options = {}) => {
+  return useApiQuery(
+    ['restaurants', 'liked'],
+    '/restaurant?moveable=0&liked',
+    {},
+    {
+      ...options,
+    }
+  );
+};
+
+// Toggle restaurant like/unlike mutation
+export const useToggleRestaurantLike = (options = {}) => {
+  return useApiMutation('/restaurant/liked', {
+    invalidateQueries: [['restaurants'], ['restaurants', 'liked']],
+    ...options,
+  });
+};
+
+// Toggle restaurant like/unlike mutation with dynamic ID
+export const useToggleRestaurantLikeById = (restaurantId, options = {}) => {
+  return useApiMutation(`/restaurant/liked/${restaurantId}`, {
+    method: 'POST',
+    invalidateQueries: [['restaurants'], ['restaurants', 'liked'], ['restaurants', restaurantId, 'detail']],
+    ...options,
+  });
+};
+
+// Single product with addons hook
+export const useProductWithAddons = (productId, options = {}) => {
+  return useApiQuery(
+    ['products', productId, 'with-addons'],
+    `/product/single/${productId}`,
+    {
+      includes: 'productAddonCategories.productAddons'
+    },
+    {
+      enabled: !!productId,
+      ...options,
+    }
+  );
+};

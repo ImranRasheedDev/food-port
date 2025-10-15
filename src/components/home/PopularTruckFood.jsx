@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Heart, MapPin, Clock, ChevronRight } from "lucide-react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
-import { useRestaurants } from "@/hooks/api";
+import { useRestaurants, useAllAddresses } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { NoData } from "@/components/ui/empty";
 import { Link } from "react-router-dom";
@@ -138,33 +138,71 @@ export default function PopularTruckFood({ user = false }) {
     featured: "0",
     moveable: "1",
   });
+  
+  // Get user addresses to fetch default address coordinates
+  const { data: addresses } = useAllAddresses();
+  
   const [restaurants, setRestaurants] = useState([]);
   const apiArray = data?.data;
   const hasApiData = apiArray && apiArray.length > 0;
   const apiReturnedEmpty = apiArray && apiArray.length === 0;
   const maxCards = user ? 8 : 4;
+  
+  // Check if user is logged in
+  const isUserLoggedIn = window.lodash.isEmpty(window.user) ? false : true;
+  
+  // Get user coordinates - either from default address or use static coordinates
+  const getUserCoordinates = () => {
+    if (isUserLoggedIn && addresses?.data) {
+      // Find default address
+      const defaultAddress = addresses.data.find(addr => addr.default === true);
+      if (defaultAddress && defaultAddress.latitude && defaultAddress.longitude) {
+        return {
+          lat: parseFloat(defaultAddress.latitude),
+          lng: parseFloat(defaultAddress.longitude)
+        };
+      }
+    }
+    
+    // Fallback to static coordinates (New York coordinates)
+    return {
+      lat: 40.650426,
+      lng: -73.943136
+    };
+  };
+  
+  const userCoordinates = getUserCoordinates();
   useEffect(() => {
     async function loadCards() {
       if (apiArray?.length > 0) {
         const cards = await Promise.all(
           apiArray.slice(0, maxCards).map(
-            (r) => mapApiRestaurantToCard(r, 40.650426, -73.943136) // 👈 yahan user ki lat/lng pass karo
+            (r) => mapApiRestaurantToCard(r, userCoordinates.lat, userCoordinates.lng) // Dynamic coordinates based on user login status
           )
         );
         setRestaurants(cards);
       }
     }
     loadCards();
-  }, [apiArray]);
+  }, [apiArray, userCoordinates.lat, userCoordinates.lng]);
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              <span className="text-primary-50">Food trucks</span> near you
+              {isUserLoggedIn ? (
+                <>Food trucks <span className="text-primary-50">near you</span></>
+              ) : (
+                <>Popular <span className="text-primary-50">Food trucks</span></>
+              )}
             </h2>
-            <p className="text-gray-600">Find nearby popular Foodtruck.</p>
+            <p className="text-gray-600">
+              {isUserLoggedIn 
+                ? "Find nearby popular Foodtruck." 
+                : "Discover the most popular Food trucks."
+              }
+            </p>
           </div>
         </div>
 
@@ -185,6 +223,7 @@ export default function PopularTruckFood({ user = false }) {
                 rating={card.rating}
                 time={card.time}
                 onFavoriteClick={card.onFavoriteClick}
+                link={`/resturants-detail/${card.key}`}
               />
             ))
           ) : apiReturnedEmpty ? (
@@ -204,6 +243,7 @@ export default function PopularTruckFood({ user = false }) {
                   onFavoriteClick={() => {}}
                   rating={restaurant.rating}
                   time={restaurant.time}
+                  link={`/resturants-detail/${restaurant.key}`}
                 />
               ))
           )}

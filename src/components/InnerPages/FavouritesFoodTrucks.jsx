@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SectionInfo from "./SectionInfo";
 import { RestaurantCard } from "../Cards/PrimaryCard";
-import { useRestaurants } from "@/hooks/api";
+import { useLikedRestaurants } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 
 async function mapApiRestaurantToCard(r, userLat, userLng) {
@@ -38,16 +38,13 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
 }
 
 const FavouritesFoodTrucks = ({ user = false }) => {
-  const { data, isLoading } = useRestaurants({
-    page: 1,
-    per_page: 10,
-    featured: "0",
-    moveable: "1",
-    liked: true,
-  });
-
+  const { data: likedRestaurantsData, isLoading, error } = useLikedRestaurants();
+  
+  // Filter for moveable restaurants (food trucks)
+  const moveableRestaurants = likedRestaurantsData?.data?.filter(r => r.movable === true || r.movable === 1) || [];
+  
   const [foodTrucks, setFoodTrucks] = useState([]);
-  const apiArray = data?.data;
+  const apiArray = moveableRestaurants;
   const hasApiData = apiArray && apiArray.length > 0;
   const maxCards = user ? 8 : 4;
 
@@ -63,10 +60,33 @@ const FavouritesFoodTrucks = ({ user = false }) => {
       }
     }
     loadCards();
-  }, [apiArray]);
+  }, [apiArray, maxCards]);
 
-  // If no API data and not loading, render nothing
-  if (!hasApiData && !isLoading) return null;
+  // Show error state
+  if (error) {
+    return (
+      <div>
+        <SectionInfo title={"Food Trucks you like"} />
+        <div className="text-center py-12">
+          <div className="text-lg text-red-500 mb-2">Error loading favorites</div>
+          <div className="text-sm text-gray-400">Please try again later</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no API data, show empty state
+  if (!hasApiData && !isLoading) {
+    return (
+      <div>
+        <SectionInfo title={"Food Trucks you like"} />
+        <div className="text-center py-12">
+          <div className="text-lg text-gray-500 mb-2">No favorite food trucks yet</div>
+          <div className="text-sm text-gray-400">Start adding food trucks to your favorites!</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

@@ -10,7 +10,8 @@ export function RestaurantCard({
     distance,
     time,
     onFavoriteClick,
-    link = "/resturants-detail"
+    link = "/resturants-detail",
+    isLiked = false
 }) {
     return (
         <Link to={link} className="bg-white border border-primary-500 rounded-lg p-3 shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -20,12 +21,11 @@ export function RestaurantCard({
                     alt={name}
                     className="w-full h-56 object-cover rounded-md"
                 />
-                <button
-                    onClick={onFavoriteClick}
-                    className="absolute top-3 right-3 p-1 cursor-pointer bg-white rounded-full shadow-md hover:bg-gray-50"
-                >
-                    <Heart className="w-5 h-5 text-primary-50" />
-                </button>
+                {isLiked && (
+                    <div className="absolute top-3 right-3 p-1 bg-white rounded-full shadow-md">
+                        <Heart className="w-5 h-5 text-red-500" />
+                    </div>
+                )}
             </div>
 
             <div className="pt-4">

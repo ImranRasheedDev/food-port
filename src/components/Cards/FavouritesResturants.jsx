@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
 import SectionInfo from "../InnerPages/SectionInfo";
-import { useRestaurants } from "@/hooks/api";
+import { useLikedRestaurants, useToggleRestaurantLikeById } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 
 async function mapApiRestaurantToCard(r, userLat, userLng) {
@@ -23,6 +23,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
 
   return {
     key: r.id,
+    id: r.id,
     name: r.name,
     description:
       (r.restaurant_categories &&
@@ -33,21 +34,33 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
     distance,
     time,
     rating: r.rating,
-    onFavoriteClick: () => {},
+    isLiked: true, // All restaurants in favorites are liked
   };
 }
 
+// Component for restaurant card showing liked status
+const RestaurantCardWithFavorite = ({ card }) => {
+  return (
+    <RestaurantCard
+      key={card.key}
+      name={card.name}
+      description={card.description}
+      image={card.image}
+      location={card.location}
+      distance={card.distance}
+      rating={card.rating}
+      time={card.time}
+      link={`/resturants-detail/${card.key}`}
+      isLiked={card.isLiked}
+    />
+  );
+};
+
 const FavouritesRestaurants = ({ user = false }) => {
-  const { data, isLoading } = useRestaurants({
-    page: 1,
-    per_page: 10,
-    featured: "1",
-    moveable: "0",
-    liked: true,
-  });
+  const { data: likedRestaurantsData, isLoading, error } = useLikedRestaurants();
 
   const [restaurants, setRestaurants] = useState([]);
-  const apiArray = data?.data;
+  const apiArray = likedRestaurantsData?.data;
   const hasApiData = apiArray && apiArray.length > 0;
   const maxCards = user ? 8 : 4;
 
@@ -63,10 +76,33 @@ const FavouritesRestaurants = ({ user = false }) => {
       }
     }
     loadCards();
-  }, [apiArray]);
+  }, [apiArray, maxCards]);
 
-  // If no API data, show nothing
-  if (!hasApiData && !isLoading) return null;
+  // Show error state
+  if (error) {
+    return (
+      <div>
+        <SectionInfo title={"Restaurants you like"} />
+        <div className="text-center py-12">
+          <div className="text-lg text-red-500 mb-2">Error loading favorites</div>
+          <div className="text-sm text-gray-400">Please try again later</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no API data, show empty state
+  if (!hasApiData && !isLoading) {
+    return (
+      <div>
+        <SectionInfo title={"Restaurants you like"} />
+        <div className="text-center py-12">
+          <div className="text-lg text-gray-500 mb-2">No favorite restaurants yet</div>
+          <div className="text-sm text-gray-400">Start adding restaurants to your favorites!</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -77,17 +113,7 @@ const FavouritesRestaurants = ({ user = false }) => {
               <SkeletonCard key={i} />
             ))
           : restaurants.map((card) => (
-              <RestaurantCard
-                key={card.key}
-                name={card.name}
-                description={card.description}
-                image={card.image}
-                location={card.location}
-                distance={card.distance}
-                rating={card.rating}
-                time={card.time}
-                onFavoriteClick={card.onFavoriteClick}
-              />
+              <RestaurantCardWithFavorite key={card.key} card={card} />
             ))}
       </div>
     </div>

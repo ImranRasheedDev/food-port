@@ -1,6 +1,42 @@
 import { Heart } from "lucide-react";
+import { useToggleRestaurantLikeById } from "@/hooks/api";
 
-export default function ProductDetailBanner({ image, tags, restaurantName, minOrderUnit, restaurantOpenTime, restaurantCloseTime, location, rating, ratingCount }) {
+export default function ProductDetailBanner({ 
+    image, 
+    tags, 
+    restaurantName, 
+    minOrderUnit, 
+    restaurantOpenTime, 
+    restaurantCloseTime, 
+    location, 
+    rating, 
+    ratingCount,
+    restaurantId,
+    isLiked = false
+}) {
+    const toggleLikeMutation = useToggleRestaurantLikeById(restaurantId, {
+        onSuccess: () => {
+            // The query will be automatically invalidated and refetched
+            console.log('Restaurant like status toggled successfully');
+        },
+        onError: (error) => {
+            console.error('Error toggling restaurant like:', error);
+        }
+    });
+
+    const handleFavoriteClick = () => {
+        console.log('Favorite button clicked');
+        console.log('Restaurant ID:', restaurantId);
+        console.log('Current liked status:', isLiked);
+        
+        if (restaurantId) {
+            console.log('Toggling like for restaurant ID:', restaurantId);
+            console.log('API endpoint will be: POST /restaurant/liked/' + restaurantId);
+            toggleLikeMutation.mutate({});
+        } else {
+            console.error('No restaurant ID provided - cannot toggle like');
+        }
+    };
     return (
         <div className="bg-primary-1014 lg:h-[300px] h-[400px] flex items-center">
             <div className="container mx-auto lg:px-0 px-6">
@@ -82,8 +118,26 @@ export default function ProductDetailBanner({ image, tags, restaurantName, minOr
                         </div>
                     </div>
                     <div className="ml-auto self-end">
-                        <button className="bg-primary-50 text-white rounded-full px-10 py-4 flex items-center gap-x-2 cursor-pointer">
-                            Add to favorite <Heart />
+                        <button 
+                            onClick={handleFavoriteClick}
+                            disabled={toggleLikeMutation.isPending}
+                            className={`${
+                                isLiked 
+                                    ? 'bg-red-500 hover:bg-red-600' 
+                                    : 'bg-primary-50 hover:bg-primary-60'
+                            } text-white rounded-full px-10 py-4 flex items-center gap-x-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                            {toggleLikeMutation.isPending ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    {isLiked ? 'Removing...' : 'Adding...'}
+                                </>
+                            ) : (
+                                <>
+                                    {isLiked ? 'Remove from favorite' : 'Add to favorite'} 
+                                    <Heart className={isLiked ? 'fill-current' : ''} />
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
