@@ -54,7 +54,6 @@ export default function AddCardDetail() {
   const { items, getCartTotal, clearCart } = useCart();
   const placeOrderMutation = usePlaceOrder({
     onSuccess: (data) => {
-      toast.success("Order placed successfully!");
       clearCart();
       navigate("/order-waiting", { state: { orderData: data } });
     },

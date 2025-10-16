@@ -25,9 +25,9 @@ const SearchBar = () => {
     }, [searchTerm])
 
     // Restaurants API call with mutually exclusive params based on active input
-    const searchActive = !!(showSearch && debouncedSearch && debouncedSearch.length > 0)
+    const searchActive = !!(debouncedSearch && debouncedSearch.length > 0)
     const locationQueryText = (selectedAddress || locationTerm || '').trim()
-    const locationActive = !!(showLocation && locationQueryText.length > 0)
+    const locationActive = !!(locationQueryText.length > 0)
 
     const apiParams = (() => {
         if (searchActive) {
@@ -42,10 +42,25 @@ const SearchBar = () => {
                 limit: 50,
             }
         }
+        // Always return default params when search dropdown is open
+        if (showSearch) {
+            return { page: 1, limit: 20 }
+        }
         return { page: 1, limit: 10 }
     })()
 
-    const { data: restaurantsResp, isLoading: isRestaurantsLoading } = useRestaurants(apiParams)
+    // Create unique query key for search queries to avoid cache conflicts
+    const searchQueryKey = searchActive ? ['restaurants', 'search', debouncedSearch] : 
+                          locationActive ? ['restaurants', 'location', locationQueryText] : 
+                          showSearch ? ['restaurants', 'default', 'dropdown'] :
+                          ['restaurants', 'default']
+
+    const { data: restaurantsResp, isLoading: isRestaurantsLoading } = useRestaurants(apiParams, {
+        queryKey: searchQueryKey,
+        staleTime: searchActive ? 30000 : 5 * 60 * 1000, // 30 seconds for search, 5 minutes for default
+        cacheTime: searchActive ? 60000 : 10 * 60 * 1000, // 1 minute for search, 10 minutes for default
+        enabled: true, // Always enabled
+    })
 
     const restaurantSuggestions = useMemo(() => {
         const arr = restaurantsResp?.data?.data || restaurantsResp?.data || restaurantsResp?.results || []
@@ -129,14 +144,14 @@ const SearchBar = () => {
                         type="text"
                         placeholder='Search  for popluar restaurants, popular trucks'
                         value={searchTerm}
-                        onFocus={() => setShowSearch(!!(searchTerm && searchTerm.trim().length > 0))}
+                        onFocus={() => setShowSearch(true)}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onBlur={(e) => {
                             // Close after a short delay to allow click
-                            setTimeout(() => setShowSearch(false), 100)
+                            setTimeout(() => setShowSearch(false), 150)
                         }}
                     />
-                    {showSearch && (isRestaurantsLoading || debouncedSearch) && !locationActive && (
+                    {showSearch && !locationActive && (
                         <SearchContainer onMouseDown={(e) => e.preventDefault()}>
                             {isRestaurantsLoading && (
                                 <div className="px-4 py-3 space-y-3">
@@ -153,6 +168,9 @@ const SearchBar = () => {
                             )}
                             {!isRestaurantsLoading && restaurantSuggestions.length === 0 && debouncedSearch && (
                                 <div className="px-4 py-4 text-sm text-gray-500">No results found</div>
+                            )}
+                            {!isRestaurantsLoading && restaurantSuggestions.length === 0 && !debouncedSearch && (
+                                <div className="px-4 py-4 text-sm text-gray-500">Start typing to search restaurants...</div>
                             )}
                             {!isRestaurantsLoading && restaurantSuggestions.map((r) => (
                                 <SearchCard

@@ -10,13 +10,14 @@ export const createResourceHooks = (resourceName, endpoint) => {
   const queryKey = [resourceName];
   return {
     // Get all resources
-    [`use${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`]: (params = {}) => {
+    [`use${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`]: (params = {}, options = {}) => {
       return useApiQuery(
-        queryKey,
+        options.queryKey || queryKey,
         endpoint,
         params,
         {
           keepPreviousData: true,
+          ...options,
         }
       );
     },
