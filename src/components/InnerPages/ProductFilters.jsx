@@ -14,10 +14,17 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
         label: cat.name
     })) || []
 
-    // Handle price range change
+    // Handle price range change - toggle behavior
     const handlePriceRangeChange = (range) => {
-        setPriceRange(range)
-        onFiltersChange({ ...filters, price_range: range })
+        // If clicking the same price that's already selected, deselect it
+        if (priceRange === range) {
+            setPriceRange('')
+            onFiltersChange({ ...filters, price_range: '' })
+        } else {
+            // Otherwise, select the new price
+            setPriceRange(range)
+            onFiltersChange({ ...filters, price_range: range })
+        }
     }
 
     // Handle filter changes - Only one selection per group
