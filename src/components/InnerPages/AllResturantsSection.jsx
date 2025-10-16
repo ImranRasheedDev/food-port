@@ -243,14 +243,17 @@ const AllResturantsSection = ({ filters = {} }) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Calculate pagination info - 12 cards per page (6 + 6)
-    // Since API doesn't return total count, we'll show pagination based on current data
+    // Calculate pagination info - 12 items per page
+    const itemsPerPage = 12;
     const currentDataCount = apiArray?.length || 0;
-    const hasNextPage = currentDataCount >= 12; // If we get 12 items, there might be more
+    const totalPages = estimatedTotal ? Math.ceil(estimatedTotal / itemsPerPage) : null;
     const hasPrevPage = currentPage > 1;
+    const hasNextPage = totalPages ? (currentPage < totalPages) : (currentDataCount === itemsPerPage);
     
-    // Show pagination if we have data and either there's a next page or we're not on page 1
-    const showPagination = hasApiData && (hasNextPage || hasPrevPage);
+    // Show pagination when multiple pages exist (if known) or when prev/next is possible
+    const showPagination = hasApiData && (
+        (totalPages ? totalPages > 1 : (hasNextPage || hasPrevPage))
+    );
 
     return (
         <div>
@@ -318,7 +321,7 @@ const AllResturantsSection = ({ filters = {} }) => {
                 onPageChange={handlePageChange}
                 showPagination={showPagination}
                 currentDataCount={currentDataCount}
-                itemsPerPage={12}
+                itemsPerPage={itemsPerPage}
                 totalCount={estimatedTotal}
             />
         </div>
