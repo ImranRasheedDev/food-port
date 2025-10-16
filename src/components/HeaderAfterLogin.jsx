@@ -29,14 +29,15 @@ export default function HeaderAfterLogin() {
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
   const { getCartItemCount } = useCart();
-  
+
   // Fetch all addresses using the /address endpoint
   const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
 
-  console.log(addresses,"addresses",window.user)
+  console.log(addresses, "addresses", window.user);
 
   // Get the first address (index 0) - addresses come directly in response, not nested under data
-  const firstAddress = addresses?.data.filter(address => address.default === true)[0] || null;
+  const firstAddress =
+    addresses?.data.filter((address) => address.default === true)[0] || null;
 
   const handleLogout = () => {
     window.helper.sweetAlert(
@@ -82,13 +83,12 @@ export default function HeaderAfterLogin() {
           <div className="flex items-center gap-x-1">
             <MapPin className="text-primary-950" />
             <p className="text-primary-950 max-w-xl truncate">
-              Your address: {
-                addressesLoading 
-                  ? "Loading..." 
-                  : firstAddress 
-                    ? `${firstAddress.address }`|| ""
-                    : window.user?.address || "No address set"
-              }
+              Your address:{" "}
+              {addressesLoading
+                ? "Loading..."
+                : firstAddress
+                ? `${firstAddress.address}` || ""
+                : window.user?.address || "No address set"}
             </p>
           </div>
           {/* Right side buttons */}
@@ -130,6 +130,17 @@ export default function HeaderAfterLogin() {
                     <Megaphone /> Advertise yourself
                   </Link>
                 </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  className={"p-0 bg-white hover:bg-primary-990"}
+                >
+                  <Link
+                    to={"/favourites"}
+                    className="flex items-center gap-x-2 w-full p-5"
+                  >
+                    <Heart /> My Favourites
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator className={"m-0"} />
                 <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
@@ -148,7 +159,10 @@ export default function HeaderAfterLogin() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div>
-            <div className="relative cursor-pointer" onClick={() => navigate('/order-confirmation')}>
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/order-confirmation")}
+            >
               <ShoppingCart className="w-6 h-6" />
               {getCartItemCount() > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

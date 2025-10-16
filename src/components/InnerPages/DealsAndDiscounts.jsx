@@ -138,7 +138,10 @@ const DealsAndDiscounts = ({ restaurants = [], isLoading = false, hasApiData = f
                             name={restaurant.name} 
                             onFavoriteClick={restaurant.onFavoriteClick || (() => { })} 
                             rating={restaurant.rating} 
-                            time={restaurant.time} 
+                            time={restaurant.time}
+                            isLiked={restaurant.isLiked || false}
+                            restaurantId={restaurant.key || index}
+                            link={restaurant.link || `/resturants-detail/${restaurant.key || index}`}
                         />
                     ))
                 ) : apiReturnedEmpty ? (
@@ -156,7 +159,10 @@ const DealsAndDiscounts = ({ restaurants = [], isLoading = false, hasApiData = f
                             name={restaurant.name} 
                             onFavoriteClick={() => { }} 
                             rating={restaurant.rating} 
-                            time={restaurant.time} 
+                            time={restaurant.time}
+                            isLiked={false}
+                            restaurantId={index + 1}
+                            link={`/resturants-detail/${index + 1}`}
                         />
                     ))
                 )}

@@ -83,6 +83,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
         distance,
         time,
         rating: r.rating || 0,
+        isLiked: r.is_like || false, // Get liked status from API
         onFavoriteClick: () => {},
         link: `/resturants-detail/${r.id}`,
     };
@@ -279,6 +280,8 @@ const AllResturantsSection = ({ filters = {} }) => {
                             rating={card.rating}
                             time={card.time}
                             onFavoriteClick={card.onFavoriteClick}
+                            isLiked={card.isLiked}
+                            restaurantId={card.key}
                             link={card.link}
                         />
                     ))
@@ -299,6 +302,8 @@ const AllResturantsSection = ({ filters = {} }) => {
                             onFavoriteClick={() => { }} 
                             rating={restaurant.rating} 
                             time={restaurant.time}
+                            isLiked={false}
+                            restaurantId={index + 1}
                             link={`/resturants-detail/${index + 1}`}
                         />
                     ))
