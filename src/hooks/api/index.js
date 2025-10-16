@@ -50,6 +50,7 @@ export  {
   useRestaurant,
   useRestaurantDetail,
   useLikedRestaurants,
+  useLikedFoodTrucks,
   useToggleRestaurantLike,
   useToggleRestaurantLikeById,
   useProductWithAddons,
@@ -64,3 +65,10 @@ export {
   useUpdateOrderStatus,
   formatCartForAPI,
 } from './useOrder';
+
+// Ads hooks
+export {
+  useBannerAds,
+  useAdClickMutation,
+  trackAdClick,
+} from './useAds';

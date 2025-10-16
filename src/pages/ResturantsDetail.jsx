@@ -8,7 +8,7 @@ import ProductDetailMenu from "@/components/InnerPages/ProductDetailMenu";
 import SectionInfo from "@/components/InnerPages/SectionInfo";
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useRestaurantDetail } from "@/hooks/api";
+import { useRestaurantDetail, useBannerAds } from "@/hooks/api";
 import { menuSections } from "@/components/MockData";
 import TestimonialCard from "@/components/InnerPages/TestimonialCard";
 import TotalTestimonialsBox from "@/components/InnerPages/TotalTestimonialsBox";
@@ -26,8 +26,17 @@ export default function ResturantsDetail() {
     error,
   } = useRestaurantDetail(restaurant_id);
 
+  // Fetch banner ads
+  const {
+    data: bannerAdsData,
+    isLoading: bannersLoading,
+  } = useBannerAds();
+
   // Get restaurant data (will be undefined if loading or error)
   const restaurant = restaurantData?.data;
+  
+  // Get banner ads data
+  const bannerAds = bannerAdsData?.data || [];
   
   // Get product categories for menu (empty array if no data)
   const allProductCategories = restaurant?.product_categories || [];
@@ -132,28 +141,18 @@ export default function ResturantsDetail() {
       <div className="bg-primary-1014 pt-20 pb-20">
         <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-x-[30px] px-6 mx-auto justify-center ">
           <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 hidden xl:block">
-            <CardOne
-              image="/images/add-card-one.png"
-              percentage="25"
-              restaurantName="Restaurant Name"
-            />
-            <CardOne
-              image="/images/add-card-two.png"
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-              percentage="25"
-              restaurantName="Restaurant Name"
-            />
-            <CardOne
-              image="/images/add-card-three.png"
-              restaurantNameColor="text-primary-1002"
-              backgroundColor="bg-primary-1004"
-              percentage="25"
-              restaurantName="Restaurant Name"
-            />
+            {bannerAds.slice(0, 3).map((banner, index) => (
+              <CardOne
+                key={banner.id}
+                campaignData={banner}
+                restaurantNameColor={index === 1 ? "text-primary-1004" : index === 2 ? "text-primary-1002" : "text-primary-1002"}
+                backgroundColor={index === 1 ? "bg-primary-1011" : index === 2 ? "bg-primary-1004" : "bg-primary-950"}
+              />
+            ))}
+         
           </div>
           <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
-            {filteredCategories.length > 0 ? (
+            {filteredCategories?.length > 0 ? (
               filteredCategories.map((category) => (
                 <div
                   key={category.id}
@@ -241,38 +240,7 @@ export default function ResturantsDetail() {
             </div>
           </div>
           <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
-            <DynamicCart />
-            <CardOne
-              image="/images/add-card-two.png"
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-              percentage="25"
-              restaurantName="Restaurant Name"
-            />
-            <DynamicCart />
-            <DealDiscountCard
-              title={"Make Your First Order and Get 25% Off From "}
-              companyName={"Restaurant Name"}
-              link={"#"}
-              image={"/images/deals-12.png"}
-              cardIndex={2}
-            />
-            <DealDiscountCard
-              title={"Make Your First Order and Get 25% Off From "}
-              companyName={"Restaurant Name"}
-              link={"#"}
-              image={"/images/deals-12.png"}
-              cardIndex={0}
-            />
-            {/* <CardOne image="/images/add-card-one.png" percentage="25" restaurantName="Restaurant Name" />
-                    <CardOne image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" /> */}
-            <DealDiscountCard
-              title={"Make Your First Order and Get 25% Off From "}
-              companyName={"Restaurant Name"}
-              link={"#"}
-              image={"/images/deals-12.png"}
-              cardIndex={1}
-            />
+            <DynamicCart restaurantData={restaurant} ads={bannerAds} />
           </div>
         </div>
       </div>

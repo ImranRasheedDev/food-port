@@ -18,10 +18,11 @@ export default function OrderConfirmation() {
   const location = useLocation();
   const { items, getCartTotal, clearCart, isCartEmpty } = useCart();
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const [paymentIntentId, setPaymentIntentId] = useState(null);
   const [platformFee, setPlatformFee] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isGeneratingIntent, setIsGeneratingIntent] = useState(false);
 
   // Get restaurant ID from cart items or location state
   const restaurantId = items[0]?.restaurantId || location.state?.restaurantId;
@@ -32,7 +33,6 @@ export default function OrderConfirmation() {
   });
   const placeOrderMutation = usePlaceOrder({
     onSuccess: (data) => {
-      toast.success("Order placed successfully!");
       clearCart();
       navigate("/order-waiting", { state: { orderData: data } });
     },
@@ -59,21 +59,45 @@ export default function OrderConfirmation() {
   // Set default address
   useEffect(() => {
     if (addresses?.data && !selectedAddress) {
-      const defaultAddress =
-        addresses.data.find((addr) => addr.default) || addresses.data[0];
-      setSelectedAddress(defaultAddress);
+      const defaultAddress = addresses.data.find((addr) => addr.default) || addresses.data[0];
+      if (defaultAddress) setSelectedAddress(defaultAddress);
     }
   }, [addresses, selectedAddress]);
 
-  // Handle payment intent and platform fee from AddCard page
+  // Handle payment intent and platform fee from AddCard page (no auto place here)
   useEffect(() => {
     if (location.state?.paymentIntentId) {
       setPaymentIntentId(location.state.paymentIntentId);
       setPlatformFee(location.state.platformFee);
-      // Clear the state to avoid re-processing
+      // Clear the navigation state
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
+
+  // Create Stripe PaymentIntent using Stripe REST API (requires VITE_STRIPE_SECRET_KEY)
+  const createStripePaymentIntent = async (amountCents) => {
+    const secret = import.meta.env.VITE_STRIPE_SECRET_KEY;
+    if (!secret) throw new Error("Missing VITE_STRIPE_SECRET_KEY");
+    const params = new URLSearchParams();
+    params.append('amount', String(amountCents));
+    params.append('currency', 'usd');
+    params.append('automatic_payment_methods[enabled]', 'true');
+    if (restaurantId) params.append('metadata[restaurant_id]', String(restaurantId));
+    const res = await fetch('https://api.stripe.com/v1/payment_intents', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secret}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || 'Failed to create PaymentIntent');
+    }
+    const json = await res.json();
+    return { id: json.id, clientSecret: json.client_secret };
+  };
 
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
@@ -83,13 +107,34 @@ export default function OrderConfirmation() {
 
     // If card payment selected but no payment intent, redirect to add card
     if (paymentMethod === "card" && !paymentIntentId) {
-      navigate("/add-card", {
-        state: {
-          returnTo: "/order-confirmation",
-          totalPrice: getCartTotal(),
-          restaurantId: restaurantId,
-        },
-      });
+      const subtotal = getCartTotal();
+      const deliveryFee = restaurantData?.data?.delivery_fee ? parseFloat(restaurantData.data.delivery_fee) : 0;
+      const platformFeePercentage = restaurantData?.data?.platform_fee_percent ? parseFloat(restaurantData.data.platform_fee_percent) : 0;
+      const vatPercentage = restaurantData?.data?.tax ? parseFloat(restaurantData.data.tax) : 0;
+
+      const platformFeeAmount = parseFloat((subtotal * (platformFeePercentage / 100)).toFixed(2));
+      const vatAmount = parseFloat((subtotal * (vatPercentage / 100)).toFixed(2));
+      const finalTotal = parseFloat((parseFloat(subtotal) + vatAmount + platformFeeAmount + deliveryFee).toFixed(2));
+
+      try {
+        setIsGeneratingIntent(true);
+        const intent = await createStripePaymentIntent(Math.round(finalTotal * 100));
+        navigate("/add-card", {
+          state: {
+            returnTo: "/order-confirmation",
+            totalPrice: finalTotal,
+            platformFee: platformFeeAmount,
+            paymentIntentId: intent.id,
+            clientSecret: intent.clientSecret,
+            restaurantId: restaurantId,
+            selectedAddressId: selectedAddress?.id,
+          },
+        });
+      } catch (e) {
+        toast.error("Failed to create payment intent");
+      } finally {
+        setIsGeneratingIntent(false);
+      }
       return;
     }
 
@@ -123,6 +168,7 @@ export default function OrderConfirmation() {
     return <div className="h-[150px]" />;
   }
 
+
   return (
     <>
       <div className="h-[150px]" />
@@ -136,8 +182,7 @@ export default function OrderConfirmation() {
             />
             <PersonalDetail
               addresses={addresses?.data || []}
-              selectedAddress={selectedAddress}
-              onAddressChange={setSelectedAddress}
+            
             />
             <PaymentMethodSelect
               paymentMethod={paymentMethod}
@@ -149,7 +194,10 @@ export default function OrderConfirmation() {
               cartItems={items}
               totalPrice={getCartTotal()}
               onPlaceOrder={handlePlaceOrder}
-              isPlacingOrder={isPlacingOrder}
+              isPlacingOrder={isPlacingOrder || isGeneratingIntent}
+              canPlaceOrder={paymentMethod === 'card'}
+              hasAddress={!!selectedAddress?.id}
+              restaurantData={restaurantData?.data}
             />
           </div>
         </div>

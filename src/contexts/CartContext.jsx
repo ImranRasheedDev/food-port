@@ -8,10 +8,21 @@ export const CartProvider = ({ children }) => {
         const localData = localStorage.getItem('food-port-cart');
         return localData ? JSON.parse(localData) : [];
     });
+    
+    const [restaurantData, setRestaurantData] = useState(() => {
+        const localData = localStorage.getItem('food-port-restaurant');
+        return localData ? JSON.parse(localData) : null;
+    });
 
     useEffect(() => {
         localStorage.setItem('food-port-cart', JSON.stringify(cartItems));
     }, [cartItems]);
+    
+    useEffect(() => {
+        if (restaurantData) {
+            localStorage.setItem('food-port-restaurant', JSON.stringify(restaurantData));
+        }
+    }, [restaurantData]);
 
     const addToCart = (item) => {
         setCartItems(prevItems => {
@@ -54,6 +65,11 @@ export const CartProvider = ({ children }) => {
 
     const clearCart = () => {
         setCartItems([]);
+        setRestaurantData(null);
+    };
+    
+    const setRestaurantInfo = (restaurant) => {
+        setRestaurantData(restaurant);
     };
 
     const getCartTotal = () => {
@@ -85,8 +101,10 @@ export const CartProvider = ({ children }) => {
         clearCart,
         getCartTotal,
         getCartItemCount,
-        isCartEmpty
-    }), [cartItems]);
+        isCartEmpty,
+        restaurantData,
+        setRestaurantInfo
+    }), [cartItems, restaurantData]);
 
     return (
         <CartContext.Provider value={value}>

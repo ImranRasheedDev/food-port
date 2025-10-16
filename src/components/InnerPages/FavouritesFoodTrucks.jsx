@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SectionInfo from "./SectionInfo";
 import { RestaurantCard } from "../Cards/PrimaryCard";
-import { useLikedRestaurants } from "@/hooks/api";
+import { useLikedFoodTrucks } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 
 async function mapApiRestaurantToCard(r, userLat, userLng) {
@@ -33,18 +33,16 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
     distance,
     time,
     rating: r.rating,
+    isLiked: r.is_like || false, // Get liked status from API
     onFavoriteClick: () => {},
   };
 }
 
 const FavouritesFoodTrucks = ({ user = false }) => {
-  const { data: likedRestaurantsData, isLoading, error } = useLikedRestaurants();
-  
-  // Filter for moveable restaurants (food trucks)
-  const moveableRestaurants = likedRestaurantsData?.data?.filter(r => r.movable === true || r.movable === 1) || [];
+  const { data: likedFoodTrucksData, isLoading, error } = useLikedFoodTrucks();
   
   const [foodTrucks, setFoodTrucks] = useState([]);
-  const apiArray = moveableRestaurants;
+  const apiArray = likedFoodTrucksData?.data;
   const hasApiData = apiArray && apiArray.length > 0;
   const maxCards = user ? 8 : 4;
 
@@ -107,6 +105,9 @@ const FavouritesFoodTrucks = ({ user = false }) => {
                 rating={card.rating}
                 time={card.time}
                 onFavoriteClick={card.onFavoriteClick}
+                isLiked={card.isLiked}
+                restaurantId={card.key}
+                link={`/resturants-detail/${card.key}`}
               />
             ))}
       </div>

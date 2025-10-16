@@ -1,13 +1,15 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 
-export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceOrder, isPlacingOrder }) {
-    const vatPrice = (totalPrice * 0.15).toFixed(2); // 15% VAT
-    const platformFee = (totalPrice * 0.05).toFixed(2); // 5% Platform fee
-    const finalTotal = (parseFloat(totalPrice) + parseFloat(vatPrice) + parseFloat(platformFee)).toFixed(2);
+export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceOrder, isPlacingOrder, canPlaceOrder, hasAddress, restaurantData }) {
+    const deliveryFee = restaurantData?.delivery_fee ? parseFloat(restaurantData.delivery_fee) : 0;
+    const platformFeePercentage = restaurantData?.platform_fee_percent ? parseFloat(restaurantData.platform_fee_percent) : 0;
+    const vatPercentage = restaurantData?.tax ? parseFloat(restaurantData.tax) : 0;
+    const platformFee = (totalPrice * (platformFeePercentage / 100)).toFixed(2);
+    const vatPrice = (totalPrice * (vatPercentage / 100)).toFixed(2);
+    const finalTotal = (parseFloat(totalPrice) + parseFloat(vatPrice) + parseFloat(platformFee) + deliveryFee).toFixed(2);
     
     return (
-        <div className="bg-primary-995 p-10 rounded-lg border border-primary-1006">
-            <h2 className="font-bold text-2xl mb-6">Food Ordered From</h2>
+        <div className="border border-primary-1007 rounded-lg p-4">
             
             {/* Cart Items */}
             <div className="space-y-4 mb-6">
@@ -54,22 +56,22 @@ export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceO
             </div>
 
             {/* Pricing Breakdown */}
-            <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm">
-                    <span>Subtotal:</span>
-                    <span>${totalPrice.toFixed(2)}</span>
+            <div className="border-b border-primary-1007 pb-6 mb-6">
+                <div className="flex justify-between items-center mt-6">
+                    <p className="text-primary-100 font-semibold">Sub Total</p>
+                    <p className="text-primary-100 font-semibold">$ {totalPrice.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between text-sm">
-                    <span>Platform Fee (5%):</span>
-                    <span>${platformFee}</span>
+                <div className="flex justify-between items-center mt-6">
+                    <p className="text-primary-1013">Standard Delivery</p>
+                    <p className="text-primary-1013">$ {deliveryFee.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between text-sm">
-                    <span>VAT (15%):</span>
-                    <span>${vatPrice}</span>
+                <div className="flex justify-between items-center mt-6">
+                    <p className="text-primary-1013">Platform Fee ({platformFeePercentage}%)</p>
+                    <p className="text-primary-1013">$ {platformFee}</p>
                 </div>
-                <div className="flex justify-between text-lg font-bold border-t border-primary-1007 pt-3">
-                    <span>Total:</span>
-                    <span>${finalTotal}</span>
+                <div className="flex justify-between items-center mt-6">
+                    <p className="text-primary-1013">VAT ({vatPercentage}%)</p>
+                    <p className="text-primary-1013">$ {vatPrice}</p>
                 </div>
             </div>
 
@@ -82,17 +84,21 @@ export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceO
             </div>
 
             {/* Place Order Button */}
-            <div className="mt-6">
+            <div className="pt-2 pb-3">
+                <div className="flex justify-between items-center mb-3">
+                    <p className="font-semibold text-lg">Total <span className="font-bold text-xs">(Incl. VAT)</span></p>
+                    <p className="font-semibold">$ {finalTotal}</p>
+                </div>
                 <button
                     onClick={onPlaceOrder}
-                    disabled={isPlacingOrder}
+                    disabled={isPlacingOrder || !canPlaceOrder || !hasAddress}
                     className={`w-full py-3 px-4 rounded-full font-medium ${
-                        isPlacingOrder
+                        isPlacingOrder || !canPlaceOrder
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-primary-50 hover:bg-primary-600'
                     } text-white transition-colors`}
                 >
-                    {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+                    {isPlacingOrder ? 'Processing...' : (!hasAddress ? 'Select Address' : (!canPlaceOrder ? 'Select Payment Method' : 'Place Order'))}
                 </button>
             </div>
         </div>

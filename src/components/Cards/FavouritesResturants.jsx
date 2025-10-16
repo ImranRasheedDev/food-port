@@ -52,6 +52,7 @@ const RestaurantCardWithFavorite = ({ card }) => {
       time={card.time}
       link={`/resturants-detail/${card.key}`}
       isLiked={card.isLiked}
+      restaurantId={card.key}
     />
   );
 };

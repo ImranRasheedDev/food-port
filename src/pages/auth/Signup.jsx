@@ -378,13 +378,7 @@ function Signup() {
               ></path>
             </svg>
           }
-          {...register("zip_code", {
-            required: "Zip code is required",
-            pattern: {
-              value: VALIDATION_PATTERNS.zip_code,
-              message: "Please enter a valid zip code",
-            },
-          })}
+          {...register("zip_code")}
           error={errors.zip_code?.message}
         />
         <InputWithIcon

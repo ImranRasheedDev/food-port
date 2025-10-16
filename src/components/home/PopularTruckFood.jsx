@@ -128,6 +128,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
     distance,
     time,
     rating: r.rating,
+    isLiked: r.is_like || false, // Get liked status from API
     onFavoriteClick: () => {},
   };
 }
@@ -223,6 +224,8 @@ export default function PopularTruckFood({ user = false }) {
                 rating={card.rating}
                 time={card.time}
                 onFavoriteClick={card.onFavoriteClick}
+                isLiked={card.isLiked}
+                restaurantId={card.key}
                 link={`/resturants-detail/${card.key}`}
               />
             ))
@@ -230,22 +233,7 @@ export default function PopularTruckFood({ user = false }) {
             <NoData title="No Popular Food Trucks" />
           ) : (
             // fallback static UI
-            sampleRestaurants
-              .slice(0, maxCards)
-              .map((restaurant, index) => (
-                <RestaurantCard
-                  key={index}
-                  description={restaurant.description}
-                  distance={restaurant.distance}
-                  image={restaurant.image}
-                  location={restaurant.location}
-                  name={restaurant.name}
-                  onFavoriteClick={() => {}}
-                  rating={restaurant.rating}
-                  time={restaurant.time}
-                  link={`/resturants-detail/${restaurant.key}`}
-                />
-              ))
+           ""
           )}
         </div>
 

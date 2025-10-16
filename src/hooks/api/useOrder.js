@@ -42,18 +42,24 @@ export const usePlaceOrder = (options = {}) => {
 // Helper function to format cart items for API
 export const formatCartForAPI = (cartItems, restaurantId, deliveryAddressId = null, userAddresses = [], paymentIntentId = null, totalPrice = 0, stripePlatformFee = null) => {
   const orders = cartItems.map(item => {
-    const addons = Object.values(item.addons || {})
-      .filter(addon => addon.selected)
-      .map(addon => ({
-        product_addon_id: parseInt(Object.keys(item.addons).find(id => item.addons[id] === addon)),
-        quantity: addon.quantity
+    const selectedAddonsMap = item.selectedAddons || item.addons || {};
+    const addons = Object.entries(selectedAddonsMap)
+      .filter(([_, addon]) => addon && addon.selected)
+      .map(([addonId, addon]) => ({
+        product_addon_id: parseInt(addonId, 10),
+        quantity: parseInt(addon.quantity, 10) || 1
       }));
 
-    return {
+    const order = {
       product_id: item.id,
       quantity: item.quantity,
-      addons: addons
     };
+
+    if (addons.length > 0) {
+      order.addons = addons;
+    }
+
+    return order;
   });
 
   // If no delivery address provided and user has addresses, use default address

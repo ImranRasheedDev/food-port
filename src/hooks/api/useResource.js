@@ -113,6 +113,22 @@ export const useLikedRestaurants = (options = {}) => {
   );
 };
 
+// Liked food trucks hook
+export const useLikedFoodTrucks = (options = {}) => {
+  return useApiQuery(
+    ['restaurants', 'liked', 'food-trucks'],
+    '/restaurant?moveable=1&liked',
+    {},
+    {
+      ...options,
+    }
+  );
+};
+
+
+
+
+
 // Toggle restaurant like/unlike mutation
 export const useToggleRestaurantLike = (options = {}) => {
   return useApiMutation('/restaurant/liked', {
@@ -125,7 +141,12 @@ export const useToggleRestaurantLike = (options = {}) => {
 export const useToggleRestaurantLikeById = (restaurantId, options = {}) => {
   return useApiMutation(`/restaurant/liked/${restaurantId}`, {
     method: 'POST',
-    invalidateQueries: [['restaurants'], ['restaurants', 'liked'], ['restaurants', restaurantId, 'detail']],
+    invalidateQueries: [
+      ['restaurants'], 
+      ['restaurants', 'liked'], 
+      ['restaurants', 'liked', 'food-trucks'], 
+      ['restaurants', restaurantId, 'detail']
+    ],
     ...options,
   });
 };
