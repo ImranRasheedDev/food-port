@@ -1,6 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { trackAdClick, useAdClickMutation } from "@/hooks/api";
+import { useNavigate } from 'react-router-dom'
+import { useAdClickMutation } from "@/hooks/api";
 import Helper from "@/helpers";
 
 const DealDiscountCard = ({ 
@@ -12,6 +12,7 @@ const DealDiscountCard = ({
     link, 
     cardIndex = 0 
 }) => {
+    const navigate = useNavigate();
     const clickMutation = useAdClickMutation(campaignData?.id);
 
     // Use campaign data if available, otherwise fallback to props
@@ -20,7 +21,7 @@ const DealDiscountCard = ({
         companyName: Helper.truncateText(campaignData.product?.name || "Restaurant", 25),
         mediaPath: campaignData.media_path,
         mediaType: campaignData.media_type,
-        link: campaignData.product?.restaurant_id ? `/restaurants/${campaignData.product.restaurant_id}` : "#"
+        link: campaignData.product?.restaurant_id  && campaignData.product.id ?  `/${campaignData.product.restaurant_id}` : "#"
     } : {
         title,
         companyName: Helper.truncateText(companyName, 25),
@@ -56,10 +57,24 @@ const DealDiscountCard = ({
 
     const currentStyle = cardStyles[styleIndex];
 
-    const handleClick = () => {
-        // Track ad click if campaign data is available
-        if (campaignData?.id) {
-            trackAdClick(clickMutation, campaignData.id);
+    const handleClick = (e) => {
+        if (campaignData) {
+            e.preventDefault();
+            e.stopPropagation();
+            const hasProduct = !!(campaignData?.product?.restaurant_id && campaignData?.product?.id);
+            if (!hasProduct) return;
+            const target = `/resturants-detail/${campaignData.product.restaurant_id}`;
+            clickMutation.mutate({}, {
+                onSettled: () => navigate(target)
+            });
+            return;
+        }
+        // Legacy: if no campaign data, navigate only if link valid is handled by navigate call below
+        if (displayData.link && displayData.link !== '#') {
+            navigate(displayData.link);
+        } else {
+            e.preventDefault();
+            e.stopPropagation();
         }
     };
 
@@ -112,13 +127,12 @@ const DealDiscountCard = ({
                 <h3 className='text-lg leading-5 font-bold mb-3'>
                     <span className={currentStyle.titleClass}>{displayData.title}</span> <span className={currentStyle.companyClass}>{displayData.companyName}</span>
                 </h3>
-                <Link 
-                    to={displayData.link} 
+                <button
                     className={`${currentStyle.buttonClass} rounded-4xl inline-block px-6 py-2 font-medium text-sm`}
                     onClick={handleClick}
                 >
                     Order Now
-                </Link>
+                </button>
             </div>
         </div>
     )

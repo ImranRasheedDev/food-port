@@ -1,13 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAdClickMutation, trackAdClick } from '../../hooks/api/useAds'
 import placeholder from "../../../public/images/placeholder.jpg";
-const AdviserCard = ({ title, companyName, description, link, index, campaignId, mediaPath }) => {
+const AdviserCard = ({ title, companyName, description, link, index, mediaPath }) => {
     const isOdd = index % 2 === 0;
 
     const bgClass = isOdd ? "bg-primary-1003" : "bg-primary-1004";
     const btnTextClass = isOdd ? "text-primary-50" : "text-primary-1004";
-    const clickMutation = useAdClickMutation(campaignId);
 
     const isValidUrl = (url) => {
         if (!url || typeof url !== 'string') return false;
@@ -30,7 +28,7 @@ const AdviserCard = ({ title, companyName, description, link, index, campaignId,
                 <p className='leading-normal py-5'>
                     {description}
                 </p>
-                <Link to={link} onClick={() => trackAdClick(clickMutation, campaignId)} className={`bg-white rounded-4xl inline-block px-10 py-2 font-medium ${btnTextClass}`}>
+                <Link to={link} className={`bg-white rounded-4xl inline-block px-10 py-2 font-medium ${btnTextClass}`}>
                     Order Now
                 </Link>
             </div>

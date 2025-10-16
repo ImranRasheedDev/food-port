@@ -35,7 +35,7 @@ const AdvisersData = [
 const AdvertisersSection = () => {
     const swiperRef = useRef(null);
     const { data, isLoading } = useBannerAds();
-    const campaigns = Array.isArray(data?.data) ? data.data.filter((c) => c?.media_type === 'image') : [];
+    const campaigns = Array.isArray(data?.data) ? data.data : [];
     return (
         <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
@@ -93,8 +93,7 @@ const AdvertisersSection = () => {
                                         title={campaign?.product?.name || "Make Your First Order and Get 25% Off From"}
                                         companyName={campaign?.product?.restaurant_id || "Pizzucci"}
                                         description={"In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."}
-                                        link={'#'}
-                                        campaignId={campaign?.id}
+                                        link={campaign?.product?.restaurant_id ? `/resturants-detail/${campaign.product.restaurant_id}` : '#'}
                                         mediaPath={campaign?.media_path}
                                     />
                                 </SwiperSlide>

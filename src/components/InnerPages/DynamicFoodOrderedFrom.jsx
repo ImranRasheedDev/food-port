@@ -2,7 +2,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 
 export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceOrder, isPlacingOrder, canPlaceOrder, hasAddress, restaurantData }) {
     const deliveryFee = restaurantData?.delivery_fee ? parseFloat(restaurantData.delivery_fee) : 0;
-    const platformFeePercentage = restaurantData?.platform_fee_percent ? parseFloat(restaurantData.platform_fee_percent) : 0;
+    const platformFeePercentage = restaurantData?.commission_percent ? parseFloat(restaurantData.commission_percent) : 0;
     const vatPercentage = restaurantData?.tax ? parseFloat(restaurantData.tax) : 0;
     const platformFee = (totalPrice * (platformFeePercentage / 100)).toFixed(2);
     const vatPrice = (totalPrice * (vatPercentage / 100)).toFixed(2);
@@ -66,7 +66,7 @@ export default function DynamicFoodOrderedFrom({ cartItems, totalPrice, onPlaceO
                     <p className="text-primary-1013">$ {deliveryFee.toFixed(2)}</p>
                 </div>
                 <div className="flex justify-between items-center mt-6">
-                    <p className="text-primary-1013">Platform Fee ({platformFeePercentage}%)</p>
+                    <p className="text-primary-1013">  Commission Fee ({platformFeePercentage}%)</p>
                     <p className="text-primary-1013">$ {platformFee}</p>
                 </div>
                 <div className="flex justify-between items-center mt-6">

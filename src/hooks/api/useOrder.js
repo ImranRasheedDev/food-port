@@ -85,7 +85,7 @@ export const formatCartForAPI = (cartItems, restaurantId, deliveryAddressId = nu
   const orderData = {
     restaurant_id: restaurantId,
     delivery_address_id: finalDeliveryAddressId,
-    platform_fee: finalPlatformFee,
+    commission: finalPlatformFee,
     orders: orders
   };
 
