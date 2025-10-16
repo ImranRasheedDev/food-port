@@ -1,9 +1,9 @@
 import { LocateFixed, X } from 'lucide-react'
 import React from 'react'
 
-const CurrentLocationCard = () => {
+const CurrentLocationCard = ({ onClick }) => {
     return (
-        <div className="flex items-center bg-white hover:bg-primary-1000 hover:shadow-lg px-4 py-8 not-last:border-b not-last:border-gray-300 last:rounded-br-md last:rounded-bl-md">
+        <div className="flex items-center bg-white hover:bg-primary-1000 hover:shadow-lg px-4 py-8 not-last:border-b not-last:border-gray-300 last:rounded-br-md last:rounded-bl-md cursor-pointer" onClick={onClick}>
             <div className='flex gap-x-3 items-center'>
                 <div className='rounded-md'>
                     <LocateFixed className='text-primary-50' />
