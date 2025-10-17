@@ -6,6 +6,7 @@ import TestimonialCard from "../Cards/TestimonialCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
+import LayoutWrapper from "../layoutWrapper";
 
 const testimonials = [
     {
@@ -40,7 +41,7 @@ export default function TestimonialsSection() {
 
     return (
         <section className="py-32 bg-[url(/images/bg-testimonials.png)] bg-no-repeat bg-cover">
-            <div className="container mx-auto px-4">
+                <LayoutWrapper>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
                     {/* Left side - Content */}
                     <div className="text-white col-span-1">
@@ -118,7 +119,7 @@ export default function TestimonialsSection() {
                         </Swiper>
                     </div>
                 </div>
-            </div>
+                </LayoutWrapper>
         </section>
     );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ShoppingCart, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import LayoutWrapper from "./layoutWrapper";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,8 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <LayoutWrapper> 
+      <div className=" py-4 flex items-center justify-between">
         {/* Mobile: Menu + Logo */}
         <div className="flex w-full items-center justify-between md:hidden">
           {/* Menu Icon */}
@@ -58,6 +60,7 @@ export default function Header() {
           </div>
         </div>
       </div>
+      </LayoutWrapper>
 
       {/* Mobile Drawer */}
       {isOpen && (

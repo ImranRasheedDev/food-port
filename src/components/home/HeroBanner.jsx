@@ -1,8 +1,11 @@
+import LayoutWrapper from "../layoutWrapper";
+
 export default function HeroBanner({ user = false }) {
     return (
         <section
             className={`${user ? "bg-[url('/images/hero-bg-2.png')] min-h-[500px]" : "bg-[url('/images/hero-bg.png')] min-h-screen"} relative  flex items-center justify-start bg-cover bg-center `}
         >
+            <LayoutWrapper>
             {
                 user ? <>
                     <div className="absolute bottom-0 right-0 ml-auto text-right">
@@ -10,8 +13,8 @@ export default function HeroBanner({ user = false }) {
                     </div>
                 </> : <></>
             }
-            <div className="container mx-auto px-4 pt-20 relative">
-                <div className="max-w-5xl">
+            <div className="relative">
+                <div className="">
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                         DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
                     </h1>
@@ -39,6 +42,7 @@ export default function HeroBanner({ user = false }) {
                     }
                 </div>
             </div>
+            </LayoutWrapper>
         </section>
     )
 }

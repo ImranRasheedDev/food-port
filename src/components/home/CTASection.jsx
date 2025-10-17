@@ -1,9 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-
+import LayoutWrapper from '../layoutWrapper'
 const CTASection = () => {
     return (
-        <div className='container mx-auto px-4 mb-20'>
+        <LayoutWrapper>
             <div className='flex rounded-3xl'>
                 <div className='w-3/5'>
                     <img src="/images/cta.png" alt="" className='block h-[500px] w-full object-cover rounded-tl-3xl rounded-bl-3xl' />
@@ -21,7 +21,7 @@ const CTASection = () => {
                     </Link>
                 </div>
             </div>
-        </div>
+        </LayoutWrapper>
     )
 }
 

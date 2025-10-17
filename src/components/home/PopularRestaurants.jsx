@@ -6,99 +6,101 @@ import { useRestaurants, useAllAddresses } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { NoData } from "@/components/ui/empty";
 import { Link } from "react-router-dom";
+import LayoutWrapper from "../layoutWrapper";
 
-const sampleRestaurants = [
-  {
-    name: "KFC",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.2,
-    image: "/images/popular-1.png",
-    location: "California",
-    distance: "1 km",
-    time: "30 min",
-  },
-  {
-    name: "Poultry Palace",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "New Jersey",
-    distance: "3.2 km",
-    time: "25 min",
-  },
-  {
-    name: "The Grill Master's Cafe",
-    description: "Bread, Eggs, Butter, Fries...",
-    rating: 4.3,
-    image: "/images/popular-1.png",
-    location: "New York",
-    distance: "5 km",
-    time: "40 min",
-  },
-  {
-    name: "Cozy Cuppa Cafe",
-    description: "Cheesecake, waffles, Cakes...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "Dallas",
-    distance: "4 km",
-    time: "30 min",
-  },
-  {
-    name: "KFC",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.2,
-    image: "/images/popular-1.png",
-    location: "California",
-    distance: "1 km",
-    time: "30 min",
-  },
-  {
-    name: "Poultry Palace",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "New Jersey",
-    distance: "3.2 km",
-    time: "25 min",
-  },
-  {
-    name: "The Grill Master's Cafe",
-    description: "Bread, Eggs, Butter, Fries...",
-    rating: 4.3,
-    image: "/images/popular-1.png",
-    location: "New York",
-    distance: "5 km",
-    time: "40 min",
-  },
-  {
-    name: "Cozy Cuppa Cafe",
-    description: "Cheesecake, waffles, Cakes...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "Dallas",
-    distance: "4 km",
-    time: "30 min",
-  },
-  {
-    name: "Cozy Cuppa Cafe",
-    description: "Cheesecake, waffles, Cakes...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "Dallas",
-    distance: "4 km",
-    time: "30 min",
-  },
-  {
-    name: "Cozy Cuppa Cafe",
-    description: "Cheesecake, waffles, Cakes...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "Dallas",
-    distance: "4 km",
-    time: "30 min",
-  },
-];
+
+// const sampleRestaurants = [
+//   {
+//     name: "KFC",
+//     description: "Chicken quesadilla, avocado...",
+//     rating: 3.2,
+//     image: "/images/popular-1.png",
+//     location: "California",
+//     distance: "1 km",
+//     time: "30 min",
+//   },
+//   {
+//     name: "Poultry Palace",
+//     description: "Chicken quesadilla, avocado...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "New Jersey",
+//     distance: "3.2 km",
+//     time: "25 min",
+//   },
+//   {
+//     name: "The Grill Master's Cafe",
+//     description: "Bread, Eggs, Butter, Fries...",
+//     rating: 4.3,
+//     image: "/images/popular-1.png",
+//     location: "New York",
+//     distance: "5 km",
+//     time: "40 min",
+//   },
+//   {
+//     name: "Cozy Cuppa Cafe",
+//     description: "Cheesecake, waffles, Cakes...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "Dallas",
+//     distance: "4 km",
+//     time: "30 min",
+//   },
+//   {
+//     name: "KFC",
+//     description: "Chicken quesadilla, avocado...",
+//     rating: 3.2,
+//     image: "/images/popular-1.png",
+//     location: "California",
+//     distance: "1 km",
+//     time: "30 min",
+//   },
+//   {
+//     name: "Poultry Palace",
+//     description: "Chicken quesadilla, avocado...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "New Jersey",
+//     distance: "3.2 km",
+//     time: "25 min",
+//   },
+//   {
+//     name: "The Grill Master's Cafe",
+//     description: "Bread, Eggs, Butter, Fries...",
+//     rating: 4.3,
+//     image: "/images/popular-1.png",
+//     location: "New York",
+//     distance: "5 km",
+//     time: "40 min",
+//   },
+//   {
+//     name: "Cozy Cuppa Cafe",
+//     description: "Cheesecake, waffles, Cakes...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "Dallas",
+//     distance: "4 km",
+//     time: "30 min",
+//   },
+//   {
+//     name: "Cozy Cuppa Cafe",
+//     description: "Cheesecake, waffles, Cakes...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "Dallas",
+//     distance: "4 km",
+//     time: "30 min",
+//   },
+//   {
+//     name: "Cozy Cuppa Cafe",
+//     description: "Cheesecake, waffles, Cakes...",
+//     rating: 3.8,
+//     image: "/images/popular-1.png",
+//     location: "Dallas",
+//     distance: "4 km",
+//     time: "30 min",
+//   },
+// ];
 async function mapApiRestaurantToCard(r, userLat, userLng) {
   let distance = "-";
   let time = "-";
@@ -188,7 +190,7 @@ export default function PopularRestaurants({ user = false }) {
   }, [apiArray, userCoordinates.lat, userCoordinates.lng]);
   return (
     <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
+            <LayoutWrapper> 
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -247,7 +249,7 @@ export default function PopularRestaurants({ user = false }) {
             </span>
           </Link>
         </div>
-      </div>
+      </LayoutWrapper>
     </section>
   );
 }

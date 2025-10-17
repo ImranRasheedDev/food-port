@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useBannerAds } from '../../hooks/api/useAds';
-
+import LayoutWrapper from '../layoutWrapper';
 const AdvisersData = [
     {
         title: "Make Your First Order and Get 25% Off From",
@@ -38,7 +38,7 @@ const AdvertisersSection = () => {
     const campaigns = Array.isArray(data?.data) ? data.data : [];
     return (
         <section className="py-16 bg-white">
-            <div className="container mx-auto px-4">
+           <LayoutWrapper>  
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
                     Top <span className="text-primary-50">Advertisers</span> Pick
                 </h2>
@@ -116,7 +116,7 @@ const AdvertisersSection = () => {
                         </button>
                     </div>
                 </div>
-            </div>
+            </LayoutWrapper>
         </section>
     )
 }

@@ -127,7 +127,7 @@ const SetLocationForm = () => {
                     {/* Submit */}
                     <button
                         type="submit"
-                        className="bg-primary-50 text-white rounded-full w-[470px] py-3 inline-block  cursor-pointer"
+                        className="bg-primary-50 text-white rounded-full w-full max-w-md py-3 inline-block cursor-pointer"
                     >
                         Save Changes
                     </button>

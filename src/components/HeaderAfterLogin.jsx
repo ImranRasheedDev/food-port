@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAllAddresses } from "../hooks/api";
+import LayoutWrapper from "./layoutWrapper";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
@@ -55,7 +56,8 @@ export default function HeaderAfterLogin() {
   };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <LayoutWrapper> 
+      <div className="px-4 py-4 flex items-center justify-between">
         {/* Mobile: Menu + Logo */}
         <div className="flex w-full items-center justify-between md:hidden">
           {/* Menu Icon */}
@@ -176,6 +178,7 @@ export default function HeaderAfterLogin() {
           </div>
         </div>
       </div>
+      </LayoutWrapper>
 
       {/* Mobile Drawer */}
       {isOpen && (

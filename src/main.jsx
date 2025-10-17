@@ -15,7 +15,9 @@ const init = async () => {
     <BrowserRouter>
       <QueryProvider>
         <GoogleMapsProvider>
+        
           <App />
+         
           <ToastContainer position="top-right" />
         </GoogleMapsProvider>
       </QueryProvider>

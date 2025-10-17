@@ -66,60 +66,26 @@ export default function DynamicCart({
   ).toFixed(2);
 
   return (
-    <div className="border border-primary-1007 rounded-lg p-4">
+    <div className="border  border-primary-1007 rounded-lg p-4">
       {/* Cart Items */}
-      <div className="space-y-4 mb-6">
+      <div className="space-y-2 mb-4">
         {items.map((item) => (
           <div
             key={`${item.id}-${JSON.stringify(item.selectedAddons)}`}
             className="border-b border-primary-1007 pb-6 last:border-b-0"
           >
-            <div className="flex gap-3">
-              <div className="flex-shrink-0">
+            <div className="flex gap-3 ">
+              <div className="flex-shrink-0 ">
                 <img
                   src={item.image || "/images/product-1.png"}
                   alt={item.name}
                   className="w-32 h-32 object-cover rounded-lg"
                 />
               </div>
-              <div className="w-full">
+              <div className="w-full ">
                 <h3 className="font-bold mb-2">{item.name}</h3>
-                {/* Selected Addons */}
-                {item.selectedAddons &&
-                  Object.values(item.selectedAddons).some(
-                    (addon) => addon.selected
-                  ) && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium text-gray-700">
-                        Add-ons:
-                      </p>
-                      <div className="ml-2 space-y-1">
-                        {Object.values(item.selectedAddons)
-                          .filter((addon) => addon.selected)
-                          .map((addon, index) => (
-                            <p key={index} className="text-sm text-gray-600">
-                              • {addon.name}{" "}
-                              {addon.quantity > 1 && `(x${addon.quantity})`}
-                              {addon.price > 0 &&
-                                ` - $${(addon.price * addon.quantity).toFixed(
-                                  2
-                                )}`}
-                            </p>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                {/* Special Instructions */}
-                {item.instructions && (
-                  <div className="mt-2">
-                    <p className="text-sm font-medium text-gray-700">Note:</p>
-                    <p className="text-sm text-gray-600 ml-2">
-                      {item.instructions}
-                    </p>
-                  </div>
-                )}
 
-                <div className="flex justify-between items-center mt-4 w-full">
+                <div className="flex justify-between  items-center mt-4 w-full">
                   <p className="font-semibold">${item.price}</p>
                   <div className="flex justify-between items-center gap-2 ">
                     <button
@@ -157,17 +123,17 @@ export default function DynamicCart({
       </div>
 
       {/* Pricing Breakdown */}
-      <div className="border-b border-primary-1007 pb-6 mb-6">
+      <div className="border-b border-t border-primary-1007 pb-4 mb-1">
         <div className="flex justify-between items-center mt-6">
           <p className="text-primary-100 font-semibold">Sub Total</p>
           <p className="text-primary-100 font-semibold">
             $ {subtotal.toFixed(2)}
           </p>
         </div>
-        <div className="flex justify-between items-center mt-6">
+        {/* <div className="flex justify-between items-center mt-6">
           <p className="text-primary-1013">Standard Delivery</p>
           <p className="text-primary-1013">$ {deliveryFee.toFixed(2)}</p>
-        </div>
+        </div> */}
         <div className="flex justify-between items-center mt-6">
           <p className="text-primary-1013">
             Commission Fee ({platformFeePercentage}%)
