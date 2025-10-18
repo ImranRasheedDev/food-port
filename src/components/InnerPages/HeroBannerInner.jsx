@@ -1,22 +1,25 @@
 import React from 'react'
+import LayoutWrapper from '../layoutWrapper'
 
 const HeroBannerInner = () => {
     return (
         <section
-            className={`bg-[url('/images/hero-bg-2.png')] h-[300px] relative  flex items-center justify-start bg-cover bg-center`}
+            className={`bg-[url('/images/hero-bg-2.png')] h-[250px] sm:h-[400px] md:h-[300px] relative flex items-center justify-start bg-cover bg-center`}
         >
-            <div className="absolute bottom-0 right-0 ml-auto text-right">
-                <img src="/images/inner-banner.png" alt="" />
+            <div className="absolute bottom-0 -right-40 ml-auto text-right hidden sm:block">
+                <img src="/images/inner-banner.png" className="w-full h-full object-cover" alt="" />
             </div>
-            <div className="container mx-auto px-4  relative">
-                <div className="max-w-5xl">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                        DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
-                    </h1>
-                    <p className="text-lg text-white/90 mb-8 max-w-4xl">
-                        Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with
-                        established players. They needed to attract the hungry foodies, restaurant and food truck owners.
-                    </p>
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full px-4 sm:px-6 md:px-8">
+                <div className="max-w-[1280px] mx-auto">
+                    <div className="max-w-lg sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
+                        <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+                            DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
+                        </h1>
+                        <p className="text-sm sm:text-base md:text-lg text-white/90 mb-6 sm:mb-8 leading-relaxed">
+                            Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with
+                            established players. They needed to attract the hungry foodies, restaurant and food truck owners.
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>

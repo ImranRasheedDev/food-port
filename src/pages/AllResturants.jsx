@@ -51,8 +51,8 @@ function AllResturants() {
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
-      <div className="flex gap-x-[30px] px-6 mx-auto justify-center pt-28">
-        <div className="w-[260px]">
+      <div className="flex flex-col sm:flex-row gap-x-[30px] px-6 mx-auto justify-center pt-28">
+        <div className="md:w-[20%] w-full">
           <ProductFilters 
             filters={filters}
             onFiltersChange={handleFiltersChange}
@@ -88,12 +88,12 @@ function AllResturants() {
             />
           )}
         </div>
-        <div className="w-[1067px] ">
+        <div className="md:w-[60%] w-full ">
           <DialyDeals />
           <AllResturantsSection filters={debouncedFilters} />
           {/* <DealsAndDiscounts /> */}
         </div>
-        <div className="w-[350px] space-y-8">
+        <div className="md:w-[20%] w-full space-y-8">
           {/* Ad 3 - CardOne */}
           {bannerAds.length > 2 ? (
             <CardOne
