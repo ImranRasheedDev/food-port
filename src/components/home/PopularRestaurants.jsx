@@ -125,7 +125,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
       (r.restaurant_categories &&
         r.restaurant_categories.map((c) => c.name).join(", ")) ||
       r.address,
-    image: r.bg_image_url,
+    image: r.logo_url,
     location: city,
     distance,
     time,

@@ -112,6 +112,7 @@ export default function ResturantsDetail() {
   // Get restaurant categories as tags
   const tags = restaurant?.restaurant_categories?.map((cat) => cat.name) || [];
 
+  console.log(filteredCategories,"filteredCategories")
 
   return (
     <>

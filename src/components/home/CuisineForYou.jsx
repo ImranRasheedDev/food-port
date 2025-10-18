@@ -67,6 +67,8 @@ export default function CuisineForYou() {
   const apiItems = res?.data ?? null;
   const allOption = { id: "all", name: "All", image: "/images/all.jpg" };
 
+  console.log(apiItems,"apiItems")
+
   let itemsToRender = null;
   if (apiItems !== null) {
     itemsToRender = apiItems.length

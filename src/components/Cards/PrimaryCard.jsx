@@ -71,7 +71,7 @@ export function RestaurantCard({
 
       <div className="pt-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-gray-900 text-lg">{name}</h3>
+          <h3 className="font-semibold text-gray-900 max-w-[200px] truncate text-lg">{name}</h3>
           <div className="flex items-center space-x-1">
             <div className="w-6 h-6 rounded-full bg-yellow-400 text-white flex justify-center items-center">
               <Star className="w-4 h-4" />
@@ -87,11 +87,11 @@ export function RestaurantCard({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-2 text-primary-400">
             <span className="w-2 h-2 flex bg-black rounded-full"></span>
-            <span>{location || "N/A"}</span>
+            <span className="max-w-[80px] truncate">{location || "N/A"}</span>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 border-r border-black/10 pr-4">
+          <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 border-r border-black/10 pr-2">
               <span className="w-6 h-6 flex bg-primary-50 justify-center items-center rounded-full ">
                 <MapPin className="w-4 h-4  stroke-white" />
               </span>

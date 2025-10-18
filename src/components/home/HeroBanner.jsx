@@ -14,7 +14,7 @@ export default function HeroBanner({ user = false }) {
                                 <h1 className="text-2xl md:text-3xl max-w-2xl md:max-w-none font-bold text-white mb-6 leading-tight">
                                     DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
                                 </h1>
-                                <p className="text-base md:text-lg max-w-xl md:max-w-none text-white/90 mb-8">
+                                <p className="text-base text-start md:text-lg max-w-xl md:max-w-none text-white/90 mb-8">
                                     Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with
                                     established players. They needed to attract the hungry foodies, restaurant and food truck owners.
                                 </p>
@@ -29,8 +29,8 @@ export default function HeroBanner({ user = false }) {
                 </>
             ) : (
                 <LayoutWrapper>
-                    <div className="flex items-center justify-center">
-                        <div className="flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-start">
+                        <div className="flex flex-col items-start justify-start">
                             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                                 DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
                             </h1>
