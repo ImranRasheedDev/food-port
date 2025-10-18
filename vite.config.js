@@ -7,13 +7,13 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
     server: {
-    proxy: {
-      '/api': {
-        target: 'https://myfoodport.com',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    // proxy: {
+    //   '/api': {
+    //     target: 'https://myfoodport.com',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    // },
   },
   resolve: {
     alias: {
