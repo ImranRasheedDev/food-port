@@ -8,10 +8,24 @@ export default function PaymentMethodSelect({
   canPlaceOrder,
   hasAddress,
 }) {
-  const [selectedPayment, setSelectedPayment] = useState(paymentMethod || null);
+  const [selectedPayment, setSelectedPayment] = useState(null);
 
+  // Determine display value based on paymentMethod prop
+  const getDisplaySelectedPayment = () => {
+    if (paymentMethod === "card") {
+      // If paymentMethod is card, show the currently selected card or default to visa
+      return selectedPayment || "visa";
+    }
+    return paymentMethod;
+  };
+
+  // Initialize and sync with parent state
   useEffect(() => {
-    setSelectedPayment(paymentMethod || null);
+    if (paymentMethod === "card" && !selectedPayment) {
+      setSelectedPayment("visa");
+    } else if (paymentMethod && paymentMethod !== "card") {
+      setSelectedPayment(paymentMethod);
+    }
   }, [paymentMethod]);
 
   const paymentMethods = [
@@ -33,9 +47,13 @@ export default function PaymentMethodSelect({
   ];
 
   const handleSelect = (id) => {
+    // Prevent unnecessary updates if already selected
+    if (getDisplaySelectedPayment() === id) return;
+    
     setSelectedPayment(id);
-    if (typeof onPaymentMethodChange === "function")
+    if (typeof onPaymentMethodChange === "function") {
       onPaymentMethodChange(id === "visa" || id === "mastercard" ? "card" : id);
+    }
   };
 
   return (
@@ -45,7 +63,9 @@ export default function PaymentMethodSelect({
         {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className="flex items-center space-x-8 w-full cursor-pointer"
+            className={`flex items-center space-x-8 w-full cursor-pointer p-2 rounded-lg transition-colors duration-200 ${
+              getDisplaySelectedPayment() === method.id ? 'bg-primary-100/10' : 'hover:bg-primary-100/5'
+            }`}
             onClick={() => handleSelect(method.id)}
           >
             <div>
@@ -56,12 +76,18 @@ export default function PaymentMethodSelect({
             </div>
             <div className="ml-auto">
               <div
-                className={`rounded-full w-5 h-5 ${
-                  selectedPayment === method.id
-                    ? "border-[5px] border-primary-50"
-                    : "border-2 border-primary-50"
+                className={`relative w-5 h-5 border-2 rounded-full transition-all duration-200 ${
+                  getDisplaySelectedPayment() === method.id
+                    ? "border-primary-50 bg-primary-50"
+                    : "border-primary-50 bg-transparent"
                 }`}
-              />
+              >
+                {getDisplaySelectedPayment() === method.id && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
