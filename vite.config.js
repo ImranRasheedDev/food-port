@@ -6,7 +6,15 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-    server: {
+  base: "/",
+  publicDir: "public",
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    // Copy public folder contents correctly
+    copyPublicDir: true,
+  },
+  server: {
     // proxy: {
     //   '/api': {
     //     target: 'https://myfoodport.com',
@@ -20,6 +28,4 @@ export default defineConfig({
       "@": path.resolve("./src"),
     },
   },
- 
-
 });

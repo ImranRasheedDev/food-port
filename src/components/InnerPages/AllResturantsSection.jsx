@@ -78,7 +78,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
         r.restaurant_categories.map((c) => c.name).join(", ")) ||
       r.address ||
       "No description",
-    image: r.bg_image_url || r.logo_url || "/images/popular-1.png",
+    image: r.logo_url || "/images/popular-1.png",
     location: city,
     distance,
     time,
@@ -184,6 +184,9 @@ const AllResturantsSection = ({ filters = {} }) => {
   const hasApiData = apiArray && apiArray.length > 0;
   const apiReturnedEmpty = apiArray && apiArray.length === 0;
 
+
+  console.log(apiArray,"apiArray")
+
   // Calculate total count from the large dataset
   const estimatedTotal = totalData?.data?.length || null;
 
@@ -265,6 +268,8 @@ const AllResturantsSection = ({ filters = {} }) => {
   // Show pagination when multiple pages exist (if known) or when prev/next is possible
   const showPagination =
     hasApiData && (totalPages ? totalPages > 1 : hasNextPage || hasPrevPage);
+  
+  console.log(restaurants,"restaurants11")
 
   return (
     <div>
