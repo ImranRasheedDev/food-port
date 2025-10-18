@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Skeleton from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/api";
 import { NoData } from "@/components/ui/empty";
 import LayoutWrapper from "../layoutWrapper";
+import { processImageUrl } from "@/lib/utils";
 
 const staticCuisineTypes = [
   { name: "All", image: "/images/all.jpg" },
@@ -39,24 +40,41 @@ const SkeletonGrid = () => (
   </div>
 );
 
+const CuisineItem = ({ item }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const imageSrc = (() => {
+    if (imageError) {
+      return "/images/all.jpg"; // Fallback image
+    }
+    return processImageUrl(item.image, "/images/all.jpg");
+  })();
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  return (
+    <div className="text-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer">
+      <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
+        <img
+          src={imageSrc}
+          alt={item.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={handleImageError}
+        />
+      </div>
+      <p className="text-primary-400 font-medium">{item.name}</p>
+    </div>
+  );
+};
+
 const CuisineGrid = ({ items }) => (
   <div className="flex justify-center">
     <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-2 max-w-full">
       {items.map((c) => (
-        <div
-          key={c.id}
-          className="text-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
-        >
-          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
-            <img
-              src={c.image}
-              alt={c.name}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </div>
-          <p className="text-primary-400 font-medium">{c.name}</p>
-        </div>
+        <CuisineItem key={c.id} item={c} />
       ))}
     </div>
   </div>
@@ -66,8 +84,6 @@ export default function CuisineForYou() {
   const { data: res, isLoading } = useCategories();
   const apiItems = res?.data ?? null;
   const allOption = { id: "all", name: "All", image: "/images/all.jpg" };
-
-  console.log(apiItems,"apiItems")
 
   let itemsToRender = null;
   if (apiItems !== null) {
