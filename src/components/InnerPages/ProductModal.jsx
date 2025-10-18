@@ -15,6 +15,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useProductWithAddons } from "@/hooks/api";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "react-toastify";
+import { processImageUrl } from "@/lib/utils";
 
 export default function ProductModal({
   open,
@@ -25,6 +26,7 @@ export default function ProductModal({
   const [countValue, setCountValue] = useState(1);
   const [selectedAddons, setSelectedAddons] = useState({});
   const [instructions, setInstructions] = useState("");
+  const [imageError, setImageError] = useState(false);
   const { addToCart } = useCart();
 
   // Reset state when modal closes
@@ -33,6 +35,7 @@ export default function ProductModal({
       setCountValue(1);
       setSelectedAddons({});
       setInstructions("");
+      setImageError(false);
     }
   }, [open]);
 
@@ -62,6 +65,18 @@ export default function ProductModal({
 
     return (basePrice + addonPrice) * countValue;
   }, [product, selectedAddons, countValue]);
+
+  // Get processed image URL with error handling
+  const imageSrc = useMemo(() => {
+    if (imageError || !product?.image_url) {
+      return "/images/product-1.png";
+    }
+    return processImageUrl(product.image_url, "/images/product-1.png");
+  }, [product?.image_url, imageError]);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -188,9 +203,11 @@ export default function ProductModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-[880px]! p-0 block overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
         <img
-          src={product.image_url || "/images/product-1.png"}
+          src={imageSrc}
           alt="product-modal-image"
           className="w-full h-[286px] object-cover block"
+          onError={handleImageError}
+          loading="lazy"
         />
         <div className="border-b border-primary-1007 mx-8 py-6 mb-4">
           <h2 className="text-2xl font-bold mb-1">{product.name}</h2>

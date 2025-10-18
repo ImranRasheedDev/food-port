@@ -3,7 +3,7 @@ import LayoutWrapper from "../layoutWrapper";
 export default function HeroBanner({ user = false }) {
     return (
         <section
-            className={`${user ? "bg-[url('/images/hero-bg-2.png')] min-h-[450px] relative" : "bg-[url('/images/hero-bg.png')] min-h-screen"} flex items-center justify-start bg-cover bg-center`}
+            className={`${user ? "bg-[url('/images/hero-bg-2.png')]  min-h-[450px] relative" : "bg-[url('/images/hero-bg.png')] min-h-screen"} flex items-center justify-start bg-cover bg-center`}
         >
             {user ? (
                 <>
@@ -29,7 +29,7 @@ export default function HeroBanner({ user = false }) {
                 </>
             ) : (
                 <LayoutWrapper>
-                    <div className="flex items-center justify-start">
+                    <div className="flex py-24 md:12 lg:0 items-center  justify-start">
                         <div className="flex flex-col items-start justify-start">
                             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                                 DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
