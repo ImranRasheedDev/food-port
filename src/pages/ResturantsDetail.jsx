@@ -115,6 +115,7 @@ export default function ResturantsDetail() {
 
   return (
     <>
+
       <div className="h-[72px]" />
       <ProductDetailBanner
         image={restaurant?.logo_url || "/images/product-1.png"}
@@ -239,7 +240,7 @@ export default function ResturantsDetail() {
               </div>
             </div>
           </div>
-          <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
+          <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
             <DynamicCart restaurantData={restaurant} ads={bannerAds} />
           </div>
         </div>

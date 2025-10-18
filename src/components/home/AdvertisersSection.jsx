@@ -71,15 +71,15 @@ const AdvertisersSection = () => {
                         {isLoading && (
                             Array.from({ length: 2 }).map((_, index) => (
                                 <SwiperSlide key={`skeleton-${index}`}>
-                                    <div className="bg-primary-1003 flex gap-x-10 text-white rounded-4xl items-center animate-pulse">
-                                        <div className='pl-10 py-10 w-3/5'>
-                                            <div className='h-8 w-3/4 bg-white/30 rounded mb-4'></div>
-                                            <div className='h-4 w-full bg-white/20 rounded mb-2'></div>
-                                            <div className='h-4 w-5/6 bg-white/20 rounded mb-6'></div>
-                                            <div className='h-10 w-36 bg-white/40 rounded-4xl'></div>
+                                    <div className="bg-primary-1003 flex flex-col md:flex-row gap-x-10 gap-y-5 text-white rounded-4xl items-center animate-pulse">
+                                        <div className='pl-4 md:pl-10 py-6 md:py-10 w-full md:w-3/5'>
+                                            <div className='h-6 md:h-8 w-3/4 bg-white/30 rounded mb-4'></div>
+                                            <div className='h-3 md:h-4 w-full bg-white/20 rounded mb-2'></div>
+                                            <div className='h-3 md:h-4 w-5/6 bg-white/20 rounded mb-6'></div>
+                                            <div className='h-8 md:h-10 w-32 md:w-36 bg-white/40 rounded-4xl'></div>
                                         </div>
-                                        <div className='ml-auto ronded-tr-4xl rounded-br-4xl w-2/5 flex justify-end'>
-                                            <div className='ronded-tr-4xl rounded-br-4xl block bg-white/30 w-full h-60'></div>
+                                        <div className='w-full md:w-2/5 flex justify-center md:justify-end md:ml-auto'>
+                                            <div className='rounded-b-4xl md:ronded-tr-4xl md:rounded-br-4xl block bg-white/30 w-full max-w-sm md:max-w-none h-48 md:h-60'></div>
                                         </div>
                                     </div>
                                 </SwiperSlide>
@@ -104,15 +104,15 @@ const AdvertisersSection = () => {
                     <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10">
                         <button
                             onClick={() => swiperRef.current?.slidePrev()}
-                            className="w-14 h-14 relative -left-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
+                            className="w-10 h-10 md:w-14 md:h-14 relative -left-3 md:-left-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
                         >
-                            <ArrowLeft className="w-6 h-6 text-primary-100" />
+                            <ArrowLeft className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
                         </button>
                         <button
                             onClick={() => swiperRef.current?.slideNext()}
-                            className="w-14 h-14 relative -right-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
+                            className="w-10 h-10 md:w-14 md:h-14 relative -right-3 md:-right-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
                         >
-                            <ArrowRight className="w-6 h-6 text-primary-100" />
+                            <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
                         </button>
                     </div>
                 </div>

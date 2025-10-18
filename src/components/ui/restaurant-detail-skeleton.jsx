@@ -1,8 +1,9 @@
 import React from 'react';
-
+import LayoutWrapper from '../layoutWrapper';
 export const RestaurantDetailSkeleton = () => {
   return (
     <>
+      <LayoutWrapper>
       <div className="h-[72px]" />
       
       {/* Banner Skeleton */}
@@ -108,6 +109,7 @@ export const RestaurantDetailSkeleton = () => {
           </div>
         </div>
       </div>
+      </LayoutWrapper>
     </>
   );
 };

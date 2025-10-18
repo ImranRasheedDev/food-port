@@ -11,18 +11,18 @@ export default function Footer() {
           className="flex flex-col py-10 md:flex-row justify-between items-center"
         >
           <div>
-            <h3 className="text-3xl font-bold mb-1">
+            <h3 className="text-3xl text-center md:text-left font-bold mb-1">
               Join Our <span className="text-primary-50">Newsletter</span>
             </h3>
-            <p className="text-primary-800 font-medium text-lg">
+            <p className="text-primary-800 text-center md:text-left font-medium text-lg mb-6 md:mb-0">
               Be the first to know about our latest updates, exclusive offers,
               and more.
             </p>
           </div>
-          <div className="flex md:mt-0 gap-x-3">
+          <div className="flex  w-[100%] md:w-auto flex-col md:flex-row md:mt-0 gap-y-4 md:gap-y-0 gap-x-3">
             <Input
               placeholder="Enter your email address"
-              className="border border-primary-700 h-14 w-80"
+              className="border border-primary-700 md:mb-0 mb-4 h-14 w-full md:w-80"
             />
             <Button className="bg-primary-50 rounded-lg px-8 h-14 cursor-pointer">
               Subscribe

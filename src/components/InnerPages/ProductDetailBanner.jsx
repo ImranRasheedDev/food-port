@@ -16,9 +16,9 @@ export default function ProductDetailBanner({
   isLiked = false,
 }) {
   const navigate = useNavigate();
+
   const toggleLikeMutation = useToggleRestaurantLikeById(restaurantId, {
     onSuccess: () => {
-      // The query will be automatically invalidated and refetched
       console.log("Restaurant like status toggled successfully");
     },
     onError: (error) => {
@@ -39,11 +39,14 @@ export default function ProductDetailBanner({
       console.error("No restaurant ID provided - cannot toggle like");
     }
   };
+
   return (
-    <div className="bg-primary-1014 lg:h-[300px] h-[400px] flex items-center">
-      <div className="container mx-auto lg:px-0 px-6">
-        <div className="flex flex-wrap">
-          <div className="min-sm:flex md:gap-x-10 gap-x-4">
+    <div className="bg-primary-1014 flex items-center w-full lg:h-[300px] ">
+      {/* Outer full-width background */}
+      <div className="w-full px-4">
+        {/* Centered content container */}
+        <div className="max-w-[1280px] px-4 mx-auto py-16 md:py-0 flex flex-col md:flex-row flex-wrap items-start w-full">
+          <div className="min-sm:flex md:gap-x-10 gap-x-4 flex-1">
             <div className="flex-shrink-0 max-sm:mb-4">
               <img
                 src={image}
@@ -51,18 +54,22 @@ export default function ProductDetailBanner({
                 className="lg:w-[156px] lg:h-[156px] w-[100px] h-[100px] object-cover rounded-lg"
               />
             </div>
+
             <div>
-              <div className="flex  mb-3">
+              <div className="flex mb-3">
                 <ul className="flex flex-wrap gap-x-6 text-primary-1013">
                   {tags.map((tag, index) => (
                     <li key={index}>{tag}</li>
                   ))}
                 </ul>
               </div>
-              <h1 className="text-black text-4xl font-bold mb-3">
+
+              <h1 className="text-black md:text-4xl text-3xl font-bold mb-3">
                 {restaurantName}
               </h1>
+
               <div className="flex flex-wrap gap-x-3 mb-2">
+                {/* Min Order */}
                 <div className="flex items-center gap-x-2">
                   <span>
                     <svg
@@ -84,8 +91,10 @@ export default function ProductDetailBanner({
                       ></path>
                     </svg>
                   </span>
-                  <span className="">Min. order ${minOrderUnit}</span>
+                  <span>Min. order ${minOrderUnit}</span>
                 </div>
+
+                {/* Rating */}
                 <div className="flex items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -107,10 +116,12 @@ export default function ProductDetailBanner({
                       clipRule="evenodd"
                     ></path>
                   </svg>
-                  <span>{rating}</span>{" "}
+                  <span>{rating}</span>
                   <span className="text-primary-1013"> ({ratingCount}+)</span>
                 </div>
               </div>
+
+              {/* Open / Location Info */}
               <div>
                 <p className="flex flex-wrap items-center gap-x-2">
                   <span className="text-primary-1004 font-semibold">Open</span>
@@ -122,6 +133,8 @@ export default function ProductDetailBanner({
               </div>
             </div>
           </div>
+
+          {/* Favorite Button */}
           <div className="ml-auto self-end">
             <button
               onClick={handleFavoriteClick}

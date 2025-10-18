@@ -8,6 +8,7 @@ import CurrentLocationCard from '../Cards/CurrentLocationCard'
 import { useRestaurants } from '@/hooks/api'
 import { Skeleton } from '@/components/ui/skeleton'
 import usePlacesAutocomplete, { getGeocode } from 'use-places-autocomplete'
+import LayoutWrapper from '../layoutWrapper'
 
 const SearchBar = () => {
     const [showSearch, setShowSearch] = useState(false)
@@ -131,13 +132,14 @@ const SearchBar = () => {
     }
 
     return (
-        <div className='container mx-auto px-4 mt-10'>
-            <div className="bg-primary-995 rounded-md shadow-[inset_0px_0px_0px_1px_#F7F7F7] grid grid-cols-2 relative h-16">
+        <LayoutWrapper>
+        <div className='mt-10'>
+            <div className="bg-primary-995 rounded-md shadow-[inset_0px_0px_0px_1px_#F7F7F7] flex flex-col md:grid md:grid-cols-2 relative min-h-16 md:h-16">
                 {/* Divider */}
-                <div className='h-11 w-0.5 absolute left-1/2 top-1/2 -translate-1/2  bg-primary-999' />
+                <div className='hidden md:block h-11 w-0.5 absolute left-1/2 top-1/2 -translate-y-1/2 bg-primary-999' />
 
                 {/* Search input */}
-                <div className="flex items-center relative pl-6" ref={containerRef}>
+                <div className="flex items-center relative pl-6 h-16 border-b md:border-b-0 border-primary-999" ref={containerRef}>
                     <Search className='text-primary-200' />
                     <Input
                         className="bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:shadow-none"
@@ -190,7 +192,7 @@ const SearchBar = () => {
                 </div>
 
                 {/* Location input */}
-                <div className="flex items-center pl-6 pr-6 relative">
+                <div className="flex items-center pl-6 pr-6 relative h-16">
                     <MapPin className='text-primary-200' />
                     <Input
                         className="bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:shadow-none"
@@ -259,6 +261,7 @@ const SearchBar = () => {
                 </div>
             </div>
         </div>
+        </LayoutWrapper>
     )
 }
 
