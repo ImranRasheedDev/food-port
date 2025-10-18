@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useAllAddresses } from "../hooks/api";
+import { useAllAddresses, useLikedRestaurants, useLikedFoodTrucks } from "../hooks/api";
 import LayoutWrapper from "./layoutWrapper";
 import { NotificationMenu, DesktopNotificationMenu } from "./NotificationMenu";
 export default function HeaderAfterLogin() {
@@ -46,12 +46,20 @@ export default function HeaderAfterLogin() {
 
   // Fetch all addresses using the /address endpoint
   const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
+  
+  // Fetch liked restaurants and food trucks for favorites count
+  const { data: likedRestaurantsData } = useLikedRestaurants();
+  const { data: likedFoodTrucksData } = useLikedFoodTrucks();
 
-  console.log(addresses, "addresses", window.user);
 
   // Get the first address (index 0) - addresses come directly in response, not nested under data
   const firstAddress =
     addresses?.data.filter((address) => address.default === true)[0] || null;
+
+  // Get total favorites count (restaurants + food trucks)
+  const restaurantsCount = likedRestaurantsData?.data?.length || 0;
+  const foodTrucksCount = likedFoodTrucksData?.data?.length || 0;
+  const favoritesCount = restaurantsCount + foodTrucksCount;
 
   const handleLogout = () => {
     window.helper.sweetAlert(
@@ -196,9 +204,16 @@ export default function HeaderAfterLogin() {
                 </span>
               )}
             </div>
-            <Link to={"/favourites"}>
-              <Heart className="w-6 h-6  cursor-pointer" />
-            </Link>
+            <div className="relative cursor-pointer">
+              <Link to={"/favourites"}>
+                <Heart className="w-6 h-6" />
+              </Link>
+              {favoritesCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {favoritesCount}
+                </span>
+              )}
+            </div>
             <div 
               ref={bellRef}
               className="relative cursor-pointer"
@@ -278,7 +293,14 @@ export default function HeaderAfterLogin() {
                 onClick={closeDrawer}
                 className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
-                <Heart className="w-5 h-5" />
+                <div className="relative">
+                  <Heart className="w-5 h-5" />
+                  {favoritesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary-50 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {favoritesCount}
+                    </span>
+                  )}
+                </div>
                 <span>My Favourites</span>
               </Link>
 

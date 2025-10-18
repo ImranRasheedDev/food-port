@@ -1,7 +1,7 @@
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import DealDiscountCard from "./DealDiscountCard";
-import { Trash2 } from "lucide-react";
+import { Trash2, Minus, Plus } from "lucide-react";
 import CardOne from "./AdsCards/CardOne";
 
 export default function DynamicCart({
@@ -23,7 +23,7 @@ export default function DynamicCart({
 
   if (isCartEmpty()) {
     return (
-      <div className="border border-primary-1007 rounded-lg p-4">
+      <div className="border h-[960px] flex flex-col justify-center items-center p-4 border-primary-1007 rounded-lg p-4">
         <div className="text-center">
           <div className="mb-4">
             <img
@@ -36,9 +36,12 @@ export default function DynamicCart({
             Your cart is empty
           </h3>
           <p className="text-gray-500 text-sm">
-            Add some delicious items to get started!
+          You haven't added anything
+          to your cart!
           </p>
         </div>
+
+        
       </div>
     );
   }
@@ -95,7 +98,7 @@ export default function DynamicCart({
                         updateItemQuantity(item.id, item.quantity - 1)
                       }
                     >
-                      -
+                      <Minus className="w-4 h-4 text-primary-50" />
                     </button>
                     <span className="font-bold">{item.quantity}</span>
                     <button
@@ -104,7 +107,7 @@ export default function DynamicCart({
                       }
                       className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer"
                     >
-                      +
+                      <Plus className="w-4 h-4 text-primary-50" />
                     </button>
                     <button
                       aria-label="Remove item"
@@ -123,8 +126,8 @@ export default function DynamicCart({
       </div>
 
       {/* Pricing Breakdown */}
-      <div className="border-b border-t border-primary-1007 pb-4 mb-1">
-        <div className="flex justify-between items-center mt-6">
+      <div className="border-b border-t border-primary-1007 pb-2 mb-1">
+        <div className="flex justify-between items-center mt-4">
           <p className="text-primary-100 font-semibold">Sub Total</p>
           <p className="text-primary-100 font-semibold">
             $ {subtotal.toFixed(2)}
@@ -134,13 +137,13 @@ export default function DynamicCart({
           <p className="text-primary-1013">Standard Delivery</p>
           <p className="text-primary-1013">$ {deliveryFee.toFixed(2)}</p>
         </div> */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex justify-between items-center mt-2">
           <p className="text-primary-1013">
             Commission Fee ({platformFeePercentage}%)
           </p>
           <p className="text-primary-1013">$ {platformFee}</p>
         </div>
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex justify-between items-center mb-6 mt-2">
           <p className="text-primary-1013">VAT ({vatPercentage}%)</p>
           <p className="text-primary-1013">$ {vatPrice}</p>
         </div>

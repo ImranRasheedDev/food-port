@@ -6,13 +6,15 @@ import ProductModal from "@/components/InnerPages/ProductModal";
 import ProductDetailBanner from "@/components/InnerPages/ProductDetailBanner";
 import ProductDetailMenu from "@/components/InnerPages/ProductDetailMenu";
 import SectionInfo from "@/components/InnerPages/SectionInfo";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useRestaurantDetail, useBannerAds } from "@/hooks/api";
 import { menuSections } from "@/components/MockData";
 import TestimonialCard from "@/components/InnerPages/TestimonialCard";
 import TotalTestimonialsBox from "@/components/InnerPages/TotalTestimonialsBox";
 import RestaurantDetailSkeleton from "@/components/ui/restaurant-detail-skeleton";
+import DealsAndDiscounts from "@/components/InnerPages/DealsAndDiscounts";
+import ChickenSandwichCard from "@/components/Cards/ChickenSandwichCard";
 
 export default function ResturantsDetail() {
   const [open, setOpen] = useState(false);
@@ -40,7 +42,6 @@ export default function ResturantsDetail() {
   
   // Get product categories for menu (empty array if no data)
   const allProductCategories = restaurant?.product_categories || [];
-
   // Filter categories and products based on search term - MUST be before early returns
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) {
@@ -155,32 +156,55 @@ export default function ResturantsDetail() {
           </div>
           <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
             {filteredCategories?.length > 0 ? (
-              filteredCategories.map((category) => (
-                <div
-                  key={category.id}
-                  id={`category-${category.id}`}
-                  className="mb-10"
-                >
-                  <SectionInfo
-                    title={category.name}
-                    description={`Explore our delicious ${category.name.toLowerCase()} selection`}
-                  />
-                  <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-4">
-                    {category.products?.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        onClick={() => {
-                          setSelectedProductId(product.id);
-                          setOpen(true);
-                        }}
-                        title={product.name}
-                        price={product.price?.toString() || "0.00"}
-                        description={product.description}
-                        image={product.image_url || "/images/product-1.png"}
-                      />
-                    ))}
+              filteredCategories.map((category, index) => (
+                <React.Fragment key={category.id}>
+                  <div
+                    id={`category-${category.id}`}
+                    className="mb-10"
+                  >
+                    <SectionInfo
+                      title={category.name}
+                      description={`Explore our delicious ${category.name.toLowerCase()} selection`}
+                    />
+                    <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-4">
+                      {category.products?.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          onClick={() => {
+                            setSelectedProductId(product.id);
+                            setOpen(true);
+                          }}
+                          title={product.name}
+                          price={product.price?.toString() || "0.00"}
+                          description={product.description}
+                          image={product.image_url || "/images/product-1.png"}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                  
+                  {/* Show Deals and Discounts after the first category only */}
+                  {index === 0 && (
+                    <div className="mb-10">
+                      <DealsAndDiscounts 
+                        restaurants={bannerAds} 
+                        isLoading={false} 
+                        hasApiData={false} 
+                        apiReturnedEmpty={false}
+                        hideRestaurantCards={true}
+                      />
+                    </div>
+                  )}
+
+                  {
+                    index === 2 && (
+                      <div className="mb-10">
+                        <ChickenSandwichCard />
+                      </div>
+                    )
+                  }
+                
+                </React.Fragment>
               ))
             ) : (
               <div className="text-center py-12">
@@ -190,6 +214,7 @@ export default function ResturantsDetail() {
                 </div>
               </div>
             )}
+            
             <div className="mb-10">
               <TotalTestimonialsBox
                 rating={restaurant?.rating || 4.5}
@@ -241,9 +266,18 @@ export default function ResturantsDetail() {
               </div>
             </div>
           </div>
+
           <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
             <DynamicCart restaurantData={restaurant} ads={bannerAds} />
+            {bannerAds.slice(4, 7).map((banner, index) => (
+            <DealDiscountCard
+              key={banner.id || index}
+              campaignData={banner}
+              cardIndex={index}
+            />
+          ))}
           </div>
+
         </div>
       </div>
       <ProductModal

@@ -1,24 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import placeholder from "../../../public/images/placeholder.jpg";
+import placeholder from "../../../public/images/advertise.png";
+import { isValidUrl } from '@/lib/inValidUrl';
 const AdviserCard = ({ title, companyName, description, link, index, mediaPath }) => {
     const isOdd = index % 2 === 0;
 
     const bgClass = isOdd ? "bg-primary-1003" : "bg-primary-1004";
     const btnTextClass = isOdd ? "text-primary-50" : "text-primary-1004";
 
-    const isValidUrl = (url) => {
-        if (!url || typeof url !== 'string') return false;
-        try {
-            const parsed = new URL(url, window.location.origin);
-            const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:';
-            const isRootRelative = url.startsWith('/');
-            return isHttp || isRootRelative;
-        } catch {
-            return url.startsWith('/');
-        }
-    };
+
     const src = isValidUrl(mediaPath) ? mediaPath : placeholder;
+    
     return (
         <div className={`${bgClass} min-h-[300px] flex flex-col md:flex-row gap-x-10 gap-y-5 text-white rounded-4xl items-center`}>
             <div className='pl-4 md:pl-10 py-6 md:py-10 w-full md:w-3/5'>

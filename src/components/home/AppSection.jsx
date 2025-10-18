@@ -1,41 +1,47 @@
 import LayoutWrapper from "../layoutWrapper";
 export default function AppSection() {
-    return (
-        <section className="py-16 ">
-             <LayoutWrapper>
-            <div className=" mx-auto px-4 bg-[url(/images/app-bg.png)] bg-no-repeat bg-cover rounded-md h-[590px] flex justify-center items-center">
-          
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    {/* Left side - Phone mockup */}
-                    <div className="relative">
-                        <div className="relative  mx-auto">
-                            <img  src="/images/iphone-mockup-with-food-delivery-app-interface-sho.png" alt="Food Port Mobile App" className="w-full h-auto" />
-                        </div>
-                    </div>
-
-                    {/* Right side - Content */}
-                    <div className="text-white">
-                        <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-normal">Get Started With Fresh <br /> Feast Today!</h2>
-                        <p className="text-lg mb-4 opacity-90">
-                            It's never been easier to order food. Look for the finest discounts and you'll <br /> be lost in a world of delectable food.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <img
-                                src="/images/app-store.png"
-                                alt="Download on App Store"
-                                className="h-14 cursor-pointer hover:opacity-80 transition-opacity"
-                            />
-                            <img
-                                src="/images/googleplay.png"
-                                alt="Get it on Google Play"
-                                className="h-14 cursor-pointer hover:opacity-80 transition-opacity"
-                            />
-                        </div>
-                    </div>
-                </div>
-                
+  return (
+    <section className="py-8 sm:py-12 md:py-16">
+      <LayoutWrapper>
+        <div className="bg-[url(/images/app-bg.png)] bg-no-repeat bg-cover rounded-md md:h-[400px] lg:h-[450px] py-4 md:py-0 flex justify-center items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center px-4 sm:px-6">
+            {/* Left side - Phone mockup */}
+            <div className="relative flex items-center justify-center h-full order-2 lg:order-1">
+              <div className="relative">
+                <img
+                  src="/images/app-ad-left.png"
+                  alt="Food Port Mobile App"
+                  className="w-auto h-[250px] sm:h-[300px] md:h-[350px] lg:h-[450px] object-cover object-left-bottom"
+                />
+              </div>
             </div>
-            </LayoutWrapper>
-        </section>
-    )
+
+            {/* Right side - Content */}
+            <div className="text-white text-center lg:text-left order-1 lg:order-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 leading-normal">
+                Get Started With Fresh <br className="hidden sm:block" /> Feast Today!
+              </h2>
+              <p className="text-sm sm:text-base md:text-md mb-4 sm:mb-6 opacity-90 leading-relaxed">
+                It's never been easier to order food. Look for the finest
+                discounts and you'll <br className="hidden sm:block" /> be lost in a world of delectable
+                food.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                <img
+                  src="/images/app-store.png"
+                  alt="Download on App Store"
+                  className="h-12 sm:h-14 cursor-pointer hover:opacity-80 transition-opacity mx-auto sm:mx-0"
+                />
+                <img
+                  src="/images/googleplay.png"
+                  alt="Get it on Google Play"
+                  className="h-12 sm:h-14 cursor-pointer hover:opacity-80 transition-opacity mx-auto sm:mx-0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </LayoutWrapper>
+    </section>
+  );
 }
