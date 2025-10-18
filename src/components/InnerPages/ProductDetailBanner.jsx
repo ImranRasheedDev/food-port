@@ -1,6 +1,8 @@
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
+import { useState } from "react";
+import { processImageUrl } from "@/lib/utils";
 
 export default function ProductDetailBanner({
   image,
@@ -16,6 +18,19 @@ export default function ProductDetailBanner({
   isLiked = false,
 }) {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+  
+  // Validate and process image URL
+  const imageSrc = (() => {
+    if (imageError) {
+      return "/images/product-1.png"; // Fallback image
+    }
+    return processImageUrl(image, "/images/product-1.png");
+  })();
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const toggleLikeMutation = useToggleRestaurantLikeById(restaurantId, {
     onSuccess: () => {
@@ -49,9 +64,11 @@ export default function ProductDetailBanner({
           <div className="min-sm:flex md:gap-x-10 gap-x-4 flex-1">
             <div className="flex-shrink-0 max-sm:mb-4">
               <img
-                src={image}
+                src={imageSrc}
                 alt="Product Detail Banner"
                 className="lg:w-[156px] lg:h-[156px] w-[100px] h-[100px] object-cover rounded-lg"
+                onError={handleImageError}
+                loading="lazy"
               />
             </div>
 

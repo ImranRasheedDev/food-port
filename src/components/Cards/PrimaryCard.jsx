@@ -2,6 +2,9 @@ import { Heart, Star, MapPin, Clock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
 import { toast } from "react-toastify";
+import { useState } from "react";
+import { isValidUrl } from "@/lib/inValidUrl";
+import { processImageUrl } from "@/lib/utils";
 
 export function RestaurantCard({
   image,
@@ -17,6 +20,19 @@ export function RestaurantCard({
   restaurantId,
 }) {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+  
+  // Validate and process image URL
+  const imageSrc = (() => {
+    if (imageError) {
+      return "/images/popular-1.png"; // Fallback image
+    }
+    return processImageUrl(image, "/images/popular-1.png");
+  })();
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   // Toggle favorite mutation
   const toggleFavoriteMutation = useToggleRestaurantLikeById(restaurantId, {
@@ -51,9 +67,11 @@ export function RestaurantCard({
     >
       <div className="relative">
         <img
-          src={image || "/placeholder.svg"}
+          src={imageSrc}
           alt={name}
           className="w-full h-56 object-cover rounded-md"
+          onError={handleImageError}
+          loading="lazy"
         />
         <div
           className="absolute top-3 right-3 p-1 bg-white rounded-full shadow-md cursor-pointer hover:shadow-lg transition-shadow z-10"

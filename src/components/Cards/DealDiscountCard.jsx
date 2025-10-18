@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdClickMutation } from "@/hooks/api";
 import Helper from "@/helpers";
+import { isValidUrl } from "@/lib/inValidUrl";
 
 const DealDiscountCard = ({ 
     // Dynamic banner data
@@ -14,6 +15,7 @@ const DealDiscountCard = ({
 }) => {
     const navigate = useNavigate();
     const clickMutation = useAdClickMutation(campaignData?.id);
+    const [imageError, setImageError] = useState(false);
 
     // Use campaign data if available, otherwise fallback to props
     const displayData = campaignData ? {
@@ -78,10 +80,16 @@ const DealDiscountCard = ({
         }
     };
 
+    // Validate mediaPath for background image
+    const validMediaPath = displayData.mediaPath && 
+        displayData.mediaType === "image" && 
+        isValidUrl(displayData.mediaPath) && 
+        !imageError ? displayData.mediaPath : null;
+
     return (
         <div className={`text-white items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden`}
-             style={displayData.mediaPath && displayData.mediaType === "image" ? {
-                 backgroundImage: `url(${displayData.mediaPath})`
+             style={validMediaPath ? {
+                 backgroundImage: `url(${validMediaPath})`
              } : undefined}>
             
             {/* Show video if media type is video */}
