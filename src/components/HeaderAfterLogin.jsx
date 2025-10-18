@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   ChevronDown,
   ShoppingCart,
@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Megaphone,
   FileCheck2,
+  Bell,
 } from "lucide-react";
 import { Link, Links, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -24,12 +25,24 @@ import {
 } from "./ui/dropdown-menu";
 import { useAllAddresses } from "../hooks/api";
 import LayoutWrapper from "./layoutWrapper";
+import { NotificationMenu, DesktopNotificationMenu } from "./NotificationMenu";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
   const { getCartItemCount } = useCart();
+  const bellRef = useRef(null);
+  const mobileBellRef = useRef(null);
+
+  const toggleNotificationMenu = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+  };
+
+  const closeNotificationMenu = () => {
+    setIsNotificationOpen(false);
+  };
 
   // Fetch all addresses using the /address endpoint
   const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
@@ -60,20 +73,31 @@ export default function HeaderAfterLogin() {
       <div className="px-4 py-4 flex items-center justify-between">
         {/* Mobile: Menu + Logo */}
         <div className="flex w-full items-center justify-between md:hidden">
-          {/* Menu Icon */}
-
           {/* Logo */}
           <Link to="/" onClick={closeDrawer}>
             <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
           </Link>
 
-          <button
-            onClick={toggleDrawer}
-            aria-label="Toggle Menu"
-            className="text-primary-950"
-          >
-            <Menu className="w-7 h-7" />
-          </button>
+          {/* Right side icons */}
+          <div className="flex items-center space-x-3">
+            {/* Notification Bell */}
+            <div 
+              ref={mobileBellRef}
+              className="relative cursor-pointer"
+              onClick={toggleNotificationMenu}
+            >
+              <Bell className="w-6 h-6 text-primary-950" />
+            </div>
+            
+            {/* Menu Button */}
+            <button
+              onClick={toggleDrawer}
+              aria-label="Toggle Menu"
+              className="text-primary-950"
+            >
+              <Menu className="w-7 h-7" />
+            </button>
+          </div>
         </div>
 
         {/* Desktop Header */}
@@ -175,10 +199,30 @@ export default function HeaderAfterLogin() {
             <Link to={"/favourites"}>
               <Heart className="w-6 h-6  cursor-pointer" />
             </Link>
+            <div 
+              ref={bellRef}
+              className="relative cursor-pointer"
+              onClick={toggleNotificationMenu}
+            >
+              <Bell className="w-6 h-6" />
+              {/* Notification badge can be added here if needed */}
+            </div>
           </div>
         </div>
       </div>
       </LayoutWrapper>
+
+      {/* Notification Menus */}
+      <NotificationMenu 
+        isOpen={isNotificationOpen} 
+        onClose={closeNotificationMenu}
+        triggerRef={mobileBellRef}
+      />
+      <DesktopNotificationMenu 
+        isOpen={isNotificationOpen} 
+        onClose={closeNotificationMenu}
+        triggerRef={bellRef}
+      />
 
       {/* Mobile Drawer */}
       {isOpen && (
@@ -202,41 +246,93 @@ export default function HeaderAfterLogin() {
 
             {/* Navigation Links */}
             <nav className="mt-12 space-y-6 ">
-              <Link
-                to="/auth/login"
-                onClick={closeDrawer}
-                className="block text-lg hover:text-primary-50"
-              >
-                Login
-              </Link>
-              <Link
-                to="/auth/signup"
-                onClick={closeDrawer}
-                className="block text-lg hover:text-primary-50"
-              >
-                Sign-Up
-              </Link>
-              <button
-                onClick={closeDrawer}
-                className="flex items-center space-x-1 text-lg hover:text-primary-50"
-              >
-                <span>EN</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              <button
-                onClick={closeDrawer}
-                className="flex items-center text-lg hover:text-primary-50"
-              >
-                <div className="relative">
-                  <ShoppingCart className="w-5 h-5 mr-2" />
-                  {getCartItemCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary-50 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                      {getCartItemCount()}
-                    </span>
-                  )}
+              {/* Profile Section */}
+              <div className="pb-4 border-b border-gray-600">
+                <div className="flex items-center space-x-3 mb-4">
+                  <User className="w-6 h-6" />
+                  <span className="text-lg font-medium">{window.user?.name}</span>
                 </div>
-                Cart
-              </button>
+              </div>
+
+              {/* Profile Menu Items */}
+              <Link
+                to=""
+                onClick={closeDrawer}
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span>Dashboard</span>
+              </Link>
+              
+              <Link
+                to="/account-settings"
+                onClick={closeDrawer}
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
+              >
+                <User className="w-5 h-5" />
+                <span>Profile</span>
+              </Link>
+
+              <Link
+                to="/favourites"
+                onClick={closeDrawer}
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
+              >
+                <Heart className="w-5 h-5" />
+                <span>My Favourites</span>
+              </Link>
+
+              <Link
+                to=""
+                onClick={closeDrawer}
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
+              >
+                <Megaphone className="w-5 h-5" />
+                <span>Advertise yourself</span>
+              </Link>
+
+              <div className="pt-4 border-t border-gray-600">
+                {/* Language Selector */}
+                <button
+                  onClick={closeDrawer}
+                  className="flex items-center space-x-3 text-lg hover:text-primary-50 w-full"
+                >
+                  <Globe className="w-5 h-5" />
+                  <span>EN</span>
+                  <ChevronDown className="w-4 h-4 ml-auto" />
+                </button>
+
+                {/* Cart */}
+                <button
+                  onClick={() => {
+                    closeDrawer();
+                    navigate("/order-confirmation");
+                  }}
+                  className="flex items-center text-lg hover:text-primary-50 w-full mt-4"
+                >
+                  <div className="relative mr-3">
+                    <ShoppingCart className="w-5 h-5" />
+                    {getCartItemCount() > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-primary-50 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {getCartItemCount()}
+                      </span>
+                    )}
+                  </div>
+                  <span>Cart</span>
+                </button>
+
+                {/* Logout */}
+                <button
+                  onClick={() => {
+                    closeDrawer();
+                    handleLogout();
+                  }}
+                  className="flex items-center space-x-3 text-lg hover:text-primary-50 w-full mt-4"
+                >
+                  <FileCheck2 className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </nav>
           </div>
         </div>
