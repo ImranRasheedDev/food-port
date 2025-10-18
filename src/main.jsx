@@ -8,6 +8,18 @@ import QueryProvider from "@/providers/QueryProvider";
 import GoogleMapsProvider from "@/providers/GoogleMapsProvider";
 import "react-toastify/dist/ReactToastify.css";
 import bootstrap from "@/bootstrap";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then((registration) => {
+      console.log("Service Worker registered:", registration);
+    })
+    .catch((err) => console.error("Service Worker registration failed:", err));
+}
+
 
 const init = async () => {
   await bootstrap();
@@ -15,9 +27,10 @@ const init = async () => {
     <BrowserRouter>
       <QueryProvider>
         <GoogleMapsProvider>
-        
-          <App />
-         
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
+
           <ToastContainer position="top-right" />
         </GoogleMapsProvider>
       </QueryProvider>
