@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 export default function PaymentMethodSelect({
   paymentMethod,
   onPaymentMethodChange,
+  onPlaceOrder,
+  isPlacingOrder,
+  canPlaceOrder,
+  hasAddress,
 }) {
   const [selectedPayment, setSelectedPayment] = useState(paymentMethod || null);
 
@@ -62,7 +66,21 @@ export default function PaymentMethodSelect({
           </div>
         ))}
       </div>
-      {/* Place Order button is managed by parent component */}
+      
+      {/* Place Order Button */}
+      <div className="pt-4">
+        <button
+          onClick={onPlaceOrder}
+          disabled={isPlacingOrder || !canPlaceOrder || !hasAddress}
+          className={`w-full py-3 px-4 rounded-full font-medium ${
+            isPlacingOrder || !canPlaceOrder
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-primary-50 hover:bg-primary-600'
+          } text-white transition-colors`}
+        >
+          {isPlacingOrder ? 'Processing...' : (!hasAddress ? 'Select Address' : (!canPlaceOrder ? 'Select Payment Method' : 'Place Order'))}
+        </button>
+      </div>
     </div>
   );
 }

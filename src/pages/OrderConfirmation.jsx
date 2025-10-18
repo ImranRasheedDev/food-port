@@ -12,7 +12,7 @@ import DynamicRestaurantAddress from "@/components/InnerPages/DynamicRestaurantA
 import PersonalDetail from "@/components/InnerPages/PersonalDetail";
 import PaymentMethodSelect from "@/components/InnerPages/PaymentMethodSelect";
 import DynamicFoodOrderedFrom from "@/components/InnerPages/DynamicFoodOrderedFrom";
-
+import LayoutWrapper from "@/components/layoutWrapper";
 export default function OrderConfirmation() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,7 +172,7 @@ export default function OrderConfirmation() {
   return (
     <>
       <div className="h-[150px]" />
-      <div className="container mx-auto px-4">
+      <LayoutWrapper>
         <div className="grid lg:grid-cols-3 grid-cols-1 gap-10">
           <div className="lg:col-span-2 col-span-1 space-y-10">
             <DynamicRestaurantAddress
@@ -187,21 +187,21 @@ export default function OrderConfirmation() {
             <PaymentMethodSelect
               paymentMethod={paymentMethod}
               onPaymentMethodChange={setPaymentMethod}
+              onPlaceOrder={handlePlaceOrder}
+              isPlacingOrder={isPlacingOrder || isGeneratingIntent}
+              canPlaceOrder={paymentMethod === 'card'}
+              hasAddress={!!selectedAddress?.id}
             />
           </div>
           <div className="lg:col-span-1 col-span-1">
             <DynamicFoodOrderedFrom
               cartItems={items}
               totalPrice={getCartTotal()}
-              onPlaceOrder={handlePlaceOrder}
-              isPlacingOrder={isPlacingOrder || isGeneratingIntent}
-              canPlaceOrder={paymentMethod === 'card'}
-              hasAddress={!!selectedAddress?.id}
               restaurantData={restaurantData?.data}
             />
           </div>
         </div>
-      </div>
+      </LayoutWrapper>
     </>
   );
 }

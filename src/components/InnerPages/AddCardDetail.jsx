@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCart } from "@/contexts/CartContext";
 import { formatCartForAPI, usePlaceOrder } from "@/hooks/api";
+import LayoutWrapper from "../layoutWrapper";
 
 // Function to confirm a previously created payment intent using card details (frontend-only demo)
 const confirmStripePaymentIntent = async (paymentData) => {
@@ -198,6 +199,7 @@ export default function AddCardDetail() {
   };
 
   return (
+    <LayoutWrapper> 
     <div>
       <h2 className="font-semibold text-xl mb-10">Add Card Details</h2>
       <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
@@ -350,5 +352,6 @@ export default function AddCardDetail() {
         </div>
       </form>
     </div>
+    </LayoutWrapper>
   );
 }
