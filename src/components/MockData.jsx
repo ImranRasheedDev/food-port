@@ -123,9 +123,9 @@ export const suggestedFilters = [
     { id: "restaurants", label: "Restaurants" },
     { id: "food-trucks", label: "Food Trucks" },
     { id: "featured", label: "Featured" },
-    { id: "hot-new", label: "Hot and New" },
-    { id: "outdoor-seating", label: "Outdoor Seating" },
-    { id: "bar", label: "Bar" }
+    // { id: "hot-new", label: "Hot and New" },
+    // { id: "outdoor-seating", label: "Outdoor Seating" },
+    // { id: "bar", label: "Bar" }
 ]
 
 export const categoryFilters = [

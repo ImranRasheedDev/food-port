@@ -10,13 +10,14 @@ export const createResourceHooks = (resourceName, endpoint) => {
   const queryKey = [resourceName];
   return {
     // Get all resources
-    [`use${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`]: (params = {}) => {
+    [`use${resourceName.charAt(0).toUpperCase() + resourceName.slice(1)}`]: (params = {}, options = {}) => {
       return useApiQuery(
-        queryKey,
+        options.queryKey || queryKey,
         endpoint,
         params,
         {
           keepPreviousData: true,
+          ...options,
         }
       );
     },
@@ -87,3 +88,81 @@ export const {
   useRestaurants,
   useRestaurant,
 } = createResourceHooks('restaurants', '/restaurant');
+
+// Specialized restaurant detail hook with includes
+export const useRestaurantDetail = (restaurantId, options = {}) => {
+  return useApiQuery(
+    ['restaurants', restaurantId, 'detail'],
+    `/restaurant/single/${restaurantId}?includes=productCategories.products,ratings.customer.user`,
+    {},
+    {
+      enabled: !!restaurantId,
+      ...options,
+    }
+  );
+};
+
+// Liked restaurants hook
+export const useLikedRestaurants = (options = {}) => {
+  return useApiQuery(
+    ['restaurants', 'liked'],
+    '/restaurant?moveable=0&liked',
+    {},
+    {
+      ...options,
+    }
+  );
+};
+
+// Liked food trucks hook
+export const useLikedFoodTrucks = (options = {}) => {
+  return useApiQuery(
+    ['restaurants', 'liked', 'food-trucks'],
+    '/restaurant?moveable=1&liked',
+    {},
+    {
+      ...options,
+    }
+  );
+};
+
+
+
+
+
+// Toggle restaurant like/unlike mutation
+export const useToggleRestaurantLike = (options = {}) => {
+  return useApiMutation('/restaurant/liked', {
+    invalidateQueries: [['restaurants'], ['restaurants', 'liked']],
+    ...options,
+  });
+};
+
+// Toggle restaurant like/unlike mutation with dynamic ID
+export const useToggleRestaurantLikeById = (restaurantId, options = {}) => {
+  return useApiMutation(`/restaurant/liked/${restaurantId}`, {
+    method: 'POST',
+    invalidateQueries: [
+      ['restaurants'], 
+      ['restaurants', 'liked'], 
+      ['restaurants', 'liked', 'food-trucks'], 
+      ['restaurants', restaurantId, 'detail']
+    ],
+    ...options,
+  });
+};
+
+// Single product with addons hook
+export const useProductWithAddons = (productId, options = {}) => {
+  return useApiQuery(
+    ['products', productId, 'with-addons'],
+    `/product/single/${productId}`,
+    {
+      includes: 'productAddonCategories.productAddons'
+    },
+    {
+      enabled: !!productId,
+      ...options,
+    }
+  );
+};

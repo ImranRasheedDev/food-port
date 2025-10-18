@@ -58,7 +58,7 @@ const SetLocationForm = () => {
                     </div>
 
                     {/* Street Address */}
-                    <div>
+                    {/* <div>
                         <label
                             htmlFor="yourStreetAddress"
                             className="text-primary-1008 font-normal mb-2 block"
@@ -78,10 +78,10 @@ const SetLocationForm = () => {
                                 {errors.yourStreetAddress.message}
                             </p>
                         )}
-                    </div>
+                    </div> */}
 
                     {/* Floor */}
-                    <div>
+                    {/* <div>
                         <input
                             type="text"
                             id="floor"
@@ -89,10 +89,10 @@ const SetLocationForm = () => {
                             className="border w-full border-primary-1007 h-11 px-5"
                             {...register("floor")}
                         />
-                    </div>
+                    </div> */}
 
                     {/* Hour No */}
-                    <div>
+                    {/* <div>
                         <input
                             type="text"
                             id="hourNo"
@@ -100,10 +100,10 @@ const SetLocationForm = () => {
                             className="border w-full border-primary-1007 h-11 px-5"
                             {...register("hourNo")}
                         />
-                    </div>
+                    </div> */}
 
                     {/* Label Selection */}
-                    <div>
+                    {/* <div>
                         <label className="text-primary-1008 font-normal mb-6 block">
                             Add a Label
                         </label>
@@ -122,12 +122,12 @@ const SetLocationForm = () => {
                         {errors.label && (
                             <p className="text-red-500 text-sm">{errors.label.message}</p>
                         )}
-                    </div>
+                    </div> */}
 
                     {/* Submit */}
                     <button
                         type="submit"
-                        className="bg-primary-50 text-white rounded-full w-[470px] py-3 inline-block  cursor-pointer"
+                        className="bg-primary-50 text-white rounded-full w-full max-w-md py-3 inline-block cursor-pointer"
                     >
                         Save Changes
                     </button>

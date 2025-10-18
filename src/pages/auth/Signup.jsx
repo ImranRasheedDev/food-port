@@ -2,11 +2,13 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { InputWithIcon } from "@/components/auth/InputWithIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { Calendar, Mail, Phone, User } from "lucide-react";
+import { Calendar, Mail, Phone, User, MapPin } from "lucide-react";
 import { useCallback, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useRegisterUser } from "@/hooks/api";
+import { useRegisterUser, useAddAddress } from "@/hooks/api";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
+
 import {
   Select,
   SelectContent,
@@ -24,6 +26,9 @@ const VALIDATION_PATTERNS = {
   phone: /^[\d]{10,15}$/,
   countryCode: /^\d{1,4}$/,
   dateOfBirth: /^\d{4}-\d{2}-\d{2}$/,
+  address: /^[A-Za-z\s\-']+$/,
+  city: /^[A-Za-z\s\-']+$/,
+  zip_code: /^[0-9]{5}$/,
 };
 
 function Signup() {
@@ -31,10 +36,13 @@ function Signup() {
     register,
     handleSubmit,
     watch,
+    getValues,
+    control,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: {
       name: "",
       email: "",
@@ -44,20 +52,105 @@ function Signup() {
       country_code: "",
       dob: "",
       gender: "",
+      address: "",
+      city: "",
+      zip_code: "",
+      latitude: "",
+      longitude: "",
     },
   });
   const navigate = useNavigate();
   const password = watch("password");
   const isSubmittingRef = useRef(false);
 
+  const addAddress = useAddAddress({
+    onSuccess: () => {},
+  });
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
     onSuccess: async (data) => {
-      isSubmittingRef.current = false;
+      // Show success toast for registration only
+      // Capture form values BEFORE reset
+      const formValues = getValues();
+      console.log("formValues before reset", formValues);
+      
+      // Create user data with form values included
+      const userWithAddress = {
+        ...data?.data,
+        address: formValues.address || "",
+        latitude: formValues.latitude || "",
+        longitude: formValues.longitude || "",
+        city: formValues.city || "",
+        zip_code: formValues.zip_code || "",
+      };
+      
+      // Save to storage and global user store
+      await window.helper.setStorageData("user", userWithAddress);
+      window.user = userWithAddress;
+      
+      // Reset form after saving values
       reset();
-      await window.helper.setStorageData("user", data?.data);
-      window.user = data?.data;
-      navigate("/");
+      
+      try {
+        const addressPayload = {
+          name: formValues.name || data?.data?.name || "",
+          address: formValues.address || "",
+          latitude: formValues.latitude || "",
+          longitude: formValues.longitude || "",
+        };
+        
+        // Only add address if address data is available
+        if (addressPayload.address && addressPayload.address.trim() !== "" && 
+            addressPayload.latitude && addressPayload.longitude) {
+          addAddress.mutate(addressPayload, {
+            onSuccess: (addressData) => {
+        
+              // Merge address data with existing user data in global store
+              const updatedUser = {
+                ...window.user,
+                address: formValues.address || "",
+                latitude: formValues.latitude || "",
+                longitude: formValues.longitude || "",
+                city: formValues.city || "",
+                zip_code: formValues.zip_code || "",
+                address_data: addressData?.data || null // Store the full address response
+              };
+              
+              // Update global user store with address data
+              window.helper.setStorageData("user", updatedUser);
+              window.user = updatedUser;
+              
+              isSubmittingRef.current = false;
+              navigate("/");
+            },
+            onError: () => {
+              isSubmittingRef.current = false;
+              navigate("/"); // Still navigate even if address fails
+            }
+          });
+        } else {
+          // No address to add, but still save form address data to user store
+          const updatedUser = {
+            ...window.user,
+            address: formValues.address || "",
+            latitude: formValues.latitude || "",
+            longitude: formValues.longitude || "",
+            city: formValues.city || "",
+            zip_code: formValues.zip_code || ""
+          };
+          
+          // Update global user store with form address data
+          window.helper.setStorageData("user", updatedUser);
+          window.user = updatedUser;
+          
+          isSubmittingRef.current = false;
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Error preparing address payload:", err);
+        isSubmittingRef.current = false;
+        navigate("/");
+      }
     },
     onError: (error) => {
       isSubmittingRef.current = false;
@@ -66,22 +159,12 @@ function Signup() {
 
   const onSubmit = useCallback(
     (data) => {
-      if (registerUser.isPending || isSubmittingRef.current) {
+      if (registerUser.isPending || addAddress.isPending || isSubmittingRef.current) {
         return;
       }
-
       isSubmittingRef.current = true;
 
-      let phone = data.number.replace(/\D/g, ""); // sirf digits
-      let country_code = "";
-      let number = "";
-
-      if (phone.length > 10) {
-        country_code = phone.slice(0, phone.length - 10); // prefix as country code
-        number = phone.slice(phone.length - 10); // last 10 digits as local number
-      }
-
-      const payload = {
+      const userPayload = {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -89,9 +172,14 @@ function Signup() {
         number: data.number,
         country_code: data.country_code,
         dob: data.dob,
-        gender: data.gender,
+        gender: data.gender === 'male' ? 1 : 0, // Convert to number: male=1, female=0
+        address: data.address,
+        city: data.city,
+        zip_code: data.zip_code,
       };
-      registerUser.mutate(payload);
+
+      // Call register API first
+      registerUser.mutate(userPayload);
     },
     [registerUser]
   );
@@ -205,7 +293,94 @@ function Signup() {
             />
           </div>
         </div>
-        {/* Date of Birth */}
+
+        <AddressAutocomplete
+          id="address"
+          placeholder="Search address"
+          setValue={setValue}
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="26"
+              fill="none"
+              viewBox="0 0 28 26"
+            >
+              <path
+                fill="#8A8A8A"
+                d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
+              ></path>
+            </svg>
+          }
+          error={errors.address?.message}
+        />
+        <input type="hidden" {...register("address", { required: "Address is required" })} />
+        <input type="hidden" {...register("latitude", { required: "Latitude missing. Please select a suggestion" })} />
+        <input type="hidden" {...register("longitude", { required: "Longitude missing. Please select a suggestion" })} />
+        {/* <InputWithIcon
+          id="address"
+          type="text"
+          placeholder="Address"
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="26"
+              fill="none"
+              viewBox="0 0 28 26"
+            >
+              <path
+                fill="#8A8A8A"
+                d="m27.719 6.016-3.325-2.643a2.8 2.8 0 0 0-.73-.343 2.8 2.8 0 0 0-.794-.141H13.3l1.121 7.222h8.45c.229 0 .516-.053.792-.141.276-.089.542-.21.73-.341l3.324-2.647c.19-.131.283-.306.283-.482s-.094-.351-.281-.484M11.9 0h-1.4a.7.7 0 0 0-.495.212.73.73 0 0 0-.205.51v5.056H5.13c-.233 0-.518.053-.794.143a2.7 2.7 0 0 0-.73.34L.281 8.906C.092 9.036 0 9.213 0 9.389c0 .175.092.35.281.484l3.325 2.646c.188.131.453.253.73.34s.561.141.794.141H9.8v12.278c0 .191.074.375.205.51A.7.7 0 0 0 10.5 26h1.4a.7.7 0 0 0 .495-.212.73.73 0 0 0 .205-.51V.722a.73.73 0 0 0-.205-.51A.7.7 0 0 0 11.9 0"
+              ></path>
+            </svg>
+          }
+          {...register("address", {
+            required: "Address is required",
+            pattern: {
+              value: VALIDATION_PATTERNS.address,
+              message: "Please enter a valid address",
+            },
+          })}
+          error={errors.address?.message}
+        /> */}
+        <InputWithIcon
+          id="city"
+          type="text"
+          placeholder="City"
+          icon={<MapPin className="w-5 h-5" />}
+          {...register("city", {
+            required: "City is required",
+            pattern: {
+              value: VALIDATION_PATTERNS.address,
+              message: "Please enter a valid city",
+            },
+          })}
+          error={errors.city?.message}
+        />
+        <InputWithIcon
+          id="zip_code"
+          type="text"
+          placeholder="Zip Code"
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              fill="none"
+              viewBox="0 0 26 26"
+            >
+              <path
+                stroke="#8A8A8A"
+                strokeLinecap="square"
+                strokeWidth="1.8"
+                d="M13 1.8v22.4m11.2-11.208H1.8m20.8 0A9.61 9.61 0 0 1 13 22.6c-5.3 0-9.6-4.31-9.6-9.608a9.598 9.598 0 0 1 16.386-6.784 9.6 9.6 0 0 1 2.814 6.784Z"
+              ></path>
+            </svg>
+          }
+          {...register("zip_code")}
+          error={errors.zip_code?.message}
+        />
         <InputWithIcon
           id="dob"
           type="date"
@@ -220,26 +395,50 @@ function Signup() {
           })}
           error={errors.dob?.message}
         />
-        <Select {...register("gender", { required: "Gender is required" })} className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400">
-          <SelectTrigger className="w-[100]">
-            <SelectValue placeholder="Select Gender" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Select Gender</SelectLabel>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="gender"
+          control={control}
+          rules={{ required: "Gender is required" }}
+          render={({ field, fieldState }) => (
+            <div>
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Trigger validation after selection
+                  setTimeout(() => {
+                    if (!value) {
+                      field.onBlur();
+                    }
+                  }, 0);
+                }}
+                className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
+              >
+                <SelectTrigger className={`w-[100] ${fieldState.error ? 'border-red-500' : ''}`}>
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Select Gender</SelectLabel>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        />
+        {errors.gender && (
+          <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
+        )}
         {/* Create Account Button */}
         <div className="pt-6">
           <AuthButton
             type="submit"
-            loading={registerUser.isPending}
-            disabled={registerUser.isPending}
+            loading={registerUser.isPending || addAddress.isPending || isSubmittingRef.current}
+            disabled={registerUser.isPending || addAddress.isPending || isSubmittingRef.current}
           >
-            {registerUser.isPending
+            {registerUser.isPending || addAddress.isPending
               ? "Creating Account..."
               : "Create an account"}
           </AuthButton>
@@ -257,7 +456,7 @@ function Signup() {
           </p>
         </div>
       </form>
-    </AuthLayout >
+    </AuthLayout>
   );
 }
 

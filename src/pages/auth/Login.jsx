@@ -9,8 +9,11 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLoginUser } from "@/hooks/api";
+import { getFcmToken } from "@/lib/generateFcmToken";
 function Login() {
   const [loading, setLoading] = useState(false);
+ 
+
   const navigate = useNavigate();
   const loginUser = useLoginUser({
     onSuccess: async (data) => {
@@ -27,17 +30,41 @@ function Login() {
     formState: { errors },
     reset,
   } = useForm();
+
   const onSubmit = useCallback(
-    (data) => {
-      const payload = {
-        email: data.email,
-        password: data.password,
-        fcm_token: "TEST_FCM_TOKEN_1234567890ABCDEF",
-      };
-      loginUser.mutate(payload);
+    async (data) => {
+      setLoading(true);
+      try {
+        const fcmToken = await getFcmToken();
+        console.log(fcmToken,"from login");
+  
+        const payload = {
+          email: data.email,
+          password: data.password,
+          fcm_token: fcmToken || "NO_TOKEN_GENERATED",
+        };
+  
+        // loginUser.mutate(payload);
+      } catch (error) {
+        console.error("Error generating FCM token:", error);
+      } finally {
+        setLoading(false);
+      }
     },
     [loginUser]
   );
+  
+  // const onSubmit = useCallback(
+  //   (data) => {
+  //     const payload = {
+  //       email: data.email,
+  //       password: data.password,
+  //       fcm_token: "TEST_FCM_TOKEN_1234567890ABCDEF",
+  //     };
+  //     loginUser.mutate(payload);
+  //   },
+  //   [loginUser]
+  // );
 
   const handleSocialLogin = (provider) => {
     toast.info(`${provider} login would be implemented here`);

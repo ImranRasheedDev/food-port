@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   ChevronDown,
   ShoppingCart,
@@ -11,8 +11,10 @@ import {
   LayoutDashboard,
   Megaphone,
   FileCheck2,
+  Bell,
 } from "lucide-react";
 import { Link, Links, useNavigate } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,11 +23,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useAllAddresses } from "../hooks/api";
+import LayoutWrapper from "./layoutWrapper";
+import { NotificationMenu, DesktopNotificationMenu } from "./NotificationMenu";
 export default function HeaderAfterLogin() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
+  const { getCartItemCount } = useCart();
+  const bellRef = useRef(null);
+  const mobileBellRef = useRef(null);
+
+  const toggleNotificationMenu = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+  };
+
+  const closeNotificationMenu = () => {
+    setIsNotificationOpen(false);
+  };
+
+  // Fetch all addresses using the /address endpoint
+  const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
+
+  console.log(addresses, "addresses", window.user);
+
+  // Get the first address (index 0) - addresses come directly in response, not nested under data
+  const firstAddress =
+    addresses?.data.filter((address) => address.default === true)[0] || null;
+
   const handleLogout = () => {
     window.helper.sweetAlert(
       "warning",
@@ -42,23 +69,35 @@ export default function HeaderAfterLogin() {
   };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <LayoutWrapper> 
+      <div className="px-4 py-4 flex items-center justify-between">
         {/* Mobile: Menu + Logo */}
         <div className="flex w-full items-center justify-between md:hidden">
-          {/* Menu Icon */}
-
           {/* Logo */}
           <Link to="/" onClick={closeDrawer}>
             <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
           </Link>
 
-          <button
-            onClick={toggleDrawer}
-            aria-label="Toggle Menu"
-            className="text-primary-950"
-          >
-            <Menu className="w-7 h-7" />
-          </button>
+          {/* Right side icons */}
+          <div className="flex items-center space-x-3">
+            {/* Notification Bell */}
+            <div 
+              ref={mobileBellRef}
+              className="relative cursor-pointer"
+              onClick={toggleNotificationMenu}
+            >
+              <Bell className="w-6 h-6 text-primary-950" />
+            </div>
+            
+            {/* Menu Button */}
+            <button
+              onClick={toggleDrawer}
+              aria-label="Toggle Menu"
+              className="text-primary-950"
+            >
+              <Menu className="w-7 h-7" />
+            </button>
+          </div>
         </div>
 
         {/* Desktop Header */}
@@ -69,8 +108,13 @@ export default function HeaderAfterLogin() {
           </Link>
           <div className="flex items-center gap-x-1">
             <MapPin className="text-primary-950" />
-            <p className="text-primary-950">
-              Your address : 13th Street 47 W 13th St, New York, NY 10011, USA
+            <p className="text-primary-950 max-w-xl truncate">
+              Your address:{" "}
+              {addressesLoading
+                ? "Loading..."
+                : firstAddress
+                ? `${firstAddress.address}` || ""
+                : window.user?.address || "No address set"}
             </p>
           </div>
           {/* Right side buttons */}
@@ -96,7 +140,7 @@ export default function HeaderAfterLogin() {
                   className={"p-0 bg-white hover:bg-primary-990"}
                 >
                   <Link
-                    to={""}
+                    to={"/account-settings"}
                     className="flex items-center gap-x-2 w-full p-5"
                   >
                     <User /> Profile
@@ -110,6 +154,17 @@ export default function HeaderAfterLogin() {
                     className="flex items-center gap-x-2 w-full p-5"
                   >
                     <Megaphone /> Advertise yourself
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  className={"p-0 bg-white hover:bg-primary-990"}
+                >
+                  <Link
+                    to={"/favourites"}
+                    className="flex items-center gap-x-2 w-full p-5"
+                  >
+                    <Heart /> My Favourites
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className={"m-0"} />
@@ -130,11 +185,44 @@ export default function HeaderAfterLogin() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div>
-            <ShoppingCart className="w-6 h-6  cursor-pointer" />
-            <Heart className="w-6 h-6  cursor-pointer" />
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/order-confirmation")}
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </div>
+            <Link to={"/favourites"}>
+              <Heart className="w-6 h-6  cursor-pointer" />
+            </Link>
+            <div 
+              ref={bellRef}
+              className="relative cursor-pointer"
+              onClick={toggleNotificationMenu}
+            >
+              <Bell className="w-6 h-6" />
+              {/* Notification badge can be added here if needed */}
+            </div>
           </div>
         </div>
       </div>
+      </LayoutWrapper>
+
+      {/* Notification Menus */}
+      <NotificationMenu 
+        isOpen={isNotificationOpen} 
+        onClose={closeNotificationMenu}
+        triggerRef={mobileBellRef}
+      />
+      <DesktopNotificationMenu 
+        isOpen={isNotificationOpen} 
+        onClose={closeNotificationMenu}
+        triggerRef={bellRef}
+      />
 
       {/* Mobile Drawer */}
       {isOpen && (
@@ -158,33 +246,93 @@ export default function HeaderAfterLogin() {
 
             {/* Navigation Links */}
             <nav className="mt-12 space-y-6 ">
+              {/* Profile Section */}
+              <div className="pb-4 border-b border-gray-600">
+                <div className="flex items-center space-x-3 mb-4">
+                  <User className="w-6 h-6" />
+                  <span className="text-lg font-medium">{window.user?.name}</span>
+                </div>
+              </div>
+
+              {/* Profile Menu Items */}
               <Link
-                to="/auth/login"
+                to=""
                 onClick={closeDrawer}
-                className="block text-lg hover:text-primary-50"
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
-                Login
+                <LayoutDashboard className="w-5 h-5" />
+                <span>Dashboard</span>
               </Link>
+              
               <Link
-                to="/auth/signup"
+                to="/account-settings"
                 onClick={closeDrawer}
-                className="block text-lg hover:text-primary-50"
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
-                Sign-Up
+                <User className="w-5 h-5" />
+                <span>Profile</span>
               </Link>
-              <button
+
+              <Link
+                to="/favourites"
                 onClick={closeDrawer}
-                className="flex items-center space-x-1 text-lg hover:text-primary-50"
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
-                <span>EN</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              <button
+                <Heart className="w-5 h-5" />
+                <span>My Favourites</span>
+              </Link>
+
+              <Link
+                to=""
                 onClick={closeDrawer}
-                className="flex items-center text-lg hover:text-primary-50"
+                className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
-                <ShoppingCart className="w-5 h-5 mr-2" /> Cart
-              </button>
+                <Megaphone className="w-5 h-5" />
+                <span>Advertise yourself</span>
+              </Link>
+
+              <div className="pt-4 border-t border-gray-600">
+                {/* Language Selector */}
+                <button
+                  onClick={closeDrawer}
+                  className="flex items-center space-x-3 text-lg hover:text-primary-50 w-full"
+                >
+                  <Globe className="w-5 h-5" />
+                  <span>EN</span>
+                  <ChevronDown className="w-4 h-4 ml-auto" />
+                </button>
+
+                {/* Cart */}
+                <button
+                  onClick={() => {
+                    closeDrawer();
+                    navigate("/order-confirmation");
+                  }}
+                  className="flex items-center text-lg hover:text-primary-50 w-full mt-4"
+                >
+                  <div className="relative mr-3">
+                    <ShoppingCart className="w-5 h-5" />
+                    {getCartItemCount() > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-primary-50 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {getCartItemCount()}
+                      </span>
+                    )}
+                  </div>
+                  <span>Cart</span>
+                </button>
+
+                {/* Logout */}
+                <button
+                  onClick={() => {
+                    closeDrawer();
+                    handleLogout();
+                  }}
+                  className="flex items-center space-x-3 text-lg hover:text-primary-50 w-full mt-4"
+                >
+                  <FileCheck2 className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </nav>
           </div>
         </div>

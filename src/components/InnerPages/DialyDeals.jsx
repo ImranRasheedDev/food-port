@@ -9,7 +9,20 @@ const DialyDeals = () => {
         <div>
             <SectionInfo title={"Daily Deals!"} description={"We're committed to cook healthy to ensure they retain their freshness and nutritional value, guaranteeing a delightful experience."} />
 
-            <Swiper pagination={true} modules={[Pagination]} className="deals-swiper">
+            <Swiper 
+                pagination={true} 
+                modules={[Pagination]} 
+                className="deals-swiper"
+                spaceBetween={20}
+                breakpoints={{
+                    640: {
+                        spaceBetween: 20,
+                    },
+                    768: {
+                        spaceBetween: 30,
+                    },
+                }}
+            >
                 <SwiperSlide>
                     <DialyDealsCard link="/resturants-detail" title="Best deals Crispy Sandwiches" description="Enjoy the large size of sandwiches. Complete perfect slice of sandwiches." />
                 </SwiperSlide>

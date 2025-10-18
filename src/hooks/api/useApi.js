@@ -20,7 +20,7 @@ const getDefaultHeaders = async (method = 'GET') => {
 };
 
 // Centralized HTTP client
-const httpClient = async (url, options = {}) => {
+export const httpClient = async (url, options = {}) => {
   const method = options.method || 'GET';
   const defaultHeaders = await getDefaultHeaders(method);
 
@@ -35,7 +35,7 @@ const httpClient = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${window.constants.api_base_url}${url}`, config);
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, config);
     const data = await response.json().catch(() => ({}));
 
     if (
@@ -137,7 +137,7 @@ export const handleApiError = (error) => {
 // ----------------------
 export const useApiMutation = (endpoint, options = {}) => {
   const queryClient = useQueryClient();
-  const { onSuccess, onError, invalidateQueries, ...otherOptions } = options;
+  const { onSuccess, onError, invalidateQueries, disableToast, ...otherOptions } = options;
 
   return useMutation({
     mutationFn: (data) =>
@@ -146,7 +146,7 @@ export const useApiMutation = (endpoint, options = {}) => {
         body: JSON.stringify(data),
       }),
     onSuccess: (data, variables, context) => {
-      if (data.message) toast.success(data.message);
+      if (data.message && !disableToast) toast.success(data.message);
 
       if (invalidateQueries) {
         (Array.isArray(invalidateQueries) ? invalidateQueries : [invalidateQueries]).forEach((queryKey) => {

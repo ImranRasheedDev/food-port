@@ -1,4 +1,5 @@
-import { MapPin, ChefHat, CreditCard, UtensilsCrossed } from "lucide-react"
+// import { MapPin, ChefHat, CreditCard, UtensilsCrossed } from "lucide-react"
+import LayoutWrapper from "../layoutWrapper";
 
 const features = [
     {
@@ -26,7 +27,7 @@ const features = [
 export default function WhyChooseUs() {
     return (
         <section className="py-16 bg-slate-50">
-            <div className="container mx-auto px-4">
+            <LayoutWrapper>
                 <div className="mb-12">
                     <h2 className="text-4xl font-bold text-primary-400 mb-4">
                         Why Choose us for Your <span className="text-primary-50">Healthy</span> Food
@@ -48,7 +49,7 @@ export default function WhyChooseUs() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </LayoutWrapper>
         </section>
     )
 }

@@ -1,93 +1,256 @@
 import CardOne from "@/components/Cards/AdsCards/CardOne";
-import CartCountCard from "@/components/Cards/CartCountCard";
-import CartEmpty from "@/components/Cards/CartEmpty";
+import DynamicCart from "@/components/Cards/DynamicCart";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import ProductCard from "@/components/Cards/ProductCard";
 import ProductModal from "@/components/InnerPages/ProductModal";
 import ProductDetailBanner from "@/components/InnerPages/ProductDetailBanner";
 import ProductDetailMenu from "@/components/InnerPages/ProductDetailMenu";
 import SectionInfo from "@/components/InnerPages/SectionInfo";
-import { productDetailMenu, testimonialCards, menuSections } from "@/components/MockData";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { useRestaurantDetail, useBannerAds } from "@/hooks/api";
+import { menuSections } from "@/components/MockData";
 import TestimonialCard from "@/components/InnerPages/TestimonialCard";
 import TotalTestimonialsBox from "@/components/InnerPages/TotalTestimonialsBox";
-
+import RestaurantDetailSkeleton from "@/components/ui/restaurant-detail-skeleton";
 
 export default function ResturantsDetail() {
-    const [open, setOpen] = useState(false);
-    return (
-        <>
-            <div className="h-[72px]" />
-            <ProductDetailBanner image="/images/product-1.png" tags={["Burgers", "Fast Food", "Western", "Broast"]} restaurantName="KFC - New York" minOrderUnit="7.00" restaurantOpenTime="10:00" restaurantCloseTime="22:00" location="New York, NY" rating="4.8" ratingCount="25000" />
+  const [open, setOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { restaurant_id } = useParams();
 
-            <ProductDetailMenu menuItems={menuSections.map((section) => ({
-                id: section.id,
-                name: section.title,
-                count: section.products.length
-            }))} />
-            <div className="bg-primary-1014 pt-20 pb-20">
-                <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-x-[30px] px-6 mx-auto justify-center ">
-                    <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 hidden xl:block">
-                        <CardOne image="/images/add-card-one.png" percentage="25" restaurantName="Restaurant Name" />
-                        <CardOne image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" />
-                        <CardOne image="/images/add-card-three.png" restaurantNameColor="text-primary-1002" backgroundColor="bg-primary-1004" percentage="25" restaurantName="Restaurant Name" />
-                    </div>
-                    <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
-                        {menuSections.map((section) => (
-                            <div key={section.id} id={section.id} className="mb-10">
-                                <SectionInfo
-                                    title={section.title}
-                                    description={section.description}
-                                />
-                                <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-4">
-                                    {section.products.map((product) => (
-                                        <ProductCard
-                                            key={product.id}
-                                            onClick={() => setOpen(true)}
-                                            title={product.title}
-                                            price={product.price}
-                                            description={product.description}
-                                            image={product.image}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                        <div className="mb-10">
-                            <TotalTestimonialsBox rating={4.5}
-                                customerCount={934516}
-                                ratingData={[
-                                    { percentage: 63, count: 94532 },   // 1-star
-                                    { percentage: 24, count: 6.717 },  // 2-star
-                                    { percentage: 9, count: 714 },  // 3-star
-                                    { percentage: 1, count: 152 },  // 4-star
-                                    { percentage: 7, count: 643 }  // 5-star
-                                ]} />
-                        </div>
-                        <div className="mb-10">
-                            <SectionInfo title={"Customer Feedback"} />
-                            <div className="space-y-6 pt-3">
-                                {
-                                    testimonialCards.map((card) => (
-                                        <TestimonialCard key={card.id} {...card} />
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
-                        <CartCountCard image={"/images/product-1.png"} productName={"Midnight Deal 02"} price={"10.00"} count={1} totalPrice={"10.00"} vatPrice={"1.00"} platformFee={"1.00"} />
-                        <CartEmpty />
-                        <CardOne image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" />
-                        <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={2} />
-                        <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={0} />
-                        {/* <CardOne image="/images/add-card-one.png" percentage="25" restaurantName="Restaurant Name" />
-                    <CardOne image="/images/add-card-two.png" restaurantNameColor="text-primary-1004" backgroundColor="bg-primary-1011" percentage="25" restaurantName="Restaurant Name" /> */}
-                        <DealDiscountCard title={"Make Your First Order and Get 25% Off From "} companyName={"Restaurant Name"} link={"#"} image={"/images/deals-12.png"} cardIndex={1} />
-                    </div>
+  const {
+    data: restaurantData,
+    isLoading,
+    error,
+  } = useRestaurantDetail(restaurant_id);
+
+  // Fetch banner ads
+  const {
+    data: bannerAdsData,
+    isLoading: bannersLoading,
+  } = useBannerAds();
+
+  // Get restaurant data (will be undefined if loading or error)
+  const restaurant = restaurantData?.data;
+  
+  // Get banner ads data
+  const bannerAds = bannerAdsData?.data || [];
+  
+  // Get product categories for menu (empty array if no data)
+  const allProductCategories = restaurant?.product_categories || [];
+
+  // Filter categories and products based on search term - MUST be before early returns
+  const filteredCategories = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return allProductCategories;
+    }
+
+    const searchLower = searchTerm.toLowerCase();
+    
+    return allProductCategories
+      .map(category => {
+        const filteredProducts = category.products?.filter(product => 
+          product.name.toLowerCase().includes(searchLower) ||
+          product.description?.toLowerCase().includes(searchLower)
+        ) || [];
+
+        return {
+          ...category,
+          products: filteredProducts
+        };
+      })
+      .filter(category => 
+        category.products.length > 0 || 
+        category.name.toLowerCase().includes(searchLower)
+      );
+  }, [allProductCategories, searchTerm]);
+
+  // Handle search change
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+  };
+
+  // Early returns AFTER all hooks
+  if (isLoading) {
+    return <RestaurantDetailSkeleton />;
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <div className="h-[72px]" />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-500">
+            Error loading restaurant details
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Helper function to get business hours
+  const getCurrentDayHours = () => {
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const currentDay = days[new Date().getDay()];
+    return restaurant?.business_hours?.[currentDay];
+  };
+
+  const currentHours = getCurrentDayHours();
+  const isOpen = restaurant?.is_open && currentHours && !currentHours.is_close;
+
+  // Get restaurant categories as tags
+  const tags = restaurant?.restaurant_categories?.map((cat) => cat.name) || [];
+
+
+  return (
+    <>
+
+      <div className="h-[72px]" />
+      <ProductDetailBanner
+        image={restaurant?.logo_url || "/images/product-1.png"}
+        tags={tags}
+        restaurantName={restaurant?.name || "Restaurant"}
+        minOrderUnit={restaurant?.delivery_fee?.toString() || "7.00"}
+        restaurantOpenTime={currentHours?.open || "10:00"}
+        restaurantCloseTime={currentHours?.close || "22:00"}
+        location={restaurant?.address || "Location"}
+        rating={restaurant?.rating?.toString() || "4.8"}
+        ratingCount={restaurant?.rating_count?.toString() || "0"}
+        restaurantId={restaurant_id}
+        isLiked={restaurant?.is_like || false}
+      />
+
+      <ProductDetailMenu
+        menuItems={filteredCategories.map((category) => ({
+          id: `category-${category.id}`,
+          name: category.name,
+          count: category.products?.length || 0,
+        }))}
+        onSearchChange={handleSearchChange}
+      />
+      <div className="bg-primary-1014 pt-20 pb-20">
+        <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-x-[30px] px-6 mx-auto justify-center ">
+          <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 hidden xl:block">
+            {bannerAds.slice(0, 3).map((banner, index) => (
+              <CardOne
+                key={banner.id}
+                campaignData={banner}
+                restaurantNameColor={index === 1 ? "text-primary-1004" : index === 2 ? "text-primary-1002" : "text-primary-1002"}
+                backgroundColor={index === 1 ? "bg-primary-1011" : index === 2 ? "bg-primary-1004" : "bg-primary-950"}
+              />
+            ))}
+         
+          </div>
+          <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
+            {filteredCategories?.length > 0 ? (
+              filteredCategories.map((category) => (
+                <div
+                  key={category.id}
+                  id={`category-${category.id}`}
+                  className="mb-10"
+                >
+                  <SectionInfo
+                    title={category.name}
+                    description={`Explore our delicious ${category.name.toLowerCase()} selection`}
+                  />
+                  <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-4">
+                    {category.products?.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        onClick={() => {
+                          setSelectedProductId(product.id);
+                          setOpen(true);
+                        }}
+                        title={product.name}
+                        price={product.price?.toString() || "0.00"}
+                        description={product.description}
+                        image={product.image_url || "/images/product-1.png"}
+                      />
+                    ))}
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-lg text-gray-500 mb-2">No products found</div>
+                <div className="text-sm text-gray-400">
+                  Try searching for a different item
+                </div>
+              </div>
+            )}
+            <div className="mb-10">
+              <TotalTestimonialsBox
+                rating={restaurant?.rating || 4.5}
+                customerCount={restaurant?.rating_count || 0}
+                ratingData={[
+                  {
+                    percentage: restaurant?.rating_1 || 0,
+                    count: restaurant?.rating_1 || 0,
+                  },
+                  {
+                    percentage: restaurant?.rating_2 || 0,
+                    count: restaurant?.rating_2 || 0,
+                  },
+                  {
+                    percentage: restaurant?.rating_3 || 0,
+                    count: restaurant?.rating_3 || 0,
+                  },
+                  {
+                    percentage: restaurant?.rating_4 || 0,
+                    count: restaurant?.rating_4 || 0,
+                  },
+                  {
+                    percentage: restaurant?.rating_5 || 0,
+                    count: restaurant?.rating_5 || 0,
+                  },
+                ]}
+              />
             </div>
-            <ProductModal open={open} setOpen={setOpen} image={"/images/full-image.png"} title={"Midnight Deal 02"} description={"2 whole muscle zingers with cheese and fresh lettuce, all bundled in a…"} price={"10.00"} />
-        </>
-    )
+            <div className="mb-10">
+              <SectionInfo title={"Customer Feedback"} />
+              <div className="space-y-6 pt-3">
+                {restaurant?.ratings && restaurant.ratings.length > 0 ? (
+                  restaurant.ratings.map((rating) => (
+                    <TestimonialCard 
+                      key={rating.id}
+                      id={rating.id}
+                      name={rating.customer?.user?.name || 'Anonymous'}
+                      rating={rating.rating}
+                      comment={rating.comment}
+                      date={rating.created_at}
+                      img={rating.customer?.user?.image || "/images/avatar.jpg"}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 text-lg">Customer feedback not yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
+            <DynamicCart restaurantData={restaurant} ads={bannerAds} />
+          </div>
+        </div>
+      </div>
+      <ProductModal
+        open={open}
+        setOpen={setOpen}
+        productId={selectedProductId}
+        restaurantData={restaurant}
+      />
+    </>
+  );
 }

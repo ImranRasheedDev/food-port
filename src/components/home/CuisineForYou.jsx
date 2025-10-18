@@ -2,6 +2,7 @@ import React from "react";
 import Skeleton from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/api";
 import { NoData } from "@/components/ui/empty";
+import LayoutWrapper from "../layoutWrapper";
 
 const staticCuisineTypes = [
   { name: "All", image: "/images/all.jpg" },
@@ -24,36 +25,40 @@ const SectionHeader = () => (
 );
 
 const SkeletonGrid = () => (
-  <div className="grid grid-cols-8 gap-8 max-w-6xl mx-auto">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={i} className="text-center" aria-hidden="true">
-        <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
-          <Skeleton className="w-full h-full rounded-full" />
+  <div className="flex justify-center">
+    <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-2 max-w-full">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="text-center flex-shrink-0" aria-hidden="true">
+          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
+            <Skeleton className="w-full h-full rounded-full" />
+          </div>
+          <Skeleton className="h-4 rounded w-3/4 mx-auto" />
         </div>
-        <Skeleton className="h-4 rounded w-3/4 mx-auto" />
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 );
 
 const CuisineGrid = ({ items }) => (
-  <div className="grid grid-cols-8 gap-8 max-w-6xl mx-auto">
-    {items.map((c) => (
-      <div
-        key={c.id}
-        className="text-center hover:scale-105 transition-transform"
-      >
-        <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
-          <img
-            src={c.image}
-            alt={c.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+  <div className="flex justify-center">
+    <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-2 max-w-full">
+      {items.map((c) => (
+        <div
+          key={c.id}
+          className="text-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
+        >
+          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
+            <img
+              src={c.image}
+              alt={c.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <p className="text-primary-400 font-medium">{c.name}</p>
         </div>
-        <p className="text-primary-400 font-medium">{c.name}</p>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 );
 
@@ -83,16 +88,16 @@ export default function CuisineForYou() {
 
   return (
     <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
+        <LayoutWrapper>
         <SectionHeader />
         {isLoading ? (
           <SkeletonGrid />
         ) : itemsToRender === null ? (
-          <NoData title="No Popular Restaurants" />
+          <NoData title="No Cuisines Found" />
         ) : (
           <CuisineGrid items={itemsToRender} />
         )}
-      </div>
+      </LayoutWrapper>
     </section>
   );
 }

@@ -18,7 +18,14 @@ export {
   useLoginUser,
   useForgotPassword,
   useLogout,
-   useResetPassword,
+  useResetPassword,
+  useAddAddress,
+  useAddress,
+  useUserAddresses,
+  useAllAddresses,
+  useUpdateAddress,
+  useDeleteAddress,
+  useSetDefaultAddress,
 } from './useUsers';
 
 // Generic resource hooks
@@ -41,4 +48,27 @@ export {
 export  {
   useRestaurants,
   useRestaurant,
+  useRestaurantDetail,
+  useLikedRestaurants,
+  useLikedFoodTrucks,
+  useToggleRestaurantLike,
+  useToggleRestaurantLikeById,
+  useProductWithAddons,
 } from './useResource' ;
+
+// Order hooks
+export {
+  useCartCount,
+  useInvoices,
+  useInvoice,
+  usePlaceOrder,
+  useUpdateOrderStatus,
+  formatCartForAPI,
+} from './useOrder';
+
+// Ads hooks
+export {
+  useBannerAds,
+  useAdClickMutation,
+  trackAdClick,
+} from './useAds';
