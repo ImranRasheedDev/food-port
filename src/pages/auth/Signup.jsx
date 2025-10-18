@@ -8,6 +8,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegisterUser, useAddAddress } from "@/hooks/api";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { getFcmToken } from "@/lib/generateFcmToken";
 
 import {
   Select,
@@ -158,7 +159,8 @@ function Signup() {
   });
 
   const onSubmit = useCallback(
-    (data) => {
+   async (data) => {
+    const fcmToken = await getFcmToken();
       if (registerUser.isPending || addAddress.isPending || isSubmittingRef.current) {
         return;
       }
@@ -176,6 +178,7 @@ function Signup() {
         address: data.address,
         city: data.city,
         zip_code: data.zip_code,
+        fcm_token: fcmToken || "NO_TOKEN_GENERATED",
       };
 
       // Call register API first

@@ -32,39 +32,17 @@ function Login() {
   } = useForm();
 
   const onSubmit = useCallback(
-    async (data) => {
-      setLoading(true);
-      try {
-        const fcmToken = await getFcmToken();
-        console.log(fcmToken,"from login");
-  
-        const payload = {
-          email: data.email,
-          password: data.password,
-          fcm_token: fcmToken || "NO_TOKEN_GENERATED",
-        };
-  
-        // loginUser.mutate(payload);
-      } catch (error) {
-        console.error("Error generating FCM token:", error);
-      } finally {
-        setLoading(false);
-      }
+   async (data) => {
+    const fcmToken = await getFcmToken();
+      const payload = {
+        email: data.email,
+        password: data.password,
+        fcm_token: fcmToken || "NO_TOKEN_GENERATED",
+      };
+      loginUser.mutate(payload);
     },
     [loginUser]
   );
-  
-  // const onSubmit = useCallback(
-  //   (data) => {
-  //     const payload = {
-  //       email: data.email,
-  //       password: data.password,
-  //       fcm_token: "TEST_FCM_TOKEN_1234567890ABCDEF",
-  //     };
-  //     loginUser.mutate(payload);
-  //   },
-  //   [loginUser]
-  // );
 
   const handleSocialLogin = (provider) => {
     toast.info(`${provider} login would be implemented here`);
