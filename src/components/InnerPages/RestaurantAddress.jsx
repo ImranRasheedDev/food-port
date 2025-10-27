@@ -1,11 +1,11 @@
 import { Clock, MapPin, Phone } from "lucide-react";
-
+import { processImageUrl } from '@/lib/utils';
 export default function RestaurantAddress() {
     return (
         <div className="bg-primary-995 p-10 rounded-lg border border-primary-1006">
             <div>
                 <h1 className=" font-bold text-2xl mb-6">Restaurant Address</h1>
-                <img src="/images/map-123.png" alt="restaurant-address" />
+                <img src={processImageUrl("/images/map-123.png")} alt="restaurant-address" />
             </div>
             <div>
                 <div className="flex gap-x-2 border-b border-primary-1007 py-8">

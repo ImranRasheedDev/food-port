@@ -72,3 +72,13 @@ export {
   useAdClickMutation,
   trackAdClick,
 } from './useAds';
+
+// Notification hooks
+export {
+  useNotifications,
+  useUnreadNotifications,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+  useDeleteNotification,
+  useNotification,
+} from './useNotifications';

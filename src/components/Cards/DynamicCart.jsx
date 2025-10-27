@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import DealDiscountCard from "./DealDiscountCard";
 import { Trash2, Minus, Plus } from "lucide-react";
 import CardOne from "./AdsCards/CardOne";
+import { processImageUrl, getStaticImagePath } from "@/lib/utils";
+import { useMemo, useState } from "react";
 
 export default function DynamicCart({
   restaurantData: propRestaurantData,
@@ -17,9 +19,26 @@ export default function DynamicCart({
     restaurantData: contextRestaurantData,
   } = useCart();
   const navigate = useNavigate();
+  const [imageErrors, setImageErrors] = useState({});
 
   // Use prop restaurant data if available, otherwise use context data
   const restaurantData = propRestaurantData || contextRestaurantData;
+
+  const handleImageError = (itemId) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
+  };
+
+  // Get processed image URL with error handling for each item
+  const getImageSrc = (item) => {
+    const itemKey = `${item.id}-${JSON.stringify(item.selectedAddons)}`;
+    if (imageErrors[itemKey] || !item.image) {
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
+    }
+    return processImageUrl(item.image, "/images/placeholder1.jpg");
+  };
 
   if (isCartEmpty()) {
     return (
@@ -27,7 +46,7 @@ export default function DynamicCart({
         <div className="text-center">
           <div className="mb-4">
             <img
-              src="/images/empty-cart.png"
+              src={getStaticImagePath("/images/empty-cart.png")}
               alt="Empty Cart"
               className="w-24 h-24 mx-auto opacity-50"
             />
@@ -68,6 +87,9 @@ export default function DynamicCart({
     deliveryFee
   ).toFixed(2);
 
+ 
+
+
   return (
     <div className="border  border-primary-1007 rounded-lg p-4">
       {/* Cart Items */}
@@ -80,9 +102,11 @@ export default function DynamicCart({
             <div className="flex gap-3 ">
               <div className="flex-shrink-0 ">
                 <img
-                  src={item.image || "/images/product-1.png"}
+                  src={getImageSrc(item)}
                   alt={item.name}
                   className="w-32 h-32 object-cover rounded-lg"
+                  onError={() => handleImageError(`${item.id}-${JSON.stringify(item.selectedAddons)}`)}
+                  loading="lazy"
                 />
               </div>
               <div className="w-full ">

@@ -1,5 +1,5 @@
 import LayoutWrapper from "../layoutWrapper";
-
+import { processImageUrl } from '@/lib/utils';
 export default function HeroBanner({ user = false }) {
     return (
         <section
@@ -23,7 +23,7 @@ export default function HeroBanner({ user = false }) {
                         
                         {/* Image - positioned absolutely to cover right side */}
                         <div className=" md:block absolute top-0 right-0 w-3/5 h-full">
-                            <img src="/images/banner-right.png" alt="" className="absolute bottom-0 right-0 w-full object-cover object-right" />
+                            <img src={processImageUrl("/images/banner-right.png")} alt="Banner Right" className="absolute bottom-0 right-0 w-full object-cover object-right" />
                         </div>
                     </div>
                 </>
@@ -40,12 +40,12 @@ export default function HeroBanner({ user = false }) {
                             </p>
                             <div className="flex py-4 md:py-0 flex-col sm:flex-row gap-4">
                                 <img
-                                    src="/images/app-store.png"
+                                    src={processImageUrl("/images/app-store.png")}
                                     alt="Download on App Store"
                                     className="h-auto md:h-14 cursor-pointer hover:opacity-80 transition-opacity"
                                 />
                                 <img
-                                    src="/images/googleplay.png"
+                                    src={processImageUrl("/images/googleplay.png")}
                                     alt="Get it on Google Play"
                                     className="h-auto md:h-14 cursor-pointer hover:opacity-80 transition-opacity"
                                 />

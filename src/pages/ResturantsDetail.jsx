@@ -120,7 +120,7 @@ export default function ResturantsDetail() {
 
       <div className="h-[72px]" />
       <ProductDetailBanner
-        image={restaurant?.logo_url || "/images/product-1.png"}
+        image={restaurant?.logo_url || "/images/placeholder1.jpg"}
         tags={tags}
         restaurantName={restaurant?.name || "Restaurant"}
         minOrderUnit={restaurant?.delivery_fee?.toString() || "7.00"}
@@ -273,7 +273,7 @@ export default function ResturantsDetail() {
             <DealDiscountCard
               key={banner.id || index}
               campaignData={banner}
-              cardIndex={index}
+              cardIndex={index + 4}
             />
           ))}
           </div>

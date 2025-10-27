@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { processImageUrl } from '@/lib/utils';
 
 const DialyDealsCard = ({ title, description, link }) => {
     return (
@@ -20,7 +21,7 @@ const DialyDealsCard = ({ title, description, link }) => {
                     </Link>
                 </div>
                 <div className='w-full md:w-3/5 rounded-tr-none rounded-br-xl rounded-bl-xl md:rounded-bl-none md:rounded-tl-none h-[200px] md:h-[320px]'>
-                    <img src="/images/daily-deals-image.jpg" alt="" className='block h-full w-full object-cover rounded-br-xl rounded-bl-xl md:rounded-bl-none md:rounded-tr-xl' />
+                    <img src={processImageUrl("/images/daily-deals-image.jpg")} alt="" className='block h-full w-full object-cover rounded-br-xl rounded-bl-xl md:rounded-bl-none md:rounded-tr-xl' />
                 </div>
             </div>
         </div>

@@ -45,9 +45,9 @@ const CuisineItem = ({ item }) => {
   
   const imageSrc = (() => {
     if (imageError) {
-      return "/images/all.jpg"; // Fallback image
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
     }
-    return processImageUrl(item.image, "/images/all.jpg");
+    return processImageUrl(item.image, "/images/placeholder1.jpg");
   })();
 
   const handleImageError = () => {

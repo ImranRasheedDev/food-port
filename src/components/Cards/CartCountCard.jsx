@@ -2,7 +2,8 @@ import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import DealDiscountCard from "./DealDiscountCard";
 import { useNavigate } from "react-router-dom";
-
+import { processImageUrl } from "@/lib/utils";
+    
 export default function CartCountCard({ image, productName, price, count, totalPrice, vatPrice, platformFee }) {
     const [countValue, setCountValue] = useState(count);
     const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function CartCountCard({ image, productName, price, count, totalP
         <div className="border border-primary-1007 rounded-lg p-4">
             <div className="flex gap-3 border-b border-primary-1007 pb-6">
                 <div className="flex-shrink-0">
-                    <img src={image} alt="cart-count-card" className="w-32 h-32 object-cover rounded-lg" />
+                    <img src={ processImageUrl(image)} alt="cart-count-card" className="w-32 h-32 object-cover rounded-lg" />
                 </div>
                 <div className="w-full">
                     <h1 className="font-bold mb-2">{productName}</h1>

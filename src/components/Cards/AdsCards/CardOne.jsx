@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 // No click tracking for ads; navigation handled via Link
 import Helper from "@/helpers";
 import { useAdClickMutation } from "@/hooks/api";
-
+import { processImageUrl } from "@/lib/utils";
 export default function CardOne({
   // Dynamic banner data
   campaignData,
@@ -67,11 +67,11 @@ export default function CardOne({
         />
       ) : (
         <img
-          src={displayData.image}
-          alt={displayData.restaurantName}
+          src={ processImageUrl(displayData.image)}
+          alt={displayData.restaurantName || "Card One"}
           onError={(e) => {
             // If image fails to load, show placeholder
-            e.target.src = "/images/placeholder.jpg";
+            e.target.src = processImageUrl("/images/placeholder1.jpg");
           }}
         />
       )}
@@ -79,7 +79,7 @@ export default function CardOne({
       {/* Placeholder image for video fallback */}
       {displayData.mediaType === "video" && (
         <img
-          src="/images/placeholder.jpg"
+          src={processImageUrl("/images/placeholder1.jpg")}
           alt="Placeholder"
           className="w-full h-auto"
           style={{ display: "none" }}

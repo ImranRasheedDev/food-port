@@ -9,7 +9,7 @@ import { useRestaurants } from '@/hooks/api'
 import { Skeleton } from '@/components/ui/skeleton'
 import usePlacesAutocomplete, { getGeocode } from 'use-places-autocomplete'
 import LayoutWrapper from '../layoutWrapper'
-
+import { processImageUrl } from '@/lib/utils';
 const SearchBar = () => {
     const [showSearch, setShowSearch] = useState(false)
     const [showLocation, setShowLocation] = useState(false)
@@ -177,7 +177,7 @@ const SearchBar = () => {
                             {!isRestaurantsLoading && restaurantSuggestions.map((r) => (
                                 <SearchCard
                                     key={r.id}
-                                    img={r.bg_image_url || '/images/placeholder.jpg'}
+                                    img={processImageUrl(r.logo_url, '/images/placeholder1.jpg')}
                                     name={r.name}
                                     address={r.address}
                                     to={`/resturants-detail/${r.id}`}
@@ -246,7 +246,7 @@ const SearchBar = () => {
                             {locationActive && !isRestaurantsLoading && restaurantSuggestions.map((r) => (
                                 <SearchCard
                                     key={r.id}
-                                    img={r.bg_image_url || '/images/placeholder.jpg'}
+                                    img={processImageUrl(r.logo_url) || '/images/placeholder.jpg'}
                                     name={r.name}
                                     address={r.address}
                                     to={`/resturants-detail/${r.id}`}

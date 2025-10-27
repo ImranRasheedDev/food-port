@@ -136,5 +136,15 @@ export const useAllAddresses = (options = {}) => {
   );
 };
 
+// Newsletter subscription
+export const useSubscribeNewsletter = (options = {}) => {
+  return useApiMutation('/newsletter/add', {
+    onSuccess: (data) => {
+      // Optional: Add success handling here
+    },
+    ...options,
+  });
+};
+
 // Re-export the custom address mutation hooks
 export { useUpdateAddress, useDeleteAddress, useSetDefaultAddress } from './useAddressMutations';

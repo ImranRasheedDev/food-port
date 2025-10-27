@@ -4,7 +4,7 @@ import Footer from "./Footer";
 import HeaderAfterLogin from "./HeaderAfterLogin";
 
 function Layout() {
-  const user = window.lodash.isEmpty(window.user) ? false : true;
+  const user = (window.lodash && window.user && !window.lodash.isEmpty(window.user)) ? true : false;
   return (
     <div>
       {user ? <HeaderAfterLogin /> : <Header />}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-
+import { processImageUrl } from '@/lib/utils';
 export default function OrderWaiting() {
     const location = useLocation();
     const initialSeconds = location.state?.etaSeconds ?? 45 * 60;
@@ -22,7 +22,7 @@ export default function OrderWaiting() {
             <div className="h-[150px]" />
 
                 <div className="text-center pb-10">
-                    <img src="/images/preparing-order.png" alt="order-waiting" className="mx-auto" />
+                    <img src={processImageUrl("/images/preparing-order.png")} alt="order-waiting" className="mx-auto" />
                     <h2 className="text-3xl font-semibold mb-2">Preparing Your Order</h2>
                     <p className="text-primary-50">Estimated Preparing time (45mins)</p>
                 </div>

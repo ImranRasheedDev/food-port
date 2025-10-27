@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import placeholder from "../../../public/images/advertise.png";
+import placeholder from "../../../public/images/placeholder1.jpg";
 import { isValidUrl } from '@/lib/inValidUrl';
+import { processImageUrl } from '@/lib/utils';
+
 const AdviserCard = ({ title, companyName, description, link, index, mediaPath }) => {
     const isOdd = index % 2 === 0;
 
@@ -26,7 +28,7 @@ const AdviserCard = ({ title, companyName, description, link, index, mediaPath }
             </div>
             <div className='w-full md:w-2/5 flex justify-center md:justify-end md:ml-auto'>
                 <img
-                    src={src}
+                    src={processImageUrl(src)}
                     alt=""
                     onError={(e) => { if (e.currentTarget.src !== placeholder) e.currentTarget.src = placeholder; }}
                     className='rounded-b-4xl md:ronded-tr-4xl md:rounded-br-4xl block w-full max-w-sm md:max-w-none h-48 md:h-60 object-cover'

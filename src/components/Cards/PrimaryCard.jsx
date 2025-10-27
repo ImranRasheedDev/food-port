@@ -1,4 +1,4 @@
-import { Heart, Star, MapPin, Clock } from "lucide-react";
+import { Heart, Star, MapPin, Clock, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
 import { toast } from "react-toastify";
@@ -25,9 +25,9 @@ export function RestaurantCard({
   // Validate and process image URL
   const imageSrc = (() => {
     if (imageError) {
-      return "/images/popular-1.png"; // Fallback image
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
     }
-    return processImageUrl(image, "/images/popular-1.png");
+    return processImageUrl(image, "/images/placeholder1.jpg");
   })();
 
   const handleImageError = () => {
@@ -44,6 +44,9 @@ export function RestaurantCard({
       toast.error(error.message || "Failed to update favorite");
     },
   });
+
+  // Get loading state for this specific card
+  const isLoadingHeart = toggleFavoriteMutation.isPending;
 
   // Handle heart button click
   const handleHeartClick = (e) => {
@@ -67,7 +70,7 @@ export function RestaurantCard({
     >
       <div className="relative">
         <img
-          src={imageSrc}
+          src={processImageUrl(imageSrc, "/images/placeholder1.jpg")}
           alt={name}
           className="w-full h-56 object-cover rounded-md"
           onError={handleImageError}
@@ -77,13 +80,17 @@ export function RestaurantCard({
           className="absolute top-3 right-3 p-1 bg-white rounded-full shadow-md cursor-pointer hover:shadow-lg transition-shadow z-10"
           onClick={handleHeartClick}
         >
-          <Heart
-            className={`w-5 h-5 ${
-              isLiked
-                ? "text-red-500 fill-red-500"
-                : "text-gray-400 hover:text-red-400"
-            }`}
-          />
+          {isLoadingHeart ? (
+            <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+          ) : (
+            <Heart
+              className={`w-5 h-5 ${
+                isLiked
+                  ? "text-red-500 fill-red-500"
+                  : "text-gray-400 hover:text-red-400"
+              }`}
+            />
+          )}
         </div>
       </div>
 

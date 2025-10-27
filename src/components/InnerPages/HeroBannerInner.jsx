@@ -1,5 +1,5 @@
 import React from 'react'
-import LayoutWrapper from '../layoutWrapper'
+import { processImageUrl } from '@/lib/utils';
 
 const HeroBannerInner = () => {
     return (
@@ -7,7 +7,7 @@ const HeroBannerInner = () => {
             className={`bg-[url('/images/hero-bg-2.png')] h-[250px] sm:h-[400px] md:h-[300px] relative flex items-center justify-start bg-cover bg-center`}
         >
             <div className="absolute bottom-0 -right-40 ml-auto text-right hidden sm:block">
-                <img src="/images/inner-banner.png" className="w-full h-full object-cover" alt="" />
+                <img src={processImageUrl("/images/inner-banner.png")} className="w-full h-full object-cover" alt="Inner Banner" />
             </div>
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full px-4 sm:px-6 md:px-8">
                 <div className="max-w-[1280px] mx-auto">

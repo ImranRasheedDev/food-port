@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAdClickMutation } from "@/hooks/api";
 import Helper from "@/helpers";
 import { isValidUrl } from "@/lib/inValidUrl";
+import { processImageUrl } from '@/lib/utils';
 
 const DealDiscountCard = ({ 
     // Dynamic banner data
@@ -54,7 +55,19 @@ const DealDiscountCard = ({
             titleClass: 'text-white',
             companyClass: 'text-white',
             buttonClass: 'bg-black text-white'
-        }
+        },
+        3: { // Fourth card
+            containerClass: 'bg-[url("/images/deal-bg-3.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-primary-1002',
+            buttonClass: 'bg-primary-50 text-white'
+        },
+        4: { // Third card
+            containerClass: 'bg-[url("/images/deal-bg-2.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-white',
+            buttonClass: 'bg-black text-white'
+        },
     };
 
     const currentStyle = cardStyles[styleIndex];
@@ -86,11 +99,21 @@ const DealDiscountCard = ({
         isValidUrl(displayData.mediaPath) && 
         !imageError ? displayData.mediaPath : null;
 
+    // Check if we should show the background fallback
+    const shouldShowBackground = !validMediaPath || imageError;
+
     return (
-        <div className={`text-white items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden`}
-             style={validMediaPath ? {
-                 backgroundImage: `url(${validMediaPath})`
-             } : undefined}>
+        <div className={`text-white items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[200px]`}>
+            
+            {/* Show background image if media type is image */}
+            {displayData.mediaType === "image" && displayData.mediaPath && (
+                <img 
+                    src={processImageUrl(displayData.mediaPath)} 
+                    alt="Background" 
+                    className="absolute inset-0 w-full h-full object-cover z-0"
+                    onError={() => setImageError(true)}
+                />
+            )}
             
             {/* Show video if media type is video */}
             {displayData.mediaType === "video" && displayData.mediaPath && (
@@ -107,14 +130,14 @@ const DealDiscountCard = ({
                         if (placeholder) placeholder.style.display = 'block';
                     }}
                 >
-                    <source src={displayData.mediaPath} type="video/mp4" />
+                    <source src={processImageUrl(displayData.mediaPath, "/images/placeholder.jpg")} type="video/mp4" />
                 </video>
             )}
             
             {/* Show placeholder image if video fails to load or no media */}
             {(!displayData.mediaPath || displayData.mediaType === "video") && (
                 <img 
-                    src="/images/placeholder.jpg" 
+                    src={processImageUrl("/images/placeholder.jpg")} 
                     alt="Placeholder" 
                     className="absolute inset-0 w-full h-full object-cover z-0"
                     style={{ display: displayData.mediaType === "video" && displayData.mediaPath ? 'none' : 'block' }}
@@ -128,7 +151,7 @@ const DealDiscountCard = ({
             )}
             
             {/* Use background class as final fallback */}
-            <div className={`absolute inset-0 ${currentStyle.containerClass}`} style={{ display: displayData.mediaPath && displayData.mediaType === "image" ? 'none' : 'block' }}></div>
+            <div className={`absolute inset-0 ${currentStyle.containerClass}`} style={{ display: shouldShowBackground ? 'block' : 'none' }}></div>
             
             {/* Content overlay */}
             <div className='pl-4 w-[64%] py-6 relative z-10'>

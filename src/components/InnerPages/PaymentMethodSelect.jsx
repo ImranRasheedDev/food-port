@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { processImageUrl } from "@/lib/utils";
 
 export default function PaymentMethodSelect({
   paymentMethod,
@@ -32,17 +33,17 @@ export default function PaymentMethodSelect({
     {
       id: "visa",
       name: "Visa",
-      image: "/images/visa-card.png",
+      image: processImageUrl("/images/visa-card.png"),
     },
     {
       id: "mastercard",
       name: "Master Card",
-      image: "/images/master-card.png",
+      image: processImageUrl("/images/master-card.png"),
     },
     // {
     //     id: "cash",
     //     name: "Cash",
-    //     image: "/images/bi_cash-coin.png"
+    //     image: processImageUrl("/images/bi_cash-coin.png")
     // }
   ];
 
