@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import CardOne from "@/components/Cards/AdsCards/CardOne";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import AllResturantsSection from "@/components/InnerPages/AllResturantsSection";
@@ -9,20 +10,30 @@ import ProductFilters from "@/components/InnerPages/ProductFilters";
 import { useBannerAds } from "@/hooks/api";
 
 function AllResturants() {
+  // Get location state for category ID
+  const location = useLocation();
+  const categoryId = location.state?.categoryId;
+  const categoryName = location.state?.categoryName;
+
   // Fetch banner ads from API
   const { data: bannerAdsData, isLoading: bannersLoading } = useBannerAds();
   const bannerAds = bannerAdsData?.data || [];
 
-  // State for filters
+  // State for filters - initialize with category from route state
   const [filters, setFilters] = useState({
     suggested: [],
-    category: [],
+    category: categoryId ? [categoryId] : [],
     distance: [],
     price_range: '',
   });
 
-  // Debounced filters for API calls
-  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  // Debounced filters for API calls - initialize with category from route state
+  const [debouncedFilters, setDebouncedFilters] = useState({
+    suggested: [],
+    category: categoryId ? [categoryId] : [],
+    distance: [],
+    price_range: '',
+  });
 
   // Debounce function
   const debounce = useCallback((func, delay) => {

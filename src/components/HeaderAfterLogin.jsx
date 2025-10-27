@@ -23,15 +23,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useAllAddresses, useLikedRestaurants, useLikedFoodTrucks, useUnreadNotifications } from "../hooks/api";
+import { useLikedRestaurants, useLikedFoodTrucks, useUnreadNotifications } from "../hooks/api";
 import LayoutWrapper from "./layoutWrapper";
 import { NotificationMenu, DesktopNotificationMenu } from "./NotificationMenu";
 import { processImageUrl } from "@/lib/utils";
 import { setupNotificationListener } from "../firebase/notificationListener";
 export default function HeaderAfterLogin() {
+  // Updated to use window.user instead of API calls
   const [isOpen, setIsOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [firebaseNotificationCount, setFirebaseNotificationCount] = useState(0);
+  const [userName, setUserName] = useState(window.user?.name || "");
+  const [userAddress, setUserAddress] = useState(window.user?.address || "");
+  
+  // Initialize user image with proper URL handling
+  const getInitialImage = () => {
+    const imageValue = window.user?.image || window.user?.avatar || "";
+    if (!imageValue || imageValue === null) return "";
+    if (imageValue.startsWith('http') || imageValue.startsWith('/')) {
+      return imageValue;
+    }
+    // Relative path from API - construct full URL
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    return apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${imageValue}` : imageValue;
+  };
+  
+  const [userImage, setUserImage] = useState(getInitialImage());
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
@@ -53,9 +71,6 @@ export default function HeaderAfterLogin() {
     setIsNotificationOpen(true);
   };
 
-  // Fetch all addresses using the /address endpoint
-  const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
-  
   // Fetch liked restaurants and food trucks for favorites count
   const { data: likedRestaurantsData } = useLikedRestaurants();
   const { data: likedFoodTrucksData } = useLikedFoodTrucks();
@@ -92,9 +107,33 @@ export default function HeaderAfterLogin() {
     setupNotificationListener(handleFirebaseNotification);
   }, []);
 
-  // Get the first address (index 0) - addresses come directly in response, not nested under data
-  const firstAddress =
-    addresses?.data.filter((address) => address.default === true)[0] || null;
+  // Listen for user updates
+  useEffect(() => {
+    const handleUserUpdate = (event) => {
+      const updatedUser = event.detail;
+      setUserName(updatedUser.name || "");
+      setUserAddress(updatedUser.address || "");
+      
+      // Handle image URL - could be relative path or full URL
+      let imageValue = updatedUser.image || updatedUser.avatar || "";
+      if (imageValue && imageValue !== null && imageValue.trim() !== "") {
+        if (!imageValue.startsWith('http') && !imageValue.startsWith('/')) {
+          // Relative path from API - construct full URL
+          const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+          imageValue = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${imageValue}` : imageValue;
+        }
+      }
+      setUserImage(imageValue || "");
+      console.log("Header received user update:", updatedUser, "Image:", imageValue);
+    };
+
+    window.addEventListener('userUpdated', handleUserUpdate);
+    
+    return () => {
+      window.removeEventListener('userUpdated', handleUserUpdate);
+    };
+  }, []);
+
 
   // Get total favorites count (restaurants + food trucks)
   const restaurantsCount = likedRestaurantsData?.data?.length || 0;
@@ -163,27 +202,42 @@ export default function HeaderAfterLogin() {
             <MapPin className="text-primary-950" />
             <p className="text-primary-950 max-w-xl truncate">
               Your address:{" "}
-              {addressesLoading
-                ? <span className="text-gray-400">Loading address...</span>
-                : firstAddress
-                ? `${firstAddress.address}` || ""
-                : window.user?.address || "No address set"}
+              {userAddress || "No address set"}
             </p>
           </div>
           {/* Right side buttons */}
           <div className="flex items-center space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
-                <User />
-                {window.user?.name}
-                <ChevronDown />
-              </DropdownMenuTrigger>
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                             <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer border-0 outline-none">
+                 {userImage && userImage.trim() !== "" ? (
+                   <img 
+                     src={userImage} 
+                     alt={userName} 
+                     className="w-8 h-8 rounded-full object-cover"
+                     onError={(e) => {
+                       console.log('Avatar image failed to load:', userImage);
+                       e.target.onerror = null; // Prevent infinite loop
+                       e.target.src = processImageUrl("/images/avatar.jpg");
+                     }}
+                   />
+                 ) : (
+                   <img 
+                     src={processImageUrl("/images/avatar.jpg")} 
+                     alt={userName} 
+                     className="w-8 h-8 rounded-full object-cover"
+                   />
+                 )}
+                 <span>{userName}</span>
+                 <ChevronDown />
+               </DropdownMenuTrigger>
               <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
                 <DropdownMenuItem
+                  onClick={() => setDropdownOpen(false)}
                   className={"p-0 bg-white hover:bg-primary-990"}
                 >
                   <Link
                     to={""}
+
                     className="flex items-center gap-x-2 w-full p-5"
                   >
                     <LayoutDashboard /> Dashboard
@@ -191,6 +245,7 @@ export default function HeaderAfterLogin() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
+                  onClick={() => setDropdownOpen(false)}
                 >
                   <Link
                     to={"/account-settings"}
@@ -201,6 +256,7 @@ export default function HeaderAfterLogin() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
+                  onClick={() => setDropdownOpen(false)}
                 >
                   <Link
                     to={""}
@@ -212,6 +268,7 @@ export default function HeaderAfterLogin() {
 
                 <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
+                  onClick={() => setDropdownOpen(false)}
                 >
                   <Link
                     to={"/favourites"}
@@ -223,9 +280,12 @@ export default function HeaderAfterLogin() {
                 <DropdownMenuSeparator className={"m-0"} />
                 <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    handleLogout();
+                  }}
                 >
                   <button
-                    onClick={handleLogout}
                     className="flex items-center gap-x-2 w-full p-5 cursor-pointer"
                   >
                     <FileCheck2 /> Logout
@@ -233,11 +293,11 @@ export default function HeaderAfterLogin() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="flex items-center space-x-1 cursor-pointer">
+            {/* <div className="flex items-center space-x-1 cursor-pointer">
               <Globe />
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
-            </div>
+            </div> */}
             <div
               className="relative cursor-pointer"
               onClick={() => navigate("/order-confirmation")}
@@ -312,13 +372,30 @@ export default function HeaderAfterLogin() {
 
             {/* Navigation Links */}
             <nav className="mt-12 space-y-6 ">
-              {/* Profile Section */}
-              <div className="pb-4 border-b border-gray-600">
-                <div className="flex items-center space-x-3 mb-4">
-                  <User className="w-6 h-6" />
-                  <span className="text-lg font-medium">{window.user?.name}</span>
-                </div>
-              </div>
+                             {/* Profile Section */}
+               <div className="pb-4 border-b border-gray-600">
+                 <div className="flex items-center space-x-3 mb-4">
+                   {userImage && userImage.trim() !== "" ? (
+                     <img 
+                       src={processImageUrl(userImage, "/images/avatar.jpg")} 
+                       alt={userName} 
+                       className="w-10 h-10 rounded-full object-cover"
+                       onError={(e) => {
+                         console.log('Mobile avatar image failed to load:', userImage);
+                         e.target.onerror = null; // Prevent infinite loop
+                         e.target.src = processImageUrl("/images/avatar.jpg");
+                       }}
+                     />
+                   ) : (
+                     <img 
+                       src={processImageUrl("/images/avatar.jpg")} 
+                       alt={userName} 
+                       className="w-10 h-10 rounded-full object-cover"
+                     />
+                   )}
+                   <span className="text-lg font-medium">{userName}</span>
+                 </div>
+               </div>
 
               {/* Profile Menu Items */}
               <Link

@@ -44,21 +44,19 @@ const FavouritesFoodTrucks = ({ user = false }) => {
   const [foodTrucks, setFoodTrucks] = useState([]);
   const apiArray = likedFoodTrucksData?.data;
   const hasApiData = apiArray && apiArray.length > 0;
-  const maxCards = user ? 8 : 4;
 
   useEffect(() => {
     async function loadCards() {
       if (apiArray?.length > 0) {
         const cards = await Promise.all(
           apiArray
-            .slice(0, maxCards)
             .map((r) => mapApiRestaurantToCard(r, 40.650426, -73.943136))
         );
         setFoodTrucks(cards);
       }
     }
     loadCards();
-  }, [apiArray, maxCards]);
+  }, [apiArray]);
 
   // Show error state
   if (error) {
@@ -91,7 +89,7 @@ const FavouritesFoodTrucks = ({ user = false }) => {
       <SectionInfo title={"Food Trucks you like"} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {isLoading
-          ? Array.from({ length: maxCards }).map((_, i) => (
+          ? Array.from({ length: 4}).map((_, i) => (
               <SkeletonCard key={i} />
             ))
           : foodTrucks.map((card) => (

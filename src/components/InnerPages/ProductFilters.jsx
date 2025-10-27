@@ -8,6 +8,14 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
     const [priceRange, setPriceRange] = useState(filters.price_range || '')
     const { data: categoriesData, isLoading: categoriesLoading } = useCategories()
 
+    // Effect to handle initial category selection from route state
+    useEffect(() => {
+        if (filters.category && filters.category.length > 0 && categoriesData?.data) {
+            // Category is already set from route state, no need to do anything
+            // The filter is already active
+        }
+    }, [filters.category, categoriesData])
+
     // Convert API categories to filter format
     const categoryFilters = categoriesData?.data?.map(cat => ({
         id: cat.id,
@@ -51,9 +59,9 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
                 </h2>
                 <div className='flex gap-2'>
                     {[
-                        { value: '5', label: '$5' },
-                        { value: '10', label: '$10' },
-                        { value: '50', label: '$50' }
+                        { value: '1', label: '$' },
+                        { value: '2', label: '$$' },
+                        { value: '3', label: '$$$' }
                     ].map((option) => (
                         <button
                             key={option.value}

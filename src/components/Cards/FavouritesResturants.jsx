@@ -63,21 +63,18 @@ const FavouritesRestaurants = ({ user = false }) => {
   const [restaurants, setRestaurants] = useState([]);
   const apiArray = likedRestaurantsData?.data;
   const hasApiData = apiArray && apiArray.length > 0;
-  const maxCards = user ? 8 : 4;
 
   useEffect(() => {
     async function loadCards() {
       if (apiArray?.length > 0) {
         const cards = await Promise.all(
-          apiArray
-            .slice(0, maxCards)
-            .map((r) => mapApiRestaurantToCard(r, 40.650426, -73.943136))
+          apiArray .map((r) => mapApiRestaurantToCard(r, 40.650426, -73.943136))
         );
         setRestaurants(cards);
       }
     }
     loadCards();
-  }, [apiArray, maxCards]);
+  }, [apiArray]);
 
   // Show error state
   if (error) {
@@ -110,7 +107,7 @@ const FavouritesRestaurants = ({ user = false }) => {
       <SectionInfo title={"Restaurants you like"} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {isLoading
-          ? Array.from({ length: maxCards }).map((_, i) => (
+          ? Array.from({ length: 4}).map((_, i) => (
               <SkeletonCard key={i} />
             ))
           : restaurants.map((card) => (

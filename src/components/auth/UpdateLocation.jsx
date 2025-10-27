@@ -1,5 +1,5 @@
 import { Home, MapPin, Edit, Trash2, Star, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   useAllAddresses,
@@ -34,10 +34,12 @@ const UpdateLocation = () => {
     settingDefault: {},
     updating: {},
   });
-
   const { data: addresses, isLoading, error,refetch } = useAllAddresses();
   const deleteAddress = useDeleteAddress();
   const setDefaultAddress = useSetDefaultAddress();
+
+  // Get current default address for map
+  const currentDefaultAddress = addresses?.data?.find(addr => addr.default === true);
 
   const handleEdit = (address) => {
     setEditingAddress(address);
@@ -105,13 +107,27 @@ const UpdateLocation = () => {
       {
         onSuccess: (data) => {
           console.log("Default address set successfully:", data);
+          
           // Clear loading state
           setLoadingStates((prev) => ({
             ...prev,
             settingDefault: { ...prev.settingDefault, [addressId]: false },
           }));
-          refetch()
-          // Addresses will be automatically refetched due to query invalidation
+          
+          // Update window.user immediately with the address that was set as default
+          const newDefaultAddress = addresses?.data?.find(addr => addr.id === addressId);
+          if (newDefaultAddress && window.user) {
+            window.user.address = newDefaultAddress.address;
+            console.log("Updated window.user.address:", newDefaultAddress.address);
+            
+            // Dispatch event to notify other components
+            window.dispatchEvent(new CustomEvent('userUpdated', { 
+              detail: { ...window.user, address: newDefaultAddress.address } 
+            }));
+          }
+          
+          // Refetch addresses to update the UI
+          refetch();
         },
         onError: (error) => {
           console.error("Error setting default address:", error);
@@ -157,12 +173,32 @@ const UpdateLocation = () => {
       <h2 className="text-2xl font-bold mb-4">Manage Your Addresses</h2>
 
       {/* Map Display */}
-      <div>
-        <img
-          src={processImageUrl("/images/map.jpg")}
-          alt=""
-          className="w-full h-40 object-cover rounded-lg"
-        />
+      <div className="relative">
+        {currentDefaultAddress ? (
+          <div className="relative">
+            <iframe
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(currentDefaultAddress.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: '8px' }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Location Map"
+            ></iframe>
+            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+              📍 Your Address
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center bg-gray-100 rounded-lg h-[300px]">
+            <div className="text-center text-gray-500">
+              <MapPin className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+              <p>No default address set</p>
+              <p className="text-sm">Add an address to see it on the map</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Current Address Display */}

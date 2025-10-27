@@ -4,6 +4,7 @@ import { useCategories } from "@/hooks/api";
 import { NoData } from "@/components/ui/empty";
 import LayoutWrapper from "../layoutWrapper";
 import { processImageUrl } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const staticCuisineTypes = [
   { name: "All", image: "/images/all.jpg" },
@@ -42,6 +43,7 @@ const SkeletonGrid = () => (
 
 const CuisineItem = ({ item }) => {
   const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate();
   
   const imageSrc = (() => {
     if (imageError) {
@@ -54,8 +56,21 @@ const CuisineItem = ({ item }) => {
     setImageError(true);
   };
 
+  const handleClick = () => {
+    // Navigate to AllResturants with category ID in state
+    navigate("/all-resturants", { 
+      state: { 
+        categoryId: item.id === "all" ? null : item.id,
+        categoryName: item.name 
+      } 
+    });
+  };
+
   return (
-    <div className="text-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer">
+    <div 
+      className="text-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white shadow-lg">
         <img
           src={imageSrc}

@@ -134,7 +134,7 @@ export default function Footer() {
       <hr className="pb-10 mt-10" />
       {/* Copyright */}
       <div className="text-center pb-4 text-primary-800">
-        <p>© 2024 The Top Notch Designs. All Rights Reserved.</p>
+        <p>© {new Date().getFullYear()} The Top Notch Designs. All Rights Reserved.</p>
       </div>
     </footer>
   );

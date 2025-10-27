@@ -1,8 +1,9 @@
-import { Heart, Loader2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { processImageUrl } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 export default function ProductDetailBanner({
   image,
@@ -19,6 +20,15 @@ export default function ProductDetailBanner({
 }) {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  
+  // Only sync initial state, not after user interaction
+  useEffect(() => {
+    if (!hasUserInteracted) {
+      setOptimisticLiked(isLiked);
+    }
+  }, [isLiked, hasUserInteracted]);
   
   // Validate and process image URL
   const imageSrc = (() => {
@@ -33,11 +43,19 @@ export default function ProductDetailBanner({
   };
 
   const toggleLikeMutation = useToggleRestaurantLikeById(restaurantId, {
+    disableToast: true, // Disable success toast
+    disableErrorToast: true, // Disable automatic error toast from mutation
     onSuccess: () => {
-      console.log("Restaurant like status toggled successfully");
+      // API succeeded - keep optimistic state as is (heart stays red)
     },
     onError: (error) => {
-      console.error("Error toggling restaurant like:", error);
+      // Revert optimistic state on error and show error toast only once
+      setOptimisticLiked(isLiked);
+      setHasUserInteracted(false); // Reset interaction flag to allow future sync
+      // Only show toast if error message exists to avoid duplicates
+      if (error?.message) {
+        toast.error(error.message, { autoClose: 2000 });
+      }
     },
   });
 
@@ -47,6 +65,12 @@ export default function ProductDetailBanner({
       navigate("/auth/login");
       return;
     }
+
+    // Mark that user has interacted
+    setHasUserInteracted(true);
+
+    // Optimistic UI update - immediately show the new state
+    setOptimisticLiked(!optimisticLiked);
 
     if (restaurantId) {
       toggleLikeMutation.mutate({});
@@ -151,28 +175,18 @@ export default function ProductDetailBanner({
             </div>
           </div>
 
-          {/* Favorite Button */}
+                     {/* Favorite Button */}
           <div className="ml-auto self-end">
             <button
               onClick={handleFavoriteClick}
-              disabled={toggleLikeMutation.isPending}
               className={`${
-                isLiked
+                optimisticLiked
                   ? "bg-red-500 hover:bg-red-600"
                   : "bg-primary-50 hover:bg-primary-60"
-              } text-white rounded-full px-10 py-4 flex items-center gap-x-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+              } text-white rounded-full px-10 py-4 flex items-center gap-x-2 cursor-pointer transition-colors`}
             >
-              {toggleLikeMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {isLiked ? "Removing..." : "Adding..."}
-                </>
-              ) : (
-                <>
-                  {isLiked ? "Remove from favorite" : "Add to favorite"}
-                  <Heart className={isLiked ? "fill-current" : ""} />
-                </>
-              )}
+              {optimisticLiked ? "Remove from favorite" : "Add to favorite"}
+              <Heart className={optimisticLiked ? "fill-current" : ""} />
             </button>
           </div>
         </div>
