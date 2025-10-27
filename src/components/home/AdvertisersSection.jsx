@@ -6,6 +6,8 @@ import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useBannerAds } from '../../hooks/api/useAds';
 import LayoutWrapper from '../layoutWrapper';
+import Helper from '@/helpers';
+
 const AdvisersData = [
     {
         title: "Make Your First Order and Get 25% Off From",
@@ -90,10 +92,10 @@ const AdvertisersSection = () => {
                                 <SwiperSlide key={campaign?.id ?? index}>
                                     <AdviserCard
                                         index={index}
-                                        title={campaign?.product?.name || "Make Your First Order and Get 25% Off From"}
-                                        companyName={campaign?.product?.restaurant_id || "Pizzucci"}
-                                        description={"In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."}
-                                        link={campaign?.product?.restaurant_id ? `/resturants-detail/${campaign.product.restaurant_id}` : '#'}
+                                        title={`Make Your First Order and Get ${campaign?.discount_percentage}% Off From`}
+                                        companyName={Helper.truncateText(campaign?.restaurant?.name || "N/A", 25)}
+                                        description={campaign?.product?.description || ""}
+                                        link={campaign?.restaurant?.id && campaign?.product?.id ? `/resturants-detail/${campaign.restaurant.id}` : '#'}
                                         mediaPath={campaign?.media_path}
                                     />
                                 </SwiperSlide>

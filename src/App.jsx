@@ -19,6 +19,9 @@ import ResturantsDetail from "./pages/ResturantsDetail";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import AddCard from "./pages/AddCard";
 import OrderWaiting from "./pages/OrderWaiting";
+import Notifications from "./pages/Notifications";
+import NotFound from "./pages/NotFound";
+import LayoutNotFound from "./pages/LayoutNotFound";
 
 function App() {
   return (
@@ -26,22 +29,24 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route index path="/all-resturants" element={<AllResturants />} />
+          <Route path="all-resturants" element={<AllResturants />} />
           <Route
-            index
-            path="/resturants-detail/:restaurant_id"
+            path="resturants-detail/:restaurant_id"
             element={<ResturantsDetail />}
           />
-          <Route index path="/account-settings" element={<AccountSettings />} />
-          <Route index path="/set-location" element={<SetLocation />} />
-          <Route index path="/favourites" element={<Favourites />} />
+          <Route path="account-settings" element={<AccountSettings />} />
+          <Route path="set-location" element={<SetLocation />} />
+          <Route path="favourites" element={<Favourites />} />
           <Route
-            index
-            path="/order-confirmation"
+            path="order-confirmation"
             element={<OrderConfirmation />}
           />
-          <Route index path="/add-card" element={<AddCard />} />
-          <Route index path="/order-waiting" element={<OrderWaiting />} />
+          <Route path="add-card" element={<AddCard />} />
+          <Route path="order-waiting" element={<OrderWaiting />} />
+          <Route path="notifications" element={<Notifications />} />
+          
+          {/* 404 Route for Layout routes */}
+          <Route path="*" element={<LayoutNotFound />} />
         </Route>
 
         {/* Auth routes that do not have a layout */}
@@ -54,6 +59,9 @@ function App() {
           <Route path="reset-password" element={<ResetPassword />} />
           {/* <Route path="reset-password" element={<ResetPassword />} /> */}
         </Route>
+
+        {/* 404 Route - Catch all unmatched routes */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Global Toast Container */}

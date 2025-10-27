@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
 import { useState } from "react";
@@ -23,7 +23,7 @@ export default function ProductDetailBanner({
   // Validate and process image URL
   const imageSrc = (() => {
     if (imageError) {
-      return "/images/product-1.png"; // Fallback image
+      return processImageUrl("/images/product-1.png"); // Use processImageUrl for consistent path handling
     }
     return processImageUrl(image, "/images/product-1.png");
   })();
@@ -164,7 +164,7 @@ export default function ProductDetailBanner({
             >
               {toggleLikeMutation.isPending ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   {isLiked ? "Removing..." : "Adding..."}
                 </>
               ) : (

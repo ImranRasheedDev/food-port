@@ -10,7 +10,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 function Home() {
-  const user = window.lodash.isEmpty(window.user) ? false : true;
+  const user = (window.lodash && window.user && !window.lodash.isEmpty(window.user)) ? true : false;
 
   return (
     <>

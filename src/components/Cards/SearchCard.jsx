@@ -1,13 +1,13 @@
 import { X } from 'lucide-react'
 import React from 'react'
 import { Link } from 'react-router-dom'
-
-const SearchCard = ({ img, name, address, to, onClick }) => {
+import { processImageUrl } from '@/lib/utils';
+const SearchCard = ({ img = '/images/placeholder.jpg', name, address, to, onClick }) => {
     const content = (
         <div className='flex items-center w-full'>
             <div className='flex gap-x-3'>
                 <div className='w-12 h-12 rounded-md'>
-                    <img src={img} alt={name} className='w-full h-full object-cover' />
+                    <img src={processImageUrl(img, '/images/placeholder.jpg')} alt={name} className='w-full h-full object-cover' />
                 </div>
                 <div>
                     <h2 className='text-primary-100 font-medium'>{name}</h2>

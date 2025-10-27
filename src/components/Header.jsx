@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ShoppingCart, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import LayoutWrapper from "./layoutWrapper";
+import { processImageUrl } from "@/lib/utils";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link to="/" onClick={closeDrawer}>
-            <img src="/images/logo.png" alt="Logo" className="h-10" />
+            <img src={processImageUrl("/images/logo.png")} alt="Logo" className="h-10" />
           </Link>
 
           <button
@@ -35,7 +36,7 @@ export default function Header() {
         <div className="hidden md:flex w-full items-center justify-between">
           {/* Logo */}
           <Link to="/">
-            <img src="/images/logo.png" alt="Logo" className="h-10" />
+            <img src={processImageUrl("/images/logo.png")} alt="Logo" className="h-10" />
           </Link>
 
           {/* Right side buttons */}

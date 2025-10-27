@@ -51,6 +51,7 @@ function AllResturants() {
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
+      <div className='max-w-[1480px] mx-auto'>
       <div className="flex flex-col sm:flex-row gap-x-[30px] px-6 mx-auto justify-center pt-28">
         <div className="md:w-[20%] w-full">
           <ProductFilters 
@@ -94,73 +95,27 @@ function AllResturants() {
           {/* <DealsAndDiscounts /> */}
         </div>
         <div className="md:w-[20%] w-full space-y-8">
-          {/* Ad 3 - CardOne */}
-          {bannerAds.length > 2 ? (
-            <CardOne
-              key={bannerAds[2]?.id || 'ad-2'}
-              campaignData={bannerAds[2]}
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-            />
-          ) : (
-       ""
-          )}
-          
-          {/* Ad 4 - DealDiscountCard */}
-          {bannerAds.length > 3 ? (
-            <DealDiscountCard
-              key={bannerAds[3]?.id || 'ad-3'}
-              campaignData={bannerAds[3]}
-              cardIndex={2}
-            />
-          ) : (
-      ""
-          )}
-          
-          {/* Ad 5 - DealDiscountCard */}
-          {bannerAds.length > 4 ? (
-            <DealDiscountCard
-              key={bannerAds[4]?.id || 'ad-4'}
-              campaignData={bannerAds[4]}
-              cardIndex={0}
-            />
-          ) : (
-        ""
-          )}
-          
-          {/* Ad 6 - CardOne */}
-          {bannerAds.length > 5 ? (
-            <CardOne
-              key={bannerAds[5]?.id || 'ad-5'}
-              campaignData={bannerAds[5]}
-            />
-          ) : (
-          ""
-          )}
-          
-          {/* Ad 7 - CardOne */}
-          {bannerAds.length > 6 ? (
-            <CardOne
-              key={bannerAds[6]?.id || 'ad-6'}
-              campaignData={bannerAds[6]}
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-            />
-          ) : (
-        ""
-          )}
-          
-          {/* Ad 8 - DealDiscountCard */}
-          {bannerAds.length > 7 ? (
-            <DealDiscountCard
-              key={bannerAds[7]?.id || 'ad-7'}
-              campaignData={bannerAds[7]}
-              cardIndex={1}
-            />
-          ) : (
-          ""
-          )}
+          {/* Map banner ads starting from index 2 to the end */}
+          {bannerAds?.map((banner, index) => (
+            <div key={banner?.id || `ad-${index + 2}`}>
+             
+              {/* Alternate between CardOne and DealDiscountCard */}
+              {index % 3 === 0 ? (
+                <CardOne
+                  campaignData={banner}
+                  restaurantNameColor="text-primary-1004"
+                  backgroundColor="bg-primary-1011"
+                />
+              ) : (
+                <DealDiscountCard
+                  campaignData={banner}
+                  cardIndex={index}
+                />
+              )}
+            </div>
+          ))}
         </div>
+      </div>
       </div>
     </>
   );

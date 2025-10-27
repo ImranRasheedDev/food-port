@@ -1,7 +1,8 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { BriefcaseBusiness, Handshake, Home } from "lucide-react";
+// import { BriefcaseBusiness, Handshake, Home } from "lucide-react";
 import LocationCard from "../Cards/LocationCard";
+import { processImageUrl } from "@/lib/utils";
 
 const SetLocationForm = () => {
     const {
@@ -29,7 +30,7 @@ const SetLocationForm = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <img
-                        src="/images/map.jpg"
+                        src={processImageUrl("/images/map.jpg")}
                         alt=""
                         className="w-full h-40 object-cover"
                     />

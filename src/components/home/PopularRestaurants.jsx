@@ -187,7 +187,7 @@ export default function PopularRestaurants({ user = false }) {
       }
     }
     loadCards();
-  }, [apiArray, userCoordinates.lat, userCoordinates.lng]);
+  }, [apiArray, userCoordinates.lat, userCoordinates.lng, maxCards]);
   return (
     <section className="py-16 bg-white">
             <LayoutWrapper> 
@@ -210,7 +210,7 @@ export default function PopularRestaurants({ user = false }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {isLoading ? (
+          {isLoading || restaurants.length === 0 ? (
             Array.from({ length: maxCards }).map((_, i) => (
               <SkeletonCard key={i} />
             ))

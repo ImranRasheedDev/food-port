@@ -18,6 +18,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Trash2 as TrashIcon, AlertTriangle } from "lucide-react";
+import { processImageUrl } from "@/lib/utils";
 
 const UpdateLocation = () => {
   const [editingAddress, setEditingAddress] = useState(null);
@@ -158,7 +159,7 @@ const UpdateLocation = () => {
       {/* Map Display */}
       <div>
         <img
-          src="/images/map.jpg"
+          src={processImageUrl("/images/map.jpg")}
           alt=""
           className="w-full h-40 object-cover rounded-lg"
         />

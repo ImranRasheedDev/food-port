@@ -1,6 +1,6 @@
 // import { MapPin, ChefHat, CreditCard, UtensilsCrossed } from "lucide-react"
 import LayoutWrapper from "../layoutWrapper";
-
+import { processImageUrl } from '@/lib/utils';
 const features = [
     {
         img: "/images/location.png",
@@ -42,7 +42,7 @@ export default function WhyChooseUs() {
                     {features.map((feature, index) => (
                         <div key={index} className="border border-b-gray-300 rounded-2xl p-10">
                             <div className="w-32 h-32 text-center mb-5">
-                                <img src={feature.img} alt="" className="max-w-full " />
+                                <img src={processImageUrl(feature.img)} alt={feature.title || "Why Choose Us"} className="max-w-full " />
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
                             <p className="text-primary-400 text-sm">{feature.description}</p>

@@ -69,9 +69,9 @@ export default function ProductModal({
   // Get processed image URL with error handling
   const imageSrc = useMemo(() => {
     if (imageError || !product?.image_url) {
-      return "/images/product-1.png";
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
     }
-    return processImageUrl(product.image_url, "/images/product-1.png");
+    return processImageUrl(product.image_url, "/images/placeholder1.jpg");
   }, [product?.image_url, imageError]);
 
   const handleImageError = () => {

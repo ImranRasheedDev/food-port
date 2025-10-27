@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { processImageUrl } from "@/lib/utils";
+  
 const VALIDATION_PATTERNS = {
   phone: /^[\d]{10,15}$/, // 10-15 digits
   countryCode: /^\d{1,4}$/, // up to 4 digits
@@ -92,7 +93,7 @@ const UpdateProfile = () => {
           {/* Image - Centered on mobile */}
           <div className="flex justify-center md:justify-start">
             <img
-              src="/images/all.jpg"
+              src={processImageUrl("/images/all.jpg")}
               alt=""
               className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover"
             />
