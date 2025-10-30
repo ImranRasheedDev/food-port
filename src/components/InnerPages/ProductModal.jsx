@@ -142,15 +142,17 @@ export default function ProductModal({
         category.product_addons.forEach((addon) => {
           initialAddons[addon.id] = {
             selected: false,
-            quantity: 1,
+            quantity: addon.min_quantity || 1, // Start with minimum quantity
             price: addon.price,
             name: addon.name,
             categoryId: category.id,
             categoryName: category.name,
             type: category.type,
             required: category.required,
-            min: category.min || 0,
-            max: category.max || null,
+            min: addon.min_quantity || 1, // Individual addon min quantity
+            max: addon.max_quantity || null, // Individual addon max quantity
+            categoryMin: category.min || 0, // Category level min
+            categoryMax: category.max || null, // Category level max
           };
         });
       });
@@ -195,9 +197,36 @@ export default function ProductModal({
     });
   };
 
-  // Handle addon quantity change
+  // Handle addon quantity change with min/max validation
   const handleAddonQuantityChange = (addonId, quantity) => {
-    if (quantity < 1) return;
+    const addon = selectedAddons[addonId];
+    if (!addon) return;
+
+    // Enforce minimum quantity
+    const minQuantity = addon.min || 1;
+    
+    // Don't allow quantity below minimum
+    if (quantity < minQuantity) return;
+    
+    // Check category-level max limit (total quantity across all addons in category)
+    if (addon.categoryMax !== null) {
+      const categoryAddons = Object.values(selectedAddons).filter(
+        (a) => a.categoryId === addon.categoryId
+      );
+      const currentTotalQuantity = categoryAddons.reduce((total, a) => {
+        return total + (a.selected ? a.quantity : 0);
+      }, 0);
+      
+      // Calculate what the new total would be
+      const newTotalQuantity = currentTotalQuantity - addon.quantity + quantity;
+      
+      // Don't allow if new total exceeds category max
+      if (newTotalQuantity > addon.categoryMax) return;
+    }
+    
+    // Check individual addon max limit
+    if (addon.max !== null && quantity > addon.max) return;
+
     setSelectedAddons((prev) => ({
       ...prev,
       [addonId]: {
@@ -216,12 +245,22 @@ export default function ProductModal({
         (addon) => addon.categoryId === category.id
       );
 
-      const selectedCount = categoryAddons.filter(
+      const selectedAddonsInCategory = categoryAddons.filter(
         (addon) => addon.selected
-      ).length;
+      );
 
-      // Check if min requirement is met (for required categories)
-      if (category.required && selectedCount < (category.min || 1)) {
+      // Check if required category has minimum selections
+      if (category.required && selectedAddonsInCategory.length < (category.min || 1)) {
+        return true;
+      }
+
+      // Check if any selected addon doesn't meet its individual min quantity requirement
+      const hasInvalidQuantity = selectedAddonsInCategory.some((addon) => {
+        const minQuantity = addon.min || 1;
+        return addon.quantity < minQuantity;
+      });
+
+      if (hasInvalidQuantity) {
         return true;
       }
 
@@ -291,7 +330,13 @@ export default function ProductModal({
           const selectedCount = categoryAddons.filter(
             (a) => a.selected
           ).length;
-          const maxReached = category.max !== null && selectedCount >= category.max;
+          
+          // Calculate total quantity across all selected addons in this category
+          const totalQuantity = categoryAddons.reduce((total, addon) => {
+            return total + (addon.selected ? addon.quantity : 0);
+          }, 0);
+          
+          const maxReached = category.max !== null && totalQuantity >= category.max;
           const minReached = category.min !== null && selectedCount >= category.min;
 
           return (
@@ -316,7 +361,7 @@ export default function ProductModal({
                     </span>
                   )}
                   <span className="text-gray-500">
-                    ({selectedCount}/{category.max !== null ? category.max : '∞'})
+                    ({totalQuantity}/{category.max !== null ? category.max : '∞'})
                   </span>
                 </div>
               )}
@@ -364,6 +409,19 @@ export default function ProductModal({
                   {category.product_addons.map((addon) => {
                     const isSelected = selectedAddons[addon.id]?.selected;
                     const buttonDisabled = !isSelected && maxReached;
+                    const currentQuantity = selectedAddons[addon.id]?.quantity || 1;
+                    const minQuantity = selectedAddons[addon.id]?.min || 1;
+                    const maxQuantity = selectedAddons[addon.id]?.max;
+                    
+                    const minusDisabled = !isSelected || currentQuantity <= minQuantity;
+                    
+                    // Check if adding one more would exceed category max
+                    const wouldExceedCategoryMax = category.max !== null && 
+                      (totalQuantity + 1) > category.max;
+                    
+                    const plusDisabled = !isSelected || 
+                      (maxQuantity !== null && currentQuantity >= maxQuantity) ||
+                      wouldExceedCategoryMax;
 
                     return (
                       <div key={addon.id} className="flex items-center space-x-2">
@@ -377,10 +435,19 @@ export default function ProductModal({
                           className="border-primary-50 data-[state=checked]:bg-primary-50 data-[state=checked]:border-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                         {buttonDisabled && (
-                          <span className="text-xs text-red-500 ml-1">Max reached</span>
+                          <span className="text-xs text-red-500 ml-1">Category max reached</span>
                         )}
                         <Label htmlFor={addon.id.toString()} className="flex-1">
-                          {addon.name}
+                          <div className="flex flex-col">
+                            <span>{addon.name}</span>
+                            {(minQuantity > 1 || maxQuantity !== null) && (
+                              <span className="text-xs text-gray-500">
+                                {minQuantity > 1 && `Min: ${minQuantity}`}
+                                {minQuantity > 1 && maxQuantity !== null && ' • '}
+                                {maxQuantity !== null && `Max: ${maxQuantity}`}
+                              </span>
+                            )}
+                          </div>
                         </Label>
                         {isSelected && (
                           <div className="flex items-center space-x-2">
@@ -388,24 +455,34 @@ export default function ProductModal({
                               onClick={() =>
                                 handleAddonQuantityChange(
                                   addon.id,
-                                  (selectedAddons[addon.id]?.quantity || 1) - 1
+                                  currentQuantity - 1
                                 )
                               }
-                              className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer"
+                              disabled={minusDisabled}
+                              className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${
+                                minusDisabled 
+                                  ? 'opacity-50 cursor-not-allowed' 
+                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
+                              }`}
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="font-bold w-8 text-center">
-                              {selectedAddons[addon.id]?.quantity || 1}
+                              {currentQuantity}
                             </span>
                             <button
                               onClick={() =>
                                 handleAddonQuantityChange(
                                   addon.id,
-                                  (selectedAddons[addon.id]?.quantity || 1) + 1
+                                  currentQuantity + 1
                                 )
                               }
-                              className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer"
+                              disabled={plusDisabled}
+                              className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${
+                                plusDisabled 
+                                  ? 'opacity-50 cursor-not-allowed' 
+                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
+                              }`}
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -454,7 +531,7 @@ export default function ProductModal({
                          <div className="w-full">
               {isAddToCartDisabled && (
                 <p className="text-sm text-red-500 mb-2 text-center">
-                  Please select minimum required options to proceed
+                  Please select required addons and ensure minimum quantities are met
                 </p>
               )}
               <button

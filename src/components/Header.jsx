@@ -1,16 +1,30 @@
 import { useState } from "react";
 import { ChevronDown, ShoppingCart, Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LayoutWrapper from "./layoutWrapper";
 import { processImageUrl } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const { getCartItemCount } = useCart();
+  const { getCartItemCount, items, restaurantData } = useCart();
+  const navigate = useNavigate();
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
+
+  const handleCartClick = () => {
+    if (getCartItemCount() <= 0) {
+      navigate('/cart');
+      return;
+    }
+    const rid = restaurantData?.id || items?.[0]?.restaurantId || items?.[0]?.restaurant_id;
+    if (rid) {
+      navigate(`/resturants-detail/${rid}`);
+    } else {
+      navigate('/cart');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm">
@@ -59,7 +73,7 @@ export default function Header() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div>
-            <div className="relative">
+            <div className="relative" onClick={handleCartClick}>
               <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
               {getCartItemCount() > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
@@ -115,7 +129,7 @@ export default function Header() {
                 <span>EN</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
-              <div className="flex items-center text-lg hover:text-primary-50">
+              <div className="flex items-center text-lg hover:text-primary-50" onClick={handleCartClick}>
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   {getCartItemCount() > 0 && (

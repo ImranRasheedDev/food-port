@@ -12,7 +12,9 @@ const DealDiscountCard = ({
     title, 
     companyName, 
     link, 
-    cardIndex = 0 
+    cardIndex = 0,
+    image,
+    onCardClick
 }) => {
     const navigate = useNavigate();
     const clickMutation = useAdClickMutation(campaignData?.id);
@@ -24,7 +26,7 @@ const DealDiscountCard = ({
         companyName: Helper.truncateText(campaignData.product?.name || "Restaurant", 25),
         mediaPath: campaignData.media_path,
         mediaType: campaignData.media_type,
-        link: campaignData.product?.restaurant_id  && campaignData.product.id ?  `/${campaignData.product.restaurant_id}` : "#"
+        link: campaignData.product?.restaurant_id  && campaignData.product.id ?  `/resturants-detail/${campaignData.product.restaurant_id}` : "#"
     } : {
         title,
         companyName: Helper.truncateText(companyName, 25),
@@ -46,7 +48,7 @@ const DealDiscountCard = ({
         },
         1: { // Second card
             containerClass: 'bg-[url("/images/deal-bg-3.png")]',
-            titleClass: 'text-white',
+            titleClass: 'text-black',
             companyClass: 'text-primary-1002',
             buttonClass: 'bg-primary-50 text-white'
         },
@@ -72,19 +74,27 @@ const DealDiscountCard = ({
 
     const currentStyle = cardStyles[styleIndex];
 
+    const resolvedRestaurantId = campaignData?.restaurant?.id || campaignData?.product?.restaurant_id;
+    const resolvedProductId = campaignData?.product?.id;
+
     const handleClick = (e) => {
         if (campaignData) {
             e.preventDefault();
             e.stopPropagation();
-            const hasProduct = !!(campaignData?.product?.restaurant_id && campaignData?.product?.id);
-            if (!hasProduct) return;
-            const target = `/resturants-detail/${campaignData.product.restaurant_id}`;
-            clickMutation.mutate({}, {
-                onSettled: () => navigate(target)
-            });
+            if (resolvedRestaurantId && resolvedProductId) {
+                clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`, { state: { productId: resolvedProductId } }) });
+                return;
+            }
+            if (resolvedRestaurantId) {
+                clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`) });
+                return;
+            }
+            if (!resolvedRestaurantId && resolvedProductId && typeof onCardClick === 'function') {
+                onCardClick({ productId: resolvedProductId, restaurant: null });
+                return;
+            }
             return;
         }
-        // Legacy: if no campaign data, navigate only if link valid is handled by navigate call below
         if (displayData.link && displayData.link !== '#') {
             navigate(displayData.link);
         } else {
@@ -103,12 +113,18 @@ const DealDiscountCard = ({
     const shouldShowBackground = !validMediaPath || imageError;
 
     return (
-        <div className={`text-white items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[200px]`}>
+        <div 
+            className={`text-white cursor-pointer items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[200px]`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(e); } }}
+            onClick={handleClick}
+        >
             
             {/* Show background image if media type is image */}
             {displayData.mediaType === "image" && displayData.mediaPath && (
                 <img 
-                    src={processImageUrl(displayData.mediaPath)} 
+                    src={processImageUrl(image)} 
                     alt="Background" 
                     className="absolute inset-0 w-full h-full object-cover z-0"
                     onError={() => setImageError(true)}
@@ -130,14 +146,14 @@ const DealDiscountCard = ({
                         if (placeholder) placeholder.style.display = 'block';
                     }}
                 >
-                    <source src={processImageUrl(displayData.mediaPath, "/images/placeholder.jpg")} type="video/mp4" />
+                    <source src={processImageUrl(image)} type="video/mp4" />
                 </video>
             )}
             
             {/* Show placeholder image if video fails to load or no media */}
             {(!displayData.mediaPath || displayData.mediaType === "video") && (
                 <img 
-                    src={processImageUrl("/images/placeholder.jpg")} 
+                    src={processImageUrl(image)} 
                     alt="Placeholder" 
                     className="absolute inset-0 w-full h-full object-cover z-0"
                     style={{ display: displayData.mediaType === "video" && displayData.mediaPath ? 'none' : 'block' }}

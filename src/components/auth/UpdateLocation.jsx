@@ -95,7 +95,7 @@ const UpdateLocation = () => {
     setDeleteConfirmModal({ isOpen: false, addressId: null, addressName: "" });
   };
 
-  const handleSetDefault = (addressId) => {
+  const handleSetDefault = async (addressId) => {
     // Set loading state for specific address
     setLoadingStates((prev) => ({
       ...prev,
@@ -105,7 +105,7 @@ const UpdateLocation = () => {
     setDefaultAddress.mutate(
       { address_id: addressId },
       {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
           console.log("Default address set successfully:", data);
           
           // Clear loading state
@@ -117,12 +117,21 @@ const UpdateLocation = () => {
           // Update window.user immediately with the address that was set as default
           const newDefaultAddress = addresses?.data?.find(addr => addr.id === addressId);
           if (newDefaultAddress && window.user) {
+            // Update window.user with new address
             window.user.address = newDefaultAddress.address;
-            console.log("Updated window.user.address:", newDefaultAddress.address);
+            window.user.latitude = newDefaultAddress.latitude || window.user.latitude;
+            window.user.longitude = newDefaultAddress.longitude || window.user.longitude;
+            window.user.city = newDefaultAddress.city || window.user.city;
+            window.user.zip_code = newDefaultAddress.zip_code || window.user.zip_code;
+            
+            console.log("Updated window.user with new default address:", window.user);
+            
+            // Save to storage to persist after reload
+            await window.helper.setStorageData("user", window.user);
             
             // Dispatch event to notify other components
             window.dispatchEvent(new CustomEvent('userUpdated', { 
-              detail: { ...window.user, address: newDefaultAddress.address } 
+              detail: { ...window.user } 
             }));
           }
           
@@ -147,8 +156,28 @@ const UpdateLocation = () => {
     // Addresses will be automatically refetched due to query invalidation
   };
 
-  const handleAddSuccess = () => {
+  const handleAddSuccess = async (newAddress = null) => {
     setIsAddModalOpen(false);
+    
+    // If a new address was added and it's the first address (becomes default), update window.user
+    if (newAddress && newAddress.default === true && window.user) {
+      window.user.address = newAddress.address;
+      window.user.latitude = newAddress.latitude || window.user.latitude;
+      window.user.longitude = newAddress.longitude || window.user.longitude;
+      window.user.city = newAddress.city || window.user.city;
+      window.user.zip_code = newAddress.zip_code || window.user.zip_code;
+      
+      console.log("Updated window.user with new address:", window.user);
+      
+      // Save to storage to persist after reload
+      await window.helper.setStorageData("user", window.user);
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('userUpdated', { 
+        detail: { ...window.user } 
+      }));
+    }
+    
     // Addresses will be automatically refetched due to query invalidation
   };
 

@@ -5,19 +5,39 @@ import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import AllResturantsSection from "@/components/InnerPages/AllResturantsSection";
 import DealsAndDiscounts from "@/components/InnerPages/DealsAndDiscounts";
 import DialyDeals from "@/components/InnerPages/DialyDeals";
+import ProductModal from "@/components/InnerPages/ProductModal";
 import HeroBannerInner from "@/components/InnerPages/HeroBannerInner";
 import ProductFilters from "@/components/InnerPages/ProductFilters";
 import { useBannerAds } from "@/hooks/api";
+import LazyAdContainer from "@/components/ui/LazyAdContainer";
+import { useLazyAds } from "@/hooks/useLazyAds";
 
 function AllResturants() {
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   // Get location state for category ID
   const location = useLocation();
   const categoryId = location.state?.categoryId;
   const categoryName = location.state?.categoryName;
 
-  // Fetch banner ads from API
-  const { data: bannerAdsData, isLoading: bannersLoading } = useBannerAds();
-  const bannerAds = bannerAdsData?.data || [];
+  // Lazy loading for left side ads
+  const { 
+    ads: leftAds, 
+    isLoading: leftLoading, 
+    hasMore: leftHasMore, 
+    containerRef: leftContainerRef, 
+    loadingRef: leftLoadingRef 
+  } = useLazyAds(2);
+  
+  // Lazy loading for right side ads
+  const { 
+    ads: rightAds, 
+    isLoading: rightLoading, 
+    hasMore: rightHasMore, 
+    containerRef: rightContainerRef, 
+    loadingRef: rightLoadingRef 
+  } = useLazyAds(3);
 
   // State for filters - initialize with category from route state
   const [filters, setFilters] = useState({
@@ -69,65 +89,55 @@ function AllResturants() {
             filters={filters}
             onFiltersChange={handleFiltersChange}
           />
+          
+          {/* Lazy loaded left side ads */}
           <div className="my-6">
-            {bannerAds.length > 0 ? (
-              <CardOne
-                key={bannerAds[0]?.id || 'ad-0'}
-                campaignData={bannerAds[0]}
-              />
-            ) : (
-              <CardOne
-                image="/images/add-card-one.png"
-                percentage="25"
-                restaurantName="Restaurant Name"
-              />
-            )}
+            <LazyAdContainer
+              ads={leftAds}
+              isLoading={leftLoading}
+              hasMore={leftHasMore}
+              containerRef={leftContainerRef}
+              loadingRef={leftLoadingRef}
+              type="card"
+              staticImages={['/images/add-card-one.png', '/images/add-card-two.png']}
+              onCardClick={({ productId, restaurant }) => { 
+                setSelectedProductId(productId); 
+                setSelectedRestaurant(restaurant); 
+                setIsProductModalOpen(true); 
+              }}
+            />
           </div>
-          {bannerAds.length > 1 ? (
-            <CardOne
-              key={bannerAds[1]?.id || 'ad-1'}
-              campaignData={bannerAds[1]}
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-            />
-          ) : (
-            <CardOne
-              image="/images/add-card-two.png"
-              restaurantNameColor="text-primary-1004"
-              backgroundColor="bg-primary-1011"
-              percentage="25"
-              restaurantName="Restaurant Name"
-            />
-          )}
         </div>
         <div className="md:w-[60%] w-full ">
           <DialyDeals />
           <AllResturantsSection filters={debouncedFilters} />
           {/* <DealsAndDiscounts /> */}
         </div>
-        <div className="md:w-[20%] w-full space-y-8">
-          {/* Map banner ads starting from index 2 to the end */}
-          {bannerAds?.map((banner, index) => (
-            <div key={banner?.id || `ad-${index + 2}`}>
-             
-              {/* Alternate between CardOne and DealDiscountCard */}
-              {index % 3 === 0 ? (
-                <CardOne
-                  campaignData={banner}
-                  restaurantNameColor="text-primary-1004"
-                  backgroundColor="bg-primary-1011"
-                />
-              ) : (
-                <DealDiscountCard
-                  campaignData={banner}
-                  cardIndex={index}
-                />
-              )}
-            </div>
-          ))}
+        <div className="md:w-[20%] w-full">
+          {/* Lazy loaded right side ads */}
+          <LazyAdContainer
+            ads={rightAds}
+            isLoading={rightLoading}
+            hasMore={rightHasMore}
+            containerRef={rightContainerRef}
+            loadingRef={rightLoadingRef}
+            type="mixed"
+            staticImages={['/images/add-card-two.png', '/images/deals-14.png', '/images/add-card-one.png']}
+            onCardClick={({ productId, restaurant }) => { 
+              setSelectedProductId(productId); 
+              setSelectedRestaurant(restaurant); 
+              setIsProductModalOpen(true); 
+            }}
+          />
         </div>
       </div>
       </div>
+      <ProductModal
+        open={isProductModalOpen}
+        setOpen={setIsProductModalOpen}
+        productId={selectedProductId}
+        restaurantData={selectedRestaurant}
+      />
     </>
   );
 }

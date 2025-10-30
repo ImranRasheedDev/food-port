@@ -42,7 +42,7 @@ export const httpClient = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, config);
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL||"https://myfoodport.com/api"}${url}`, config);
     const data = await response.json().catch(() => ({}));
 
     if (

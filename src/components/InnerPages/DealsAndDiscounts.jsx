@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { dealsAndDiscounts, restaurants } from "../MockData";
+import { useBannerAds } from "@/hooks/api";
 
 const DealsAndDiscounts = ({
   restaurants = [],
@@ -15,6 +16,13 @@ const DealsAndDiscounts = ({
   hideRestaurantCards = false,
 }) => {
   const swiperRef = useRef(null);
+  const { data: bannerAdsData, isLoading: adsLoading } = useBannerAds();
+  const campaigns = Array.isArray(bannerAdsData?.data) ? bannerAdsData.data : [];
+  const staticImages = [
+    "/images/deals-12.png",
+    "/images/deals-13.png",
+    "/images/deals-14.png",
+  ];
 
   // Static sample data for fallback
   const sampleRestaurants = [
@@ -106,15 +114,23 @@ const DealsAndDiscounts = ({
           }}
           className="mySwiper"
         >
-          {dealsAndDiscounts.map((deal, index) => (
-            <SwiperSlide key={index}>
-              <DealDiscountCard
-                title={deal.title}
-                companyName={deal.companyName}
-                link={deal.link}
-                image={deal.image}
-                cardIndex={index}
-              />
+          {(campaigns.length > 0 ? campaigns.slice(0, 9) : dealsAndDiscounts).map((item, index) => (
+            <SwiperSlide key={item?.id || index}>
+              {campaigns.length > 0 ? (
+                <DealDiscountCard
+                  campaignData={item}
+                  image={staticImages[index % staticImages.length]}
+                  cardIndex={index}
+                />
+              ) : (
+                <DealDiscountCard
+                  title={item.title}
+                  companyName={item.companyName}
+                  link={item.link}
+                  image={item.image}
+                  cardIndex={index}
+                />
+              )}
             </SwiperSlide>
           ))}
         </Swiper>

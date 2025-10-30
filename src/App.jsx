@@ -23,6 +23,8 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import LayoutNotFound from "./pages/LayoutNotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Pay from "./pages/Pay";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
@@ -43,6 +45,8 @@ function App() {
             element={<OrderConfirmation />}
           />
           <Route path="add-card" element={<AddCard />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="pay" element={<Pay />} />
           <Route path="order-waiting" element={<OrderWaiting />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
