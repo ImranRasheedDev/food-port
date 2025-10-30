@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CartProvider } from "./contexts/CartContext";
 
@@ -22,6 +22,7 @@ import OrderWaiting from "./pages/OrderWaiting";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import LayoutNotFound from "./pages/LayoutNotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="add-card" element={<AddCard />} />
           <Route path="order-waiting" element={<OrderWaiting />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
           
           {/* 404 Route for Layout routes */}
           <Route path="*" element={<LayoutNotFound />} />
@@ -77,6 +79,8 @@ function App() {
         pauseOnHover
         theme="light"
         toastClassName="rounded-lg"
+        limit={3}
+        transition={Bounce}
       />
     </CartProvider>
   );

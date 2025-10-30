@@ -3,9 +3,11 @@ import { ChevronDown, ShoppingCart, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import LayoutWrapper from "./layoutWrapper";
 import { processImageUrl } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { getCartItemCount } = useCart();
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
@@ -57,7 +59,14 @@ export default function Header() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div>
-            <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
+            <div className="relative">
+              <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -106,12 +115,17 @@ export default function Header() {
                 <span>EN</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
-              <button
-                onClick={closeDrawer}
-                className="flex items-center text-lg hover:text-primary-50"
-              >
-                <ShoppingCart className="w-5 h-5 mr-2" /> Cart
-              </button>
+              <div className="flex items-center text-lg hover:text-primary-50">
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  {getCartItemCount() > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                      {getCartItemCount()}
+                    </span>
+                  )}
+                </div>
+                Cart
+              </div>
             </nav>
           </div>
         </div>

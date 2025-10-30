@@ -6,6 +6,7 @@ import { processImageUrl } from "@/lib/utils";
 import { useSubscribeNewsletter } from "@/hooks/api/useUsers";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 export default function Footer() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   
@@ -109,9 +110,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-primary-900">
+                <Link to="/privacy-policy" className="text-primary-900">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className=" text-primary-900">
