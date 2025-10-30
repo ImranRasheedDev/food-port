@@ -21,7 +21,7 @@ const publicHttpClient = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${url}`, config);
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL||"https://myfoodport.com/api"}${url}`, config);
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -45,7 +45,7 @@ const publicHttpClient = async (url, options = {}) => {
 
 // Helper function to build URL with params
 const buildUrl = (endpoint, params = {}) => {
-  const url = new URL(endpoint, window.location.origin);
+  const url = new URL(endpoint, import.meta.env.VITE_API_BASE_URL||"https://myfoodport.com/api");
   
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
@@ -62,16 +62,22 @@ const buildUrl = (endpoint, params = {}) => {
 
 // Hook to fetch banner ads (public API, no authentication required)
 export const useBannerAds = (options = {}) => {
+  const { page = 1, limit = 10, ...queryOptions } = options;
+  
   return useQuery({
-    queryKey: ['banner-ads', { banner: 1 }],
-    queryFn: () => publicHttpClient(buildUrl('/ad_campaign', { banner: 1 }), { method: 'GET' }),
+    queryKey: ['banner-ads', { banner: 1, page, limit }],
+    queryFn: () => publicHttpClient(buildUrl('/ad_campaign', { 
+      banner: 1, 
+      page, 
+      limit 
+    }), { method: 'GET' }),
     staleTime: 10 * 60 * 1000, // 10 minutes
     cacheTime: 30 * 60 * 1000, // 30 minutes
     retry: 2,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    ...options,
+    ...queryOptions,
   });
 };
 

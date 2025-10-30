@@ -11,7 +11,7 @@ export default function CardOne({
   restaurantName,
   title = "Make Your First Order and Get",
   titleSuffix = "% Off From",
-  image = "/images/add-card-one.png",
+  image ,
   backgroundColor = "bg-primary-950",
   titleColor = "text-white",
   restaurantNameColor = "text-primary-1002",
@@ -19,6 +19,7 @@ export default function CardOne({
   buttonTextColor = "text-primary-1002",
   buttonBackgroundColor = "bg-white",
   link = "#",
+  onCardClick,
 }) {
   const navigate = useNavigate();
   const clickMutation = useAdClickMutation(campaignData?.id);
@@ -31,7 +32,7 @@ export default function CardOne({
           campaignData.product?.name || "Restaurant",
           20
         ),
-        image: campaignData.media_path || image,
+        image: image,
         mediaType: campaignData.media_type,
         link:
           // Build dynamic route strictly from campaign payload when present
@@ -47,8 +48,60 @@ export default function CardOne({
         link,
       };
 
+  // Resolve ids from either campaign.restaurant.id or campaign.product.restaurant_id
+  const resolvedRestaurantId = campaignData?.restaurant?.id || campaignData?.product?.restaurant_id;
+  const resolvedProductId = campaignData?.product?.id;
+
   return (
-    <div className={`${backgroundColor} text-center pb-10`}>
+    <div 
+      className={`${backgroundColor} cursor-pointer text-center pb-10`}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation();
+        if (campaignData) {
+          if (resolvedRestaurantId && resolvedProductId) {
+            clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`, { state: { productId: resolvedProductId } }) });
+            return;
+          }
+          if (resolvedRestaurantId) {
+            clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`) });
+            return;
+          }
+          if (!resolvedRestaurantId && resolvedProductId && typeof onCardClick === 'function') {
+            onCardClick({ productId: resolvedProductId, restaurant: null });
+            return;
+          }
+        }
+        if (displayData.link && displayData.link !== "#") {
+          navigate(displayData.link);
+        }
+      }}}
+      onClick={(e) => {
+        if (campaignData) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (resolvedRestaurantId && resolvedProductId) {
+            clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`, { state: { productId: resolvedProductId } }) });
+            return;
+          }
+          if (resolvedRestaurantId) {
+            clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`) });
+            return;
+          }
+          if (!resolvedRestaurantId && resolvedProductId && typeof onCardClick === 'function') {
+            onCardClick({ productId: resolvedProductId, restaurant: null });
+            return;
+          }
+          return;
+        }
+        if (displayData.link && displayData.link !== "#") {
+          navigate(displayData.link);
+        } else {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+    >
       {displayData.mediaType === "video" ? (
         <video
           src={displayData.image}
@@ -67,11 +120,11 @@ export default function CardOne({
         />
       ) : (
         <img
-          src={ processImageUrl(displayData.image)}
+          src={ processImageUrl(image)}
           alt={displayData.restaurantName || "Card One"}
           onError={(e) => {
             // If image fails to load, show placeholder
-            e.target.src = processImageUrl("/images/placeholder1.jpg");
+            e.target.src = processImageUrl(image);
           }}
         />
       )}
@@ -79,7 +132,7 @@ export default function CardOne({
       {/* Placeholder image for video fallback */}
       {displayData.mediaType === "video" && (
         <img
-          src={processImageUrl("/images/placeholder1.jpg")}
+          src={processImageUrl(image)}
           alt="Placeholder"
           className="w-full h-auto"
           style={{ display: "none" }}
@@ -91,10 +144,9 @@ export default function CardOne({
       )}
       <div className="px-3">
         <h2 className={`${titleColor} font-semibold text-xl mb-4`}>
-          {title} {displayData.percentage}
-          {titleSuffix}{" "}
-          <span className={restaurantNameColor}>
-            {displayData.restaurantName}
+          Make Your First Order and Get 25% Off From
+          <span className={`${restaurantNameColor} ml-2`}>
+            Restaurant
           </span>
         </h2>
         <button 

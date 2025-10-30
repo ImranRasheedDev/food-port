@@ -34,7 +34,13 @@ export default function HeaderAfterLogin() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [firebaseNotificationCount, setFirebaseNotificationCount] = useState(0);
   const [userName, setUserName] = useState(window.user?.name || "");
-  const [userAddress, setUserAddress] = useState(window.user?.address || "");
+  // Check multiple possible address fields
+  const getInitialAddress = () => {
+    return window.user?.address || window.user?.user_address || window.user?.location || "";
+  };
+  const [userAddress, setUserAddress] = useState(getInitialAddress());
+
+  console.log("userAddress", window.user);  
   
   // Initialize user image with proper URL handling
   const getInitialImage = () => {
@@ -53,7 +59,7 @@ export default function HeaderAfterLogin() {
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
-  const { getCartItemCount } = useCart();
+  const { getCartItemCount, items, restaurantData } = useCart();
   const bellRef = useRef(null);
   const mobileBellRef = useRef(null);
 
@@ -110,9 +116,22 @@ export default function HeaderAfterLogin() {
   // Listen for user updates
   useEffect(() => {
     const handleUserUpdate = (event) => {
+      console.log("=== HeaderAfterLogin: Received userUpdated event ===");
+      console.log("Event:", event);
       const updatedUser = event.detail;
+      console.log("HeaderAfterLogin: Updated user data:", updatedUser);
+      console.log("HeaderAfterLogin: updatedUser.address:", updatedUser.address);
+      console.log("HeaderAfterLogin: updatedUser.user_address:", updatedUser.user_address);
+      console.log("HeaderAfterLogin: updatedUser.location:", updatedUser.location);
+      
       setUserName(updatedUser.name || "");
-      setUserAddress(updatedUser.address || "");
+      
+      // Update address from multiple possible fields
+      const address = updatedUser.address || updatedUser.user_address || updatedUser.location || "";
+      console.log("HeaderAfterLogin: Setting address to:", address);
+      console.log("HeaderAfterLogin: Previous userAddress state:", userAddress);
+      
+      setUserAddress(address);
       
       // Handle image URL - could be relative path or full URL
       let imageValue = updatedUser.image || updatedUser.avatar || "";
@@ -124,7 +143,8 @@ export default function HeaderAfterLogin() {
         }
       }
       setUserImage(imageValue || "");
-      console.log("Header received user update:", updatedUser, "Image:", imageValue);
+      console.log("Header received user update:", updatedUser, "Address:", address);
+      console.log("=== End HeaderAfterLogin userUpdated event ===");
     };
 
     window.addEventListener('userUpdated', handleUserUpdate);
@@ -132,13 +152,44 @@ export default function HeaderAfterLogin() {
     return () => {
       window.removeEventListener('userUpdated', handleUserUpdate);
     };
-  }, []);
+  }, []); // Remove window.user dependency to prevent re-registering listener
+
+  // Log user data on mount for debugging
+  useEffect(() => {
+    console.log("=== HeaderAfterLogin Debug ===");
+    console.log("window.user:", window.user);
+    console.log("window.user.address:", window.user?.address);
+    console.log("window.user.user_address:", window.user?.user_address);
+    console.log("window.user.location:", window.user?.location);
+    console.log("window.user.addresses:", window.user?.addresses);
+    console.log("Current userAddress state:", userAddress);
+    console.log("=============================");
+  }, [userAddress]);
+
+  // Also log when userAddress state changes
+  useEffect(() => {
+    console.log("HeaderAfterLogin: userAddress state changed to:", userAddress);
+    console.log("HeaderAfterLogin: Current window.user.address:", window.user?.address);
+  }, [userAddress]);
 
 
   // Get total favorites count (restaurants + food trucks)
   const restaurantsCount = likedRestaurantsData?.data?.length || 0;
   const foodTrucksCount = likedFoodTrucksData?.data?.length || 0;
   const favoritesCount = restaurantsCount + foodTrucksCount;
+
+  const handleCartClick = () => {
+    if (getCartItemCount() <= 0) {
+      navigate('/cart');
+      return;
+    }
+    const rid = restaurantData?.id || items?.[0]?.restaurantId || items?.[0]?.restaurant_id;
+    if (rid) {
+      navigate(`/resturants-detail/${rid}`);
+    } else {
+      navigate('/cart');
+    }
+  };
 
   const handleLogout = () => {
     window.helper.sweetAlert(
@@ -149,7 +200,7 @@ export default function HeaderAfterLogin() {
         if (result.isConfirmed) {
           await window.helper.removeStorageData();
           window.user = "";
-          window.location.reload();
+          navigate("/auth/login");
         }
       }
     );
@@ -300,7 +351,7 @@ export default function HeaderAfterLogin() {
             </div> */}
             <div
               className="relative cursor-pointer"
-              onClick={() => navigate("/order-confirmation")}
+              onClick={handleCartClick}
             >
               <ShoppingCart className="w-6 h-6" />
               {getCartItemCount() > 0 && (
@@ -454,10 +505,7 @@ export default function HeaderAfterLogin() {
 
                 {/* Cart */}
                 <button
-                  onClick={() => {
-                    closeDrawer();
-                    navigate("/order-confirmation");
-                  }}
+                  onClick={handleCartClick}
                   className="flex items-center text-lg hover:text-primary-50 w-full mt-4"
                 >
                   <div className="relative mr-3">

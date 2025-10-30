@@ -102,21 +102,35 @@ const UpdateProfile = () => {
       isSubmittingRef.current = false;
       const userData = data?.data || {};
       const access_token = window?.user?.access_token;
+      
+      // Preserve address and location data that might not be returned by API
+      const preservedFields = {
+        address: window.user?.address || "",
+        user_address: window.user?.user_address || "",
+        location: window.user?.location || "",
+        latitude: window.user?.latitude || "",
+        longitude: window.user?.longitude || "",
+        city: window.user?.city || "",
+        zip_code: window.user?.zip_code || "",
+        address_data: window.user?.address_data || null,
+      };
+      
       // Merge with existing window.user to preserve address and other fields
       const updatedUser = {
         ...window.user, // Preserve existing fields like address, latitude, longitude, etc.
         ...userData,    // Overwrite with updated fields from API
+        ...preservedFields, // Ensure address fields are preserved
         ...(access_token ? { access_token } : {}),
       };
+      
       await window.helper.setStorageData("user", updatedUser);
       window.user = updatedUser;
       
       // Update image preview if new image is returned from server
       if (userData.image) {
-        console.log('Server returned image:', userData.image);
         // Clean the image path - remove escaped slashes
         const cleanImagePath = userData.image.replace(/\\\//g, '/');
-        console.log('Cleaned image path:', cleanImagePath);
+        console.log(' image path:', cleanImagePath);
         
         // Try different approaches to construct the image URL
         let imageUrl;
