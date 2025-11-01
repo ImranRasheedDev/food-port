@@ -9,11 +9,15 @@ import GoogleMapsProvider from "@/providers/GoogleMapsProvider";
 import "react-toastify/dist/ReactToastify.css";
 import bootstrap from "@/bootstrap";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import InitialLoader from "@/components/InitialLoader";
 
 
 if ("serviceWorker" in navigator) {
+  const basePath = import.meta.env.VITE_BASE_URL || '/';
+  const swPath = `${basePath}firebase-messaging-sw.js`;
+  
   navigator.serviceWorker
-    .register("/firebase-messaging-sw.js")
+    .register(swPath)
     .then((registration) => {
       console.log("Service Worker registered:", registration);
     })
@@ -22,9 +26,19 @@ if ("serviceWorker" in navigator) {
 
 
 const init = async () => {
+  // Show initial loader immediately
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<InitialLoader />);
+  
+  // Run bootstrap process
   await bootstrap();
-  ReactDOM.createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
+  
+  // Get the base path from environment or detect it
+  const basePath = import.meta.env.VITE_BASE_URL || '/';
+  
+  // Render the main app after bootstrap completes
+  root.render(
+    <BrowserRouter basename={basePath}>
       <QueryProvider>
         <GoogleMapsProvider>
           <NotificationProvider>

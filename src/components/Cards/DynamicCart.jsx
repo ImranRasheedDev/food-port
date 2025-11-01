@@ -17,9 +17,145 @@ export default function DynamicCart({
     restaurantData: contextRestaurantData,
   } = useCart();
   const navigate = useNavigate();
+  const [imageErrors, setImageErrors] = useState({});
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const setDefaultAddress = useSetDefaultAddress();
 
   // Use prop restaurant data if available, otherwise use context data
   const restaurantData = propRestaurantData || contextRestaurantData;
+
+  const handleImageError = (itemId) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
+  };
+
+  const handleAddressAddSuccess = async (newAddress = null) => {
+    setIsAddAddressModalOpen(false);
+
+    // Check if user is logged in
+    if (!window.user) {
+      toast.error("Please login to add address");
+      navigate("/auth/login");
+      return;
+    }
+
+    // If a new address was added, update window.user and set as default via API
+    if (newAddress && window.user) {
+      // Check if this is the first address (should be default)
+      const isFirstAddress = !window.user.addresses || window.user.addresses.length === 0;
+
+      // Update window.user with new address
+      window.user.address = newAddress.address;
+      window.user.latitude = newAddress.latitude || window.user.latitude;
+      window.user.longitude = newAddress.longitude || window.user.longitude;
+      window.user.city = newAddress.city || window.user.city;
+      window.user.zip_code = newAddress.zip_code || window.user.zip_code;
+
+      // Update addresses array in window.user
+      if (!window.user.addresses) {
+        window.user.addresses = [];
+      }
+
+      // Add the new address with default flag if it's the first one
+      const addressToAdd = {
+        ...newAddress,
+        default: isFirstAddress
+      };
+      window.user.addresses.push(addressToAdd);
+
+      console.log("Updated window.user with new address:", window.user);
+
+      // Save to storage to persist after reload
+      if (window.helper && window.helper.setStorageData) {
+        await window.helper.setStorageData("user", window.user);
+      }
+
+      // If this is the first address, set it as default via API
+      if (isFirstAddress && newAddress.id) {
+        setDefaultAddress.mutate(
+          { address_id: newAddress.id },
+          {
+            onSuccess: () => {
+              console.log("Address set as default via API");
+
+              // Update window.user with the complete address info after API success
+              window.user.address = newAddress.address;
+              window.user.latitude = newAddress.latitude || window.user.latitude;
+              window.user.longitude = newAddress.longitude || window.user.longitude;
+              window.user.city = newAddress.city || window.user.city;
+              window.user.zip_code = newAddress.zip_code || window.user.zip_code;
+
+              // Update the addresses array to mark this as default
+              if (window.user.addresses && window.user.addresses.length > 0) {
+                window.user.addresses[window.user.addresses.length - 1].default = true;
+              }
+
+              console.log("window.user after API success:", window.user);
+              console.log("window.user.address:", window.user.address);
+
+              // Save to storage to persist after reload
+              if (window.helper && window.helper.setStorageData) {
+                window.helper.setStorageData("user", window.user);
+              }
+
+              // Show success toast
+              toast.success("Address added and set as default successfully!");
+
+              // Dispatch event to notify other components (HeaderAfterLogin listens to this)
+              const event = new CustomEvent('userUpdated', {
+                detail: { ...window.user }
+              });
+              console.log("Dispatching userUpdated event with address:", event.detail.address);
+              window.dispatchEvent(event);
+
+              // Navigate to payment
+              navigate("/pay");
+            },
+            onError: (error) => {
+              console.error("Error setting address as default:", error);
+              // Still show success for adding address, but warn about default
+              toast.success("Address added successfully!");
+              toast.warning("Address added but couldn't set as default. Please set it manually.");
+
+              // Dispatch event to notify other components
+              window.dispatchEvent(new CustomEvent('userUpdated', {
+                detail: { ...window.user }
+              }));
+
+              // Navigate to payment
+              navigate("/pay");
+            }
+          }
+        );
+      } else {
+        // Not first address, just show success and navigate
+        console.log("Not first address, window.user:", window.user);
+        toast.success("Address added successfully!");
+
+        // Dispatch event to notify other components
+        const event = new CustomEvent('userUpdated', {
+          detail: { ...window.user }
+        });
+        console.log("Dispatching userUpdated event (not first):", event.detail);
+        window.dispatchEvent(event);
+
+        // Navigate to payment
+        navigate("/pay");
+      }
+    }
+  };
+
+  // Get processed image URL with error handling for each item
+  const getImageSrc = (item) => {
+    const itemKey = `${item.id}-${JSON.stringify(item.selectedAddons)}-${item.instructions || ''}`;
+    if (imageErrors[itemKey] || !item.image) {
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
+    }
+    return processImageUrl(item.image, "/images/placeholder1.jpg");
+  };
 
   if (isCartEmpty()) {
     return (
@@ -27,7 +163,7 @@ export default function DynamicCart({
         <div className="text-center">
           <div className="mb-4">
             <img
-              src="/images/empty-cart.png"
+              src={getStaticImagePath("/images/empty-cart.png")}
               alt="Empty Cart"
               className="w-24 h-24 mx-auto opacity-50"
             />
@@ -51,38 +187,40 @@ export default function DynamicCart({
   const deliveryFee = restaurantData?.delivery_fee
     ? parseFloat(restaurantData.delivery_fee)
     : 0;
-  const platformFeePercentage = restaurantData?.commission_percent
-    ? parseFloat(restaurantData.commission_percent)
-    : 0;
+  const platformFeePercentage = 0; // Hide and exclude commission
   const vatPercentage = restaurantData?.tax
     ? parseFloat(restaurantData.tax)
     : 0;
 
   // Calculate fees
-  const platformFee = (subtotal * (platformFeePercentage / 100)).toFixed(2);
+  const platformFee = (0).toFixed(2);
   const vatPrice = (subtotal * (vatPercentage / 100)).toFixed(2);
   const finalTotal = (
     parseFloat(subtotal) +
     parseFloat(vatPrice) +
-    parseFloat(platformFee) +
     deliveryFee
   ).toFixed(2);
 
+
+
+  const staticImages = ["/images/add-card-one.png", "/images/add-card-two.png", "/images/deals-14.png", "/images/add-card-two.png"]
   return (
     <div className="border  border-primary-1007 rounded-lg p-4">
       {/* Cart Items */}
       <div className="space-y-2 mb-4">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <div
-            key={`${item.id}-${JSON.stringify(item.selectedAddons)}`}
+            key={`${item.id}-${JSON.stringify(item.selectedAddons)}-${item.instructions || ''}-${index}`}
             className="border-b border-primary-1007 pb-6 last:border-b-0"
           >
             <div className="flex gap-3 ">
               <div className="flex-shrink-0 ">
                 <img
-                  src={item.image || "/images/product-1.png"}
+                  src={getImageSrc(item)}
                   alt={item.name}
                   className="w-32 h-32 object-cover rounded-lg"
+                  onError={() => handleImageError(`${item.id}-${JSON.stringify(item.selectedAddons)}-${item.instructions || ''}`)}
+                  loading="lazy"
                 />
               </div>
               <div className="w-full ">
@@ -137,12 +275,7 @@ export default function DynamicCart({
           <p className="text-primary-1013">Standard Delivery</p>
           <p className="text-primary-1013">$ {deliveryFee.toFixed(2)}</p>
         </div> */}
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-primary-1013">
-            Commission Fee ({platformFeePercentage}%)
-          </p>
-          <p className="text-primary-1013">$ {platformFee}</p>
-        </div>
+        {/* Commission Fee hidden by requirement */}
         <div className="flex justify-between items-center mb-6 mt-2">
           <p className="text-primary-1013">VAT ({vatPercentage}%)</p>
           <p className="text-primary-1013">$ {vatPrice}</p>
@@ -155,8 +288,10 @@ export default function DynamicCart({
           {ads.length > 3 && (
             <CardOne
               campaignData={ads[3]}
+              image={staticImages[3 % staticImages.length]}
               restaurantNameColor="text-primary-1004"
               backgroundColor="bg-primary-1011"
+              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
             />
           )}
           {ads.slice(4, 7).map((banner, index) => (
@@ -164,6 +299,7 @@ export default function DynamicCart({
               key={banner.id || index}
               campaignData={banner}
               cardIndex={index}
+              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
             />
           ))}
         </div>
@@ -178,12 +314,60 @@ export default function DynamicCart({
           <p className="font-semibold">$ {finalTotal}</p>
         </div>
         <button
-          onClick={() => navigate("/order-confirmation")}
+          onClick={() => {
+            // Check if user is logged in first
+            if (!window.user || !window.user.id) {
+              toast.error("Please login to place order");
+              navigate("/auth/login");
+              return;
+            }
+
+            // Check if user has any address (from addresses array or direct address field)
+            const hasAddress = !!(window.user && (
+              (Array.isArray(window.user.addresses) && window.user.addresses.length > 0) ||
+              window.user.address
+            ));
+
+            if (!hasAddress) {
+              setIsAddressModalOpen(true);
+              return;
+            }
+            navigate("/pay");
+          }}
           className="bg-primary-50 text-white block w-full py-3 cursor-pointer rounded-full text-sm"
         >
           Confirm order
         </button>
       </div>
+
+      {/* Address Modal */}
+      <ConfirmationModal
+        open={isAddressModalOpen}
+        onOpenChange={setIsAddressModalOpen}
+        title="Add delivery address"
+        description="You need a delivery address to complete your order. Would you like to add one now?"
+        confirmText="Add Address"
+        cancelText="Cancel"
+        onConfirm={() => {
+          // Check if user is logged in before opening address modal
+          if (!window.user) {
+            toast.error("Please login to add address");
+            navigate("/auth/login");
+            setIsAddressModalOpen(false);
+            return;
+          }
+          setIsAddressModalOpen(false);
+          setIsAddAddressModalOpen(true);
+        }}
+        onCancel={() => setIsAddressModalOpen(false)}
+      />
+
+      {/* Add Address Modal */}
+      <SimpleAddressAddModal
+        isOpen={isAddAddressModalOpen}
+        onClose={() => setIsAddAddressModalOpen(false)}
+        onSuccess={handleAddressAddSuccess}
+      />
     </div>
   );
 }

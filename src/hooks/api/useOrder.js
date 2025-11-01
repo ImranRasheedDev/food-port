@@ -26,7 +26,11 @@ export const useInvoice = (invoiceId, options = {}) => {
 // Update order status
 export const useUpdateOrderStatus = (options = {}) => {
   return useApiMutation('/invoice/update-status', {
-    invalidateQueries: [['invoices']],
+    invalidateQueries: [
+      ['invoices'],
+      ['notifications'],
+      ['notifications', 'unread']
+    ],
     ...options,
   });
 };
@@ -34,7 +38,12 @@ export const useUpdateOrderStatus = (options = {}) => {
 // Place order (add invoice)
 export const usePlaceOrder = (options = {}) => {
   return useApiMutation('/invoice/add', {
-    invalidateQueries: [['invoices'], ['cart', 'count']],
+    invalidateQueries: [
+      ['invoices'], 
+      ['cart', 'count'],
+      ['notifications'],
+      ['notifications', 'unread']
+    ],
     ...options,
   });
 };

@@ -1,5 +1,5 @@
 import React from 'react'
-
+import { processImageUrl } from '@/lib/utils';
 const TestimonialCard = ({ avatar, name, age, text, index, activeIndex }) => {
     return (
         <div
@@ -8,8 +8,8 @@ const TestimonialCard = ({ avatar, name, age, text, index, activeIndex }) => {
         >
             <div className="mb-4">
                 <img
-                    src={avatar || "/placeholder.svg"}
-                    alt={name}
+                    src={ processImageUrl(avatar) || "/placeholder.svg"}
+                    alt={name || "Testimonial Card"}
                     className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className='mt-6'>

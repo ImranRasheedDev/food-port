@@ -14,6 +14,16 @@ export const CartProvider = ({ children }) => {
         return localData ? JSON.parse(localData) : null;
     });
 
+    const [confirmationModal, setConfirmationModal] = useState({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: null,
+        onCancel: null,
+        currentRestaurantName: '',
+        newRestaurantName: '',
+    });
+
     useEffect(() => {
         localStorage.setItem('food-port-cart', JSON.stringify(cartItems));
     }, [cartItems]);
@@ -24,8 +34,35 @@ export const CartProvider = ({ children }) => {
         }
     }, [restaurantData]);
 
-    const addToCart = (item) => {
+    const addToCart = (item, onRestaurantConflict) => {
         setCartItems(prevItems => {
+            // Check if cart has items from different restaurant
+            if (prevItems.length > 0) {
+                const currentRestaurantId = prevItems[0].restaurantId;
+                if (currentRestaurantId !== item.restaurantId) {
+                    // Trigger restaurant conflict callback
+                    if (onRestaurantConflict) {
+                        onRestaurantConflict({
+                            currentRestaurantName: prevItems[0].restaurantName,
+                            newRestaurantName: item.restaurantName,
+                            onConfirm: () => {
+                                // Clear cart and add new item
+                                setRestaurantData({
+                                    id: item.restaurantId,
+                                    name: item.restaurantName
+                                });
+                                setCartItems([item]);
+                            },
+                            onCancel: () => {
+                                // Keep existing cart unchanged
+                                return prevItems;
+                            }
+                        });
+                        return prevItems; // Return current items, modal will handle the actual change
+                    }
+                }
+            }
+
             // Check if item already exists in cart
             const existingItemIndex = prevItems.findIndex(
                 cartItem => 
@@ -41,6 +78,13 @@ export const CartProvider = ({ children }) => {
                 return updatedItems;
             } else {
                 // Add new item to cart
+                // Set restaurant data if it's the first item
+                if (prevItems.length === 0) {
+                    setRestaurantData({
+                        id: item.restaurantId,
+                        name: item.restaurantName
+                    });
+                }
                 return [...prevItems, item];
             }
         });

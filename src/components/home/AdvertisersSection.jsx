@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import AdviserCard from '../Cards/AdviserCard'
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -6,6 +6,10 @@ import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useBannerAds } from '../../hooks/api/useAds';
 import LayoutWrapper from '../layoutWrapper';
+import Helper from '@/helpers';
+import { useNavigate } from 'react-router-dom';
+import ProductModal from '../InnerPages/ProductModal';
+
 const AdvisersData = [
     {
         title: "Make Your First Order and Get 25% Off From",
@@ -36,6 +40,35 @@ const AdvertisersSection = () => {
     const swiperRef = useRef(null);
     const { data, isLoading } = useBannerAds();
     const campaigns = Array.isArray(data?.data) ? data.data : [];
+    const navigate = useNavigate();
+
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [selectedProductId, setSelectedProductId] = useState(null);
+    const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+
+    const handleCardClick = async (campaign) => {
+        const restaurantId = campaign?.restaurant?.id;
+        const restaurantName = campaign?.restaurant?.name;
+        const productId = campaign?.product?.id;
+
+        // Priority: restaurant first
+        if (restaurantId && productId) {
+            navigate(`/resturants-detail/${restaurantId}`, { state: { productId } });
+            return;
+        }
+
+        if (restaurantId && !productId) {
+            navigate(`/resturants-detail/${restaurantId}`);
+            return;
+        }
+
+        if (!restaurantId && productId) {
+            setSelectedProductId(productId);
+            setSelectedRestaurant(null);
+            setIsProductModalOpen(true);
+            return;
+        }
+    };
     return (
         <section className="py-16 bg-white">
            <LayoutWrapper>  
@@ -90,11 +123,12 @@ const AdvertisersSection = () => {
                                 <SwiperSlide key={campaign?.id ?? index}>
                                     <AdviserCard
                                         index={index}
-                                        title={campaign?.product?.name || "Make Your First Order and Get 25% Off From"}
-                                        companyName={campaign?.product?.restaurant_id || "Pizzucci"}
+                                        title={`Make Your First Order and Get 25% Off From`}
+                                        companyName={"Restaurant"}
                                         description={"In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."}
-                                        link={campaign?.product?.restaurant_id ? `/resturants-detail/${campaign.product.restaurant_id}` : '#'}
+                                        link={campaign?.restaurant?.id && campaign?.product?.id ? `/resturants-detail/${campaign.restaurant.id}` : '#'}
                                         mediaPath={campaign?.media_path}
+                                        onClick={() => handleCardClick(campaign)}
                                     />
                                 </SwiperSlide>
                             ))
@@ -116,6 +150,12 @@ const AdvertisersSection = () => {
                         </button>
                     </div>
                 </div>
+                <ProductModal
+                    open={isProductModalOpen}
+                    setOpen={setIsProductModalOpen}
+                    productId={selectedProductId}
+                    restaurantData={selectedRestaurant}
+                />
             </LayoutWrapper>
         </section>
     )

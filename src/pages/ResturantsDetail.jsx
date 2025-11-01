@@ -6,8 +6,8 @@ import ProductModal from "@/components/InnerPages/ProductModal";
 import ProductDetailBanner from "@/components/InnerPages/ProductDetailBanner";
 import ProductDetailMenu from "@/components/InnerPages/ProductDetailMenu";
 import SectionInfo from "@/components/InnerPages/SectionInfo";
-import React, { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { useRestaurantDetail, useBannerAds } from "@/hooks/api";
 import { menuSections } from "@/components/MockData";
 import TestimonialCard from "@/components/InnerPages/TestimonialCard";
@@ -15,12 +15,15 @@ import TotalTestimonialsBox from "@/components/InnerPages/TotalTestimonialsBox";
 import RestaurantDetailSkeleton from "@/components/ui/restaurant-detail-skeleton";
 import DealsAndDiscounts from "@/components/InnerPages/DealsAndDiscounts";
 import ChickenSandwichCard from "@/components/Cards/ChickenSandwichCard";
+import LazyAdContainer from "@/components/ui/LazyAdContainer";
+import { useLazyAds } from "@/hooks/useLazyAds";
 
 export default function ResturantsDetail() {
   const [open, setOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { restaurant_id } = useParams();
+  const location = useLocation();
 
   const {
     data: restaurantData,
@@ -39,6 +42,24 @@ export default function ResturantsDetail() {
   
   // Get banner ads data
   const bannerAds = bannerAdsData?.data || [];
+  
+  // Lazy loading for left side ads
+  const { 
+    ads: leftAds, 
+    isLoading: leftLoading, 
+    hasMore: leftHasMore, 
+    containerRef: leftContainerRef, 
+    loadingRef: leftLoadingRef 
+  } = useLazyAds(3);
+  
+  // Lazy loading for right side ads
+  const { 
+    ads: rightAds, 
+    isLoading: rightLoading, 
+    hasMore: rightHasMore, 
+    containerRef: rightContainerRef, 
+    loadingRef: rightLoadingRef 
+  } = useLazyAds(3);
   
   // Get product categories for menu (empty array if no data)
   const allProductCategories = restaurant?.product_categories || [];
@@ -67,6 +88,15 @@ export default function ResturantsDetail() {
         category.name.toLowerCase().includes(searchLower)
       );
   }, [allProductCategories, searchTerm]);
+
+  // Auto-open product modal if productId is provided via route state
+  useEffect(() => {
+    const pid = location?.state?.productId;
+    if (pid) {
+      setSelectedProductId(pid);
+      setOpen(true);
+    }
+  }, [location?.state]);
 
   // Handle search change
   const handleSearchChange = (value) => {
@@ -115,12 +145,13 @@ export default function ResturantsDetail() {
 
   console.log(filteredCategories,"filteredCategories")
 
+const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/images/deals-14.png","/images/add-card-two.png"]
   return (
     <>
 
       <div className="h-[72px]" />
       <ProductDetailBanner
-        image={restaurant?.logo_url || "/images/product-1.png"}
+        image={restaurant?.logo_url || "/images/placeholder1.jpg"}
         tags={tags}
         restaurantName={restaurant?.name || "Restaurant"}
         minOrderUnit={restaurant?.delivery_fee?.toString() || "7.00"}
@@ -143,16 +174,18 @@ export default function ResturantsDetail() {
       />
       <div className="bg-primary-1014 pt-20 pb-20">
         <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-x-[30px] px-6 mx-auto justify-center ">
-          <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 hidden xl:block">
-            {bannerAds.slice(0, 3).map((banner, index) => (
-              <CardOne
-                key={banner.id}
-                campaignData={banner}
-                restaurantNameColor={index === 1 ? "text-primary-1004" : index === 2 ? "text-primary-1002" : "text-primary-1002"}
-                backgroundColor={index === 1 ? "bg-primary-1011" : index === 2 ? "bg-primary-1004" : "bg-primary-950"}
-              />
-            ))}
-         
+          <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 pt-22 hidden xl:block">
+            {/* Lazy loaded left side ads */}
+            <LazyAdContainer
+              ads={leftAds}
+              isLoading={leftLoading}
+              hasMore={leftHasMore}
+              containerRef={leftContainerRef}
+              loadingRef={leftLoadingRef}
+              type="card"
+              staticImages={staticImages}
+              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
+            />
           </div>
           <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
             {filteredCategories?.length > 0 ? (
@@ -192,6 +225,7 @@ export default function ResturantsDetail() {
                         hasApiData={false} 
                         apiReturnedEmpty={false}
                         hideRestaurantCards={true}
+                        image={staticImages[index % staticImages.length]}
                       />
                     </div>
                   )}
@@ -199,7 +233,7 @@ export default function ResturantsDetail() {
                   {
                     index === 2 && (
                       <div className="mb-10">
-                        <ChickenSandwichCard />
+                        <ChickenSandwichCard image={staticImages[index % staticImages.length]} />
                       </div>
                     )
                   }
@@ -267,15 +301,20 @@ export default function ResturantsDetail() {
             </div>
           </div>
 
-          <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 space-y-8 pt-22 max-xl:order-1">
+          <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 pt-22 max-xl:order-1">
             <DynamicCart restaurantData={restaurant} ads={bannerAds} />
-            {bannerAds.slice(4, 7).map((banner, index) => (
-            <DealDiscountCard
-              key={banner.id || index}
-              campaignData={banner}
-              cardIndex={index}
+            
+            {/* Lazy loaded right side ads */}
+            <LazyAdContainer
+              ads={rightAds}
+              isLoading={rightLoading}
+              hasMore={rightHasMore}
+              containerRef={rightContainerRef}
+              loadingRef={rightLoadingRef}
+              type="deal"
+              staticImages={staticImages}
+              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
             />
-          ))}
           </div>
 
         </div>

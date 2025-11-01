@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAdClickMutation } from "@/hooks/api";
 import Helper from "@/helpers";
 import { isValidUrl } from "@/lib/inValidUrl";
+import { processImageUrl } from '@/lib/utils';
 
 const DealDiscountCard = ({ 
     // Dynamic banner data
@@ -11,7 +12,9 @@ const DealDiscountCard = ({
     title, 
     companyName, 
     link, 
-    cardIndex = 0 
+    cardIndex = 0,
+    image,
+    onCardClick
 }) => {
     const navigate = useNavigate();
     const clickMutation = useAdClickMutation(campaignData?.id);
@@ -23,7 +26,7 @@ const DealDiscountCard = ({
         companyName: Helper.truncateText(campaignData.product?.name || "Restaurant", 25),
         mediaPath: campaignData.media_path,
         mediaType: campaignData.media_type,
-        link: campaignData.product?.restaurant_id  && campaignData.product.id ?  `/${campaignData.product.restaurant_id}` : "#"
+        link: campaignData.product?.restaurant_id  && campaignData.product.id ?  `/resturants-detail/${campaignData.product.restaurant_id}` : "#"
     } : {
         title,
         companyName: Helper.truncateText(companyName, 25),
@@ -45,7 +48,7 @@ const DealDiscountCard = ({
         },
         1: { // Second card
             containerClass: 'bg-[url("/images/deal-bg-3.png")]',
-            titleClass: 'text-white',
+            titleClass: 'text-black',
             companyClass: 'text-primary-1002',
             buttonClass: 'bg-primary-50 text-white'
         },
@@ -54,24 +57,44 @@ const DealDiscountCard = ({
             titleClass: 'text-white',
             companyClass: 'text-white',
             buttonClass: 'bg-black text-white'
-        }
+        },
+        3: { // Fourth card
+            containerClass: 'bg-[url("/images/deal-bg-3.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-primary-1002',
+            buttonClass: 'bg-primary-50 text-white'
+        },
+        4: { // Third card
+            containerClass: 'bg-[url("/images/deal-bg-2.png")]',
+            titleClass: 'text-white',
+            companyClass: 'text-white',
+            buttonClass: 'bg-black text-white'
+        },
     };
 
     const currentStyle = cardStyles[styleIndex];
+
+    const resolvedRestaurantId = campaignData?.restaurant?.id || campaignData?.product?.restaurant_id;
+    const resolvedProductId = campaignData?.product?.id;
 
     const handleClick = (e) => {
         if (campaignData) {
             e.preventDefault();
             e.stopPropagation();
-            const hasProduct = !!(campaignData?.product?.restaurant_id && campaignData?.product?.id);
-            if (!hasProduct) return;
-            const target = `/resturants-detail/${campaignData.product.restaurant_id}`;
-            clickMutation.mutate({}, {
-                onSettled: () => navigate(target)
-            });
+            if (resolvedRestaurantId && resolvedProductId) {
+                clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`, { state: { productId: resolvedProductId } }) });
+                return;
+            }
+            if (resolvedRestaurantId) {
+                clickMutation.mutate({}, { onSettled: () => navigate(`/resturants-detail/${resolvedRestaurantId}`) });
+                return;
+            }
+            if (!resolvedRestaurantId && resolvedProductId && typeof onCardClick === 'function') {
+                onCardClick({ productId: resolvedProductId, restaurant: null });
+                return;
+            }
             return;
         }
-        // Legacy: if no campaign data, navigate only if link valid is handled by navigate call below
         if (displayData.link && displayData.link !== '#') {
             navigate(displayData.link);
         } else {
@@ -86,11 +109,27 @@ const DealDiscountCard = ({
         isValidUrl(displayData.mediaPath) && 
         !imageError ? displayData.mediaPath : null;
 
+    // Check if we should show the background fallback
+    const shouldShowBackground = !validMediaPath || imageError;
+
     return (
-        <div className={`text-white items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden`}
-             style={validMediaPath ? {
-                 backgroundImage: `url(${validMediaPath})`
-             } : undefined}>
+        <div 
+            className={`text-white cursor-pointer items-center flex rounded-sm bg-cover bg-center bg-no-repeat relative overflow-hidden min-h-[200px]`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(e); } }}
+            onClick={handleClick}
+        >
+            
+            {/* Show background image if media type is image */}
+            {displayData.mediaType === "image" && displayData.mediaPath && (
+                <img 
+                    src={processImageUrl(image)} 
+                    alt="Background" 
+                    className="absolute inset-0 w-full h-full object-cover z-0"
+                    onError={() => setImageError(true)}
+                />
+            )}
             
             {/* Show video if media type is video */}
             {displayData.mediaType === "video" && displayData.mediaPath && (
@@ -107,14 +146,14 @@ const DealDiscountCard = ({
                         if (placeholder) placeholder.style.display = 'block';
                     }}
                 >
-                    <source src={displayData.mediaPath} type="video/mp4" />
+                    <source src={processImageUrl(image)} type="video/mp4" />
                 </video>
             )}
             
             {/* Show placeholder image if video fails to load or no media */}
             {(!displayData.mediaPath || displayData.mediaType === "video") && (
                 <img 
-                    src="/images/placeholder.jpg" 
+                    src={processImageUrl(image)} 
                     alt="Placeholder" 
                     className="absolute inset-0 w-full h-full object-cover z-0"
                     style={{ display: displayData.mediaType === "video" && displayData.mediaPath ? 'none' : 'block' }}
@@ -128,7 +167,7 @@ const DealDiscountCard = ({
             )}
             
             {/* Use background class as final fallback */}
-            <div className={`absolute inset-0 ${currentStyle.containerClass}`} style={{ display: displayData.mediaPath && displayData.mediaType === "image" ? 'none' : 'block' }}></div>
+            <div className={`absolute inset-0 ${currentStyle.containerClass}`} style={{ display: shouldShowBackground ? 'block' : 'none' }}></div>
             
             {/* Content overlay */}
             <div className='pl-4 w-[64%] py-6 relative z-10'>

@@ -7,9 +7,9 @@ export default function ProductCard({ title, price, description, image, onClick 
     // Validate and process image URL
     const imageSrc = (() => {
         if (imageError) {
-            return "/images/placeholder.jpg"; // Fallback image
+            return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
         }
-        return processImageUrl(image, "/images/placeholder.jpg");
+                return processImageUrl(image, "/images/placeholder1.jpg");
     })();
 
     const handleImageError = () => {
@@ -32,7 +32,7 @@ export default function ProductCard({ title, price, description, image, onClick 
                     loading="lazy"
                 />
                 <div className="absolute bottom-0 right-0">
-                    <img src="/images/add-cart-button.png" alt="product-card" />
+                    <img src={processImageUrl("/images/add-cart-button.png")} alt="product-card" />
                 </div>
             </div>
         </div>

@@ -45,7 +45,8 @@ function Signup() {
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       password_confirmation: "",
@@ -78,6 +79,9 @@ function Signup() {
       // Create user data with form values included
       const userWithAddress = {
         ...data?.data,
+        name: `${formValues.first_name} ${formValues.last_name}`, // Ensure name is set
+        first_name: formValues.first_name,
+        last_name: formValues.last_name,
         address: formValues.address || "",
         latitude: formValues.latitude || "",
         longitude: formValues.longitude || "",
@@ -94,7 +98,9 @@ function Signup() {
 
       try {
         const addressPayload = {
-          name: formValues.name || data?.data?.name || "",
+          name: formValues.first_name && formValues.last_name 
+            ? `${formValues.first_name} ${formValues.last_name}` 
+            : data?.data?.name || "",
           address: formValues.address || "",
           latitude: formValues.latitude || "",
           longitude: formValues.longitude || "",
@@ -109,6 +115,7 @@ function Signup() {
               // Merge address data with existing user data in global store
               const updatedUser = {
                 ...window.user,
+                name: `${formValues.first_name} ${formValues.last_name}`, // Ensure name is set
                 address: formValues.address || "",
                 latitude: formValues.latitude || "",
                 longitude: formValues.longitude || "",
@@ -133,6 +140,7 @@ function Signup() {
           // No address to add, but still save form address data to user store
           const updatedUser = {
             ...window.user,
+            name: `${formValues.first_name} ${formValues.last_name}`, // Ensure name is set
             address: formValues.address || "",
             latitude: formValues.latitude || "",
             longitude: formValues.longitude || "",
@@ -167,7 +175,7 @@ function Signup() {
       isSubmittingRef.current = true;
 
       const userPayload = {
-        name: data.name,
+        name: `${data.first_name} ${data.last_name}`, // Concatenate first and last name
         email: data.email,
         password: data.password,
         password_confirmation: data.password_confirmation,
@@ -195,30 +203,59 @@ function Signup() {
         </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Name */}
-        <InputWithIcon
-          id="name"
-          type="text"
-          placeholder="Full Name"
-          icon={<User className="w-5 h-5" />}
-          {...register("name", {
-            required: "Full name is required",
-            minLength: {
-              value: 2,
-              message: "Name must be at least 2 characters",
-            },
-            maxLength: {
-              value: 50,
-              message: "Name must be less than 50 characters",
-            },
-            pattern: {
-              value: VALIDATION_PATTERNS.name,
-              message:
-                "Please enter a valid name (letters, spaces, hyphens, and apostrophes only)",
-            },
-          })}
-          error={errors.name?.message}
-        />
+        {/* First Name and Last Name */}
+        <div className="flex gap-2">
+          <div className="basis-1/2">
+            <InputWithIcon
+              id="first_name"
+              type="text"
+              placeholder="First Name"
+              icon={<User className="w-5 h-5" />}
+              {...register("first_name", {
+                required: "First name is required",
+                minLength: {
+                  value: 2,
+                  message: "First name must be at least 2 characters",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "First name must be less than 50 characters",
+                },
+                pattern: {
+                  value: VALIDATION_PATTERNS.name,
+                  message:
+                    "Please enter a valid first name (letters, spaces, hyphens, and apostrophes only)",
+                },
+              })}
+              error={errors.first_name?.message}
+            />
+          </div>
+          <div className="basis-1/2">
+            <InputWithIcon
+              id="last_name"
+              type="text"
+              placeholder="Last Name"
+              icon={<User className="w-5 h-5" />}
+              {...register("last_name", {
+                required: "Last name is required",
+                minLength: {
+                  value: 2,
+                  message: "Last name must be at least 2 characters",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "Last name must be less than 50 characters",
+                },
+                pattern: {
+                  value: VALIDATION_PATTERNS.name,
+                  message:
+                    "Please enter a valid last name (letters, spaces, hyphens, and apostrophes only)",
+                },
+              })}
+              error={errors.last_name?.message}
+            />
+          </div>
+        </div>
         {/* Email */}
         <InputWithIcon
           id="email"

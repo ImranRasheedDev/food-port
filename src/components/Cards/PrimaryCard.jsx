@@ -2,7 +2,7 @@ import { Heart, Star, MapPin, Clock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleRestaurantLikeById } from "@/hooks/api";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { isValidUrl } from "@/lib/inValidUrl";
 import { processImageUrl } from "@/lib/utils";
 
@@ -21,13 +21,22 @@ export function RestaurantCard({
 }) {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
+  // Only sync initial state, not after user interaction
+  useEffect(() => {
+    if (!hasUserInteracted) {
+      setOptimisticLiked(isLiked);
+    }
+  }, [isLiked, hasUserInteracted]);
 
   // Validate and process image URL
   const imageSrc = (() => {
     if (imageError) {
-      return "/images/popular-1.png"; // Fallback image
+      return processImageUrl("/images/placeholder1.jpg"); // Use processImageUrl for consistent path handling
     }
-    return processImageUrl(image, "/images/popular-1.png");
+    return processImageUrl(image, "/images/placeholder1.jpg");
   })();
 
   const handleImageError = () => {
@@ -37,11 +46,18 @@ export function RestaurantCard({
   // Toggle favorite mutation
   const toggleFavoriteMutation = useToggleRestaurantLikeById(restaurantId, {
     disableToast: true, // Disable success toast
+    disableErrorToast: true, // Disable automatic error toast from mutation
     onSuccess: () => {
-      // Just refetch, no toast message - API cache will be invalidated automatically
+      // API succeeded - keep optimistic state as is (heart stays red)
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update favorite");
+      // Revert optimistic state on error and show error toast only once
+      setOptimisticLiked(isLiked);
+      setHasUserInteracted(false); // Reset interaction flag to allow future sync
+      // Only show toast if error message exists to avoid duplicates
+      if (error?.message) {
+        toast.error(error.message, { autoClose: 2000 });
+      }
     },
   });
 
@@ -57,6 +73,12 @@ export function RestaurantCard({
       return;
     }
 
+    // Mark that user has interacted
+    setHasUserInteracted(true);
+
+    // Optimistic UI update - immediately show the new state
+    setOptimisticLiked(!optimisticLiked);
+
     // Toggle favorite
     toggleFavoriteMutation.mutate({});
   };
@@ -67,7 +89,7 @@ export function RestaurantCard({
     >
       <div className="relative">
         <img
-          src={imageSrc}
+          src={processImageUrl(imageSrc, "/images/placeholder1.jpg")}
           alt={name}
           className="w-full h-56 object-cover rounded-md"
           onError={handleImageError}
@@ -78,9 +100,9 @@ export function RestaurantCard({
           onClick={handleHeartClick}
         >
           <Heart
-            className={`w-5 h-5 ${isLiked
-              ? "text-red-500 fill-red-500"
-              : "text-gray-400 hover:text-red-400"
+            className={`w-5 h-5 transition-colors duration-200 ${optimisticLiked
+                ? "text-red-500 fill-red-500"
+                : "text-gray-400 hover:text-red-400"
               }`}
           />
         </div>

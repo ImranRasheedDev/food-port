@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
-import { useRestaurants, useAllAddresses } from "@/hooks/api";
+import { useRestaurants } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { NoData } from "@/components/ui/empty";
 import { Link } from "react-router-dom";
@@ -137,13 +137,12 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
 export default function PopularRestaurants({ user = false }) {
   const { data, isLoading } = useRestaurants({
     page: 1,
-    limit: 10,
+    limit: 5,
     featured: "1",
     moveable: "0",
   });
 
-  // Get user addresses to fetch default address coordinates
-  const { data: addresses } = useAllAddresses();
+  // Get user addresses from window.user instead of API call
 
   const [restaurants, setRestaurants] = useState([]);
   const apiArray = data?.data;
@@ -154,11 +153,11 @@ export default function PopularRestaurants({ user = false }) {
   // Check if user is logged in
   const isUserLoggedIn = window.lodash.isEmpty(window.user) ? false : true;
 
-  // Get user coordinates - either from default address or use static coordinates
+  // Get user coordinates - either from window.user addresses or use static coordinates
   const getUserCoordinates = () => {
-    if (isUserLoggedIn && addresses?.data) {
-      // Find default address
-      const defaultAddress = addresses.data.find(addr => addr.default === true);
+    if (isUserLoggedIn && window.user?.addresses) {
+      // Find default address from window.user
+      const defaultAddress = window.user.addresses.find(addr => addr.default === true);
       if (defaultAddress && defaultAddress.latitude && defaultAddress.longitude) {
         return {
           lat: parseFloat(defaultAddress.latitude),
@@ -187,7 +186,7 @@ export default function PopularRestaurants({ user = false }) {
       }
     }
     loadCards();
-  }, [apiArray, userCoordinates.lat, userCoordinates.lng]);
+  }, [apiArray, userCoordinates.lat, userCoordinates.lng, maxCards]);
   return (
     <section className="py-16 bg-white">
       <LayoutWrapper>
@@ -210,7 +209,7 @@ export default function PopularRestaurants({ user = false }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {isLoading ? (
+          {isLoading || restaurants.length === 0 ? (
             Array.from({ length: maxCards }).map((_, i) => (
               <SkeletonCard key={i} />
             ))

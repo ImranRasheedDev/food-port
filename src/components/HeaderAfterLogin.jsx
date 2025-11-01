@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ChevronDown,
   ShoppingCart,
@@ -23,16 +23,43 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useAllAddresses, useLikedRestaurants, useLikedFoodTrucks } from "../hooks/api";
+import { useLikedRestaurants, useLikedFoodTrucks, useUnreadNotifications } from "../hooks/api";
 import LayoutWrapper from "./layoutWrapper";
 import { NotificationMenu, DesktopNotificationMenu } from "./NotificationMenu";
+import { processImageUrl } from "@/lib/utils";
+import { setupNotificationListener } from "../firebase/notificationListener";
 export default function HeaderAfterLogin() {
+  // Updated to use window.user instead of API calls
   const [isOpen, setIsOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [firebaseNotificationCount, setFirebaseNotificationCount] = useState(0);
+  const [userName, setUserName] = useState(window.user?.name || "");
+  // Check multiple possible address fields
+  const getInitialAddress = () => {
+    return window.user?.address || window.user?.user_address || window.user?.location || "";
+  };
+  const [userAddress, setUserAddress] = useState(getInitialAddress());
+
+  console.log("userAddress", window.user);
+
+  // Initialize user image with proper URL handling
+  const getInitialImage = () => {
+    const imageValue = window.user?.image || window.user?.avatar || "";
+    if (!imageValue || imageValue === null) return "";
+    if (imageValue.startsWith('http') || imageValue.startsWith('/')) {
+      return imageValue;
+    }
+    // Relative path from API - construct full URL
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    return apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${imageValue}` : imageValue;
+  };
+
+  const [userImage, setUserImage] = useState(getInitialImage());
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
   const navigate = useNavigate();
-  const { getCartItemCount } = useCart();
+  const { getCartItemCount, items, restaurantData } = useCart();
   const bellRef = useRef(null);
   const mobileBellRef = useRef(null);
 
@@ -44,22 +71,125 @@ export default function HeaderAfterLogin() {
     setIsNotificationOpen(false);
   };
 
-  // Fetch all addresses using the /address endpoint
-  const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
+  // Reset Firebase notification count when menu is opened
+  const handleNotificationMenuOpen = () => {
+    setFirebaseNotificationCount(0);
+    setIsNotificationOpen(true);
+  };
 
   // Fetch liked restaurants and food trucks for favorites count
   const { data: likedRestaurantsData } = useLikedRestaurants();
   const { data: likedFoodTrucksData } = useLikedFoodTrucks();
 
+  // Fetch unread notifications count
+  const { data: unreadNotificationsResponse } = useUnreadNotifications();
 
-  // Get the first address (index 0) - addresses come directly in response, not nested under data
-  const firstAddress =
-    addresses?.data.filter((address) => address.default === true)[0] || null;
+  // Calculate unread count from the API response
+  const unreadCount = unreadNotificationsResponse?.data?.length || 0;
+
+  // Total notification count (API + Firebase)
+  const totalNotificationCount = unreadCount + firebaseNotificationCount;
+
+  // Debug logging
+  console.log('Notification counts:', {
+    unreadCount,
+    firebaseNotificationCount,
+    totalNotificationCount
+  });
+
+  // Setup Firebase notification listener
+  useEffect(() => {
+    const handleFirebaseNotification = (payload) => {
+      console.log("Firebase notification received:", payload);
+      setFirebaseNotificationCount(prev => prev + 1);
+
+      // Show alert when Firebase notification comes
+      if (payload.notification) {
+        alert(`New Notification: ${payload.notification.title}\n${payload.notification.body}`);
+      }
+    };
+
+    // Setup Firebase notification listener
+    setupNotificationListener(handleFirebaseNotification);
+  }, []);
+
+  // Listen for user updates
+  useEffect(() => {
+    const handleUserUpdate = (event) => {
+      console.log("=== HeaderAfterLogin: Received userUpdated event ===");
+      console.log("Event:", event);
+      const updatedUser = event.detail;
+      console.log("HeaderAfterLogin: Updated user data:", updatedUser);
+      console.log("HeaderAfterLogin: updatedUser.address:", updatedUser.address);
+      console.log("HeaderAfterLogin: updatedUser.user_address:", updatedUser.user_address);
+      console.log("HeaderAfterLogin: updatedUser.location:", updatedUser.location);
+
+      setUserName(updatedUser.name || "");
+
+      // Update address from multiple possible fields
+      const address = updatedUser.address || updatedUser.user_address || updatedUser.location || "";
+      console.log("HeaderAfterLogin: Setting address to:", address);
+      console.log("HeaderAfterLogin: Previous userAddress state:", userAddress);
+
+      setUserAddress(address);
+
+      // Handle image URL - could be relative path or full URL
+      let imageValue = updatedUser.image || updatedUser.avatar || "";
+      if (imageValue && imageValue !== null && imageValue.trim() !== "") {
+        if (!imageValue.startsWith('http') && !imageValue.startsWith('/')) {
+          // Relative path from API - construct full URL
+          const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+          imageValue = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${imageValue}` : imageValue;
+        }
+      }
+      setUserImage(imageValue || "");
+      console.log("Header received user update:", updatedUser, "Address:", address);
+      console.log("=== End HeaderAfterLogin userUpdated event ===");
+    };
+
+    window.addEventListener('userUpdated', handleUserUpdate);
+
+    return () => {
+      window.removeEventListener('userUpdated', handleUserUpdate);
+    };
+  }, []); // Remove window.user dependency to prevent re-registering listener
+
+  // Log user data on mount for debugging
+  useEffect(() => {
+    console.log("=== HeaderAfterLogin Debug ===");
+    console.log("window.user:", window.user);
+    console.log("window.user.address:", window.user?.address);
+    console.log("window.user.user_address:", window.user?.user_address);
+    console.log("window.user.location:", window.user?.location);
+    console.log("window.user.addresses:", window.user?.addresses);
+    console.log("Current userAddress state:", userAddress);
+    console.log("=============================");
+  }, [userAddress]);
+
+  // Also log when userAddress state changes
+  useEffect(() => {
+    console.log("HeaderAfterLogin: userAddress state changed to:", userAddress);
+    console.log("HeaderAfterLogin: Current window.user.address:", window.user?.address);
+  }, [userAddress]);
+
 
   // Get total favorites count (restaurants + food trucks)
   const restaurantsCount = likedRestaurantsData?.data?.length || 0;
   const foodTrucksCount = likedFoodTrucksData?.data?.length || 0;
   const favoritesCount = restaurantsCount + foodTrucksCount;
+
+  const handleCartClick = () => {
+    if (getCartItemCount() <= 0) {
+      navigate('/cart');
+      return;
+    }
+    const rid = restaurantData?.id || items?.[0]?.restaurantId || items?.[0]?.restaurant_id;
+    if (rid) {
+      navigate(`/resturants-detail/${rid}`);
+    } else {
+      navigate('/cart');
+    }
+  };
 
   const handleLogout = () => {
     window.helper.sweetAlert(
@@ -70,7 +200,7 @@ export default function HeaderAfterLogin() {
         if (result.isConfirmed) {
           await window.helper.removeStorageData();
           window.user = "";
-          window.location.reload();
+          navigate("/auth/login");
         }
       }
     );
@@ -83,7 +213,7 @@ export default function HeaderAfterLogin() {
           <div className="flex w-full items-center justify-between md:hidden">
             {/* Logo */}
             <Link to="/" onClick={closeDrawer}>
-              <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
+              <img src={processImageUrl("/images/footer-logo.png")} alt="Logo" className="h-10" />
             </Link>
 
             {/* Right side icons */}
@@ -92,53 +222,64 @@ export default function HeaderAfterLogin() {
               <div
                 ref={mobileBellRef}
                 className="relative cursor-pointer"
-                onClick={toggleNotificationMenu}
+                onClick={handleNotificationMenuOpen}
               >
                 <Bell className="w-6 h-6 text-primary-950" />
+                {totalNotificationCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {totalNotificationCount > 99 ? '99+' : totalNotificationCount}
+                  </span>
+                )}
               </div>
-
-              {/* Menu Button */}
-              <button
-                onClick={toggleDrawer}
-                aria-label="Toggle Menu"
-                className="text-primary-950"
-              >
-                <Menu className="w-7 h-7" />
-              </button>
             </div>
-          </div>
 
-          {/* Desktop Header */}
-          <div className="hidden md:flex w-full items-center justify-between">
-            {/* Logo */}
-            <Link to="/">
-              <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
-            </Link>
-            <div className="flex items-center gap-x-1">
-              <MapPin className="text-primary-950" />
-              <p className="text-primary-950 max-w-xl truncate">
-                Your address:{" "}
-                {addressesLoading
-                  ? "Loading..."
-                  : firstAddress
-                    ? `${firstAddress.address}` || ""
-                    : window.user?.address || "No address set"}
-              </p>
+            {/* Desktop Header */}
+            <div className="hidden md:flex w-full items-center justify-between">
+              {/* Logo */}
+              <Link to="/">
+                <img src={processImageUrl("/images/footer-logo.png")} alt="Logo" className="h-10" />
+              </Link>
+              <div className="flex items-center gap-x-1">
+                <MapPin className="text-primary-950" />
+                <p className="text-primary-950 max-w-xl truncate">
+                  Your address:{" "}
+                  {userAddress || "No address set"}
+                </p>
+              </div>
             </div>
             {/* Right side buttons */}
             <div className="flex items-center space-x-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
-                  <User />
-                  {window.user?.name}
+              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer border-0 outline-none">
+                  {userImage && userImage.trim() !== "" ? (
+                    <img
+                      src={userImage}
+                      alt={userName}
+                      className="w-8 h-8 rounded-full object-cover"
+                      onError={(e) => {
+                        console.log('Avatar image failed to load:', userImage);
+                        e.target.onerror = null; // Prevent infinite loop
+                        e.target.src = processImageUrl("/images/avatar.jpg");
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={processImageUrl("/images/avatar.jpg")}
+                      alt={userName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  )}
+                  <span>{userName}</span>
                   <ChevronDown />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
                   <DropdownMenuItem
+                    onClick={() => setDropdownOpen(false)}
                     className={"p-0 bg-white hover:bg-primary-990"}
                   >
                     <Link
                       to={""}
+
                       className="flex items-center gap-x-2 w-full p-5"
                     >
                       <LayoutDashboard /> Dashboard
@@ -146,7 +287,9 @@ export default function HeaderAfterLogin() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={"p-0 bg-white hover:bg-primary-990"}
+                    onClick={() => setDropdownOpen(false)}
                   >
+
                     <Link
                       to={"/account-settings"}
                       className="flex items-center gap-x-2 w-full p-5"
@@ -156,6 +299,7 @@ export default function HeaderAfterLogin() {
                   </DropdownMenuItem>
                   {/* <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
+                  onClick={() => setDropdownOpen(false)}
                 >
                   <Link
                     to={""}
@@ -167,6 +311,7 @@ export default function HeaderAfterLogin() {
 
                   <DropdownMenuItem
                     className={"p-0 bg-white hover:bg-primary-990"}
+                    onClick={() => setDropdownOpen(false)}
                   >
                     <Link
                       to={"/favourites"}
@@ -178,9 +323,12 @@ export default function HeaderAfterLogin() {
                   <DropdownMenuSeparator className={"m-0"} />
                   <DropdownMenuItem
                     className={"p-0 bg-white hover:bg-primary-990"}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      handleLogout();
+                    }}
                   >
                     <button
-                      onClick={handleLogout}
                       className="flex items-center gap-x-2 w-full p-5 cursor-pointer"
                     >
                       <FileCheck2 /> Logout
@@ -188,14 +336,14 @@ export default function HeaderAfterLogin() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <div className="flex items-center space-x-1 cursor-pointer">
-                <Globe />
-                <span>EN</span>
-                <ChevronDown className="w-4 h-4" />
-              </div>
+              {/* <div className="flex items-center space-x-1 cursor-pointer">
+              <Globe />
+              <span>EN</span>
+              <ChevronDown className="w-4 h-4" />
+            </div> */}
               <div
                 className="relative cursor-pointer"
-                onClick={() => navigate("/order-confirmation")}
+                onClick={handleCartClick}
               >
                 <ShoppingCart className="w-6 h-6" />
                 {getCartItemCount() > 0 && (
@@ -217,10 +365,14 @@ export default function HeaderAfterLogin() {
               <div
                 ref={bellRef}
                 className="relative cursor-pointer"
-                onClick={toggleNotificationMenu}
+                onClick={handleNotificationMenuOpen}
               >
                 <Bell className="w-6 h-6" />
-                {/* Notification badge can be added here if needed */}
+                {totalNotificationCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {totalNotificationCount > 99 ? '99+' : totalNotificationCount}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -232,11 +384,13 @@ export default function HeaderAfterLogin() {
         isOpen={isNotificationOpen}
         onClose={closeNotificationMenu}
         triggerRef={mobileBellRef}
+        firebaseNotificationCount={firebaseNotificationCount}
       />
       <DesktopNotificationMenu
         isOpen={isNotificationOpen}
         onClose={closeNotificationMenu}
         triggerRef={bellRef}
+        firebaseNotificationCount={firebaseNotificationCount}
       />
 
       {/* Mobile Drawer */}
@@ -264,8 +418,25 @@ export default function HeaderAfterLogin() {
               {/* Profile Section */}
               <div className="pb-4 border-b border-gray-600">
                 <div className="flex items-center space-x-3 mb-4">
-                  <User className="w-6 h-6" />
-                  <span className="text-lg font-medium">{window.user?.name}</span>
+                  {userImage && userImage.trim() !== "" ? (
+                    <img
+                      src={processImageUrl(userImage, "/images/avatar.jpg")}
+                      alt={userName}
+                      className="w-10 h-10 rounded-full object-cover"
+                      onError={(e) => {
+                        console.log('Mobile avatar image failed to load:', userImage);
+                        e.target.onerror = null; // Prevent infinite loop
+                        e.target.src = processImageUrl("/images/avatar.jpg");
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={processImageUrl("/images/avatar.jpg")}
+                      alt={userName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  )}
+                  <span className="text-lg font-medium">{userName}</span>
                 </div>
               </div>
 
@@ -326,10 +497,7 @@ export default function HeaderAfterLogin() {
 
                 {/* Cart */}
                 <button
-                  onClick={() => {
-                    closeDrawer();
-                    navigate("/order-confirmation");
-                  }}
+                  onClick={handleCartClick}
                   className="flex items-center text-lg hover:text-primary-50 w-full mt-4"
                 >
                   <div className="relative mr-3">

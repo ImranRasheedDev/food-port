@@ -20,7 +20,19 @@ function Login() {
       reset();
       await window.helper.setStorageData("user", data?.data);
       window.user = data?.data;
-      navigate("/");
+
+      // Check if user has address after login
+      const hasAddress = !!(window.user && (
+        (Array.isArray(window.user.addresses) && window.user.addresses.length > 0) ||
+        window.user.address
+      ));
+
+      if (!hasAddress) {
+        // Navigate to home with address modal flag
+        navigate("/", { state: { showAddressModal: true } });
+      } else {
+        navigate("/");
+      }
     },
     onError: (error) => { },
   });
@@ -33,12 +45,18 @@ function Login() {
 
   const onSubmit = useCallback(
     async (data) => {
+      console.log("Starting login process...");
+
       const fcmToken = await getFcmToken();
+      console.log("FCM Token result:", fcmToken);
+
       const payload = {
         email: data.email,
         password: data.password,
         fcm_token: fcmToken || "NO_TOKEN_GENERATED",
       };
+
+      console.log("Login payload:", payload);
       loginUser.mutate(payload);
     },
     [loginUser]
