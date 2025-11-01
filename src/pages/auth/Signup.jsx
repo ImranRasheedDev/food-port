@@ -28,8 +28,8 @@ const VALIDATION_PATTERNS = {
   countryCode: /^\d{1,4}$/,
   dateOfBirth: /^\d{4}-\d{2}-\d{2}$/,
   address: /^[A-Za-z\s\-']+$/,
-  city: /^[A-Za-z\s\-']+$/,
-  zip_code: /^[0-9]{5}$/,
+  // city: /^[A-Za-z\s\-']+$/,
+  // zip_code: /^[0-9]{5}$/,
 };
 
 function Signup() {
@@ -54,8 +54,8 @@ function Signup() {
       dob: "",
       gender: "",
       address: "",
-      city: "",
-      zip_code: "",
+      // city: "",
+      // zip_code: "",
       latitude: "",
       longitude: "",
     },
@@ -65,7 +65,7 @@ function Signup() {
   const isSubmittingRef = useRef(false);
 
   const addAddress = useAddAddress({
-    onSuccess: () => {},
+    onSuccess: () => { },
   });
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
@@ -74,24 +74,24 @@ function Signup() {
       // Capture form values BEFORE reset
       const formValues = getValues();
       console.log("formValues before reset", formValues);
-      
+
       // Create user data with form values included
       const userWithAddress = {
         ...data?.data,
         address: formValues.address || "",
         latitude: formValues.latitude || "",
         longitude: formValues.longitude || "",
-        city: formValues.city || "",
-        zip_code: formValues.zip_code || "",
+        // city: formValues.city || "",
+        // zip_code: formValues.zip_code || "",
       };
-      
+
       // Save to storage and global user store
       await window.helper.setStorageData("user", userWithAddress);
       window.user = userWithAddress;
-      
+
       // Reset form after saving values
       reset();
-      
+
       try {
         const addressPayload = {
           name: formValues.name || data?.data?.name || "",
@@ -99,28 +99,28 @@ function Signup() {
           latitude: formValues.latitude || "",
           longitude: formValues.longitude || "",
         };
-        
+
         // Only add address if address data is available
-        if (addressPayload.address && addressPayload.address.trim() !== "" && 
-            addressPayload.latitude && addressPayload.longitude) {
+        if (addressPayload.address && addressPayload.address.trim() !== "" &&
+          addressPayload.latitude && addressPayload.longitude) {
           addAddress.mutate(addressPayload, {
             onSuccess: (addressData) => {
-        
+
               // Merge address data with existing user data in global store
               const updatedUser = {
                 ...window.user,
                 address: formValues.address || "",
                 latitude: formValues.latitude || "",
                 longitude: formValues.longitude || "",
-                city: formValues.city || "",
-                zip_code: formValues.zip_code || "",
+                // city: formValues.city || "",
+                // zip_code: formValues.zip_code || "",
                 address_data: addressData?.data || null // Store the full address response
               };
-              
+
               // Update global user store with address data
               window.helper.setStorageData("user", updatedUser);
               window.user = updatedUser;
-              
+
               isSubmittingRef.current = false;
               navigate("/");
             },
@@ -136,14 +136,14 @@ function Signup() {
             address: formValues.address || "",
             latitude: formValues.latitude || "",
             longitude: formValues.longitude || "",
-            city: formValues.city || "",
-            zip_code: formValues.zip_code || ""
+            // city: formValues.city || "",
+            // zip_code: formValues.zip_code || ""
           };
-          
+
           // Update global user store with form address data
           window.helper.setStorageData("user", updatedUser);
           window.user = updatedUser;
-          
+
           isSubmittingRef.current = false;
           navigate("/");
         }
@@ -159,8 +159,8 @@ function Signup() {
   });
 
   const onSubmit = useCallback(
-   async (data) => {
-    const fcmToken = await getFcmToken();
+    async (data) => {
+      const fcmToken = await getFcmToken();
       if (registerUser.isPending || addAddress.isPending || isSubmittingRef.current) {
         return;
       }
@@ -174,10 +174,10 @@ function Signup() {
         number: data.number,
         country_code: data.country_code,
         dob: data.dob,
-        gender: data.gender === 'male' ? 1 : 0, // Convert to number: male=1, female=0
+        gender: data.gender === 'male' ? 1 : 2, // Convert to number: male=1, female=2
         address: data.address,
-        city: data.city,
-        zip_code: data.zip_code,
+        //  city: data.city,
+        // zip_code: data.zip_code,
         fcm_token: fcmToken || "NO_TOKEN_GENERATED",
       };
 
@@ -347,7 +347,7 @@ function Signup() {
           })}
           error={errors.address?.message}
         /> */}
-        <InputWithIcon
+        {/* <InputWithIcon
           id="city"
           type="text"
           placeholder="City"
@@ -383,7 +383,7 @@ function Signup() {
           }
           {...register("zip_code")}
           error={errors.zip_code?.message}
-        />
+        /> */}
         <InputWithIcon
           id="dob"
           type="date"
@@ -403,7 +403,7 @@ function Signup() {
           control={control}
           rules={{ required: "Gender is required" }}
           render={({ field, fieldState }) => (
-            <div>
+            <div className="w-full ">
               <Select
                 value={field.value}
                 onValueChange={(value) => {
@@ -415,9 +415,13 @@ function Signup() {
                     }
                   }, 0);
                 }}
-                className="w-full h-14 rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
               >
-                <SelectTrigger className={`w-[100] ${fieldState.error ? 'border-red-500' : ''}`}>
+                <SelectTrigger
+                  className={`w-full h-14! rounded-full border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 pl-6 pr-6 ${fieldState.error ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                  aria-invalid={fieldState.error ? "true" : "false"}
+                  aria-describedby={fieldState.error ? "gender-error" : undefined}
+                >
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -428,12 +432,19 @@ function Signup() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              {fieldState.error && (
+                <p
+                  id="gender-error"
+                  className="mt-2 text-sm text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  {fieldState.error.message}
+                </p>
+              )}
             </div>
           )}
         />
-        {errors.gender && (
-          <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
-        )}
         {/* Create Account Button */}
         <div className="pt-6">
           <AuthButton

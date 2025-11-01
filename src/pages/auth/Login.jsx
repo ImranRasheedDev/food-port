@@ -2,8 +2,8 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { InputWithIcon } from "@/components/auth/InputWithIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { SeparatorOR } from "@/components/auth/SeparatorOR";
-import { SocialButton } from "@/components/auth/SocialButton";
+// import { SeparatorOR } from "@/components/auth/SeparatorOR";
+// import { SocialButton } from "@/components/auth/SocialButton";
 import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import { useLoginUser } from "@/hooks/api";
 import { getFcmToken } from "@/lib/generateFcmToken";
 function Login() {
   const [loading, setLoading] = useState(false);
- 
+
 
   const navigate = useNavigate();
   const loginUser = useLoginUser({
@@ -22,7 +22,7 @@ function Login() {
       window.user = data?.data;
       navigate("/");
     },
-    onError: (error) => {},
+    onError: (error) => { },
   });
   const {
     register,
@@ -32,8 +32,8 @@ function Login() {
   } = useForm();
 
   const onSubmit = useCallback(
-   async (data) => {
-    const fcmToken = await getFcmToken();
+    async (data) => {
+      const fcmToken = await getFcmToken();
       const payload = {
         email: data.email,
         password: data.password,
@@ -57,7 +57,7 @@ function Login() {
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Social Login Buttons */}
-        <div className="space-y-3">
+        {/* <div className="space-y-3">
           <SocialButton
             provider="facebook"
             onClick={() => handleSocialLogin("Facebook")}
@@ -66,9 +66,9 @@ function Login() {
             provider="google"
             onClick={() => handleSocialLogin("Google")}
           />
-        </div>
+        </div> */}
 
-        <SeparatorOR />
+        {/* <SeparatorOR /> */}
 
         {/* Email Input */}
         <InputWithIcon

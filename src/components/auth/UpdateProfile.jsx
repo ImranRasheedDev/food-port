@@ -17,6 +17,12 @@ const VALIDATION_PATTERNS = {
 };
 
 const UpdateProfile = () => {
+  // Split full name into first and last name
+  const fullName = window.user?.name || "";
+  const nameParts = fullName.trim().split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
   const {
     register,
     handleSubmit,
@@ -25,7 +31,8 @@ const UpdateProfile = () => {
   } = useForm({
     mode: "onBlur",
     defaultValues: {
-      name: window.user?.name || "",
+      first_name: firstName,
+      last_name: lastName,
       email: window.user?.email || "",
       number: window.user?.number || "",
       country_code: window.user?.country_code || "",
@@ -48,7 +55,22 @@ const UpdateProfile = () => {
       };
       await window.helper.setStorageData("user", updatedUser);
       window.user = updatedUser;
-      reset(userData);
+
+      // Split the updated name for form reset
+      const updatedFullName = userData.name || "";
+      const updatedNameParts = updatedFullName.trim().split(" ");
+      const updatedFirstName = updatedNameParts[0] || "";
+      const updatedLastName = updatedNameParts.slice(1).join(" ") || "";
+
+      reset({
+        first_name: updatedFirstName,
+        last_name: updatedLastName,
+        email: userData.email,
+        number: userData.number,
+        country_code: userData.country_code,
+        dob: userData.dob,
+        gender: userData.gender?.id || userData.gender,
+      });
     },
     onError: () => {
       isSubmittingRef.current = false;
@@ -70,8 +92,11 @@ const UpdateProfile = () => {
         number = phone.slice(phone.length - 10); // last 10 digits as local number
       }
 
+      // Concatenate first name and last name into single name field
+      const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
       const payload = {
-        name: data.name,
+        name: fullName,
         email: data.email,
         number: data.number,
         country_code: data.country_code,
@@ -98,24 +123,45 @@ const UpdateProfile = () => {
             />
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
-            {/* Full Name */}
+            {/* First Name */}
             <div>
               <label
-                htmlFor="name"
+                htmlFor="first_name"
                 className="text-primary-1008 font-normal mb-2 block"
               >
-                Full Name
+                First Name
               </label>
               <input
                 type="text"
-                id="name"
+                id="first_name"
                 className="border w-full border-primary-1007 h-11 px-5"
-                {...register("name", {
-                  required: "Full Name is required",
+                {...register("first_name", {
+                  required: "First Name is required",
                 })}
               />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              {errors.first_name && (
+                <p className="text-red-500 text-sm">{errors.first_name.message}</p>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label
+                htmlFor="last_name"
+                className="text-primary-1008 font-normal mb-2 block"
+              >
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                className="border w-full border-primary-1007 h-11 px-5"
+                {...register("last_name", {
+                  required: "Last Name is required",
+                })}
+              />
+              {errors.last_name && (
+                <p className="text-red-500 text-sm">{errors.last_name.message}</p>
               )}
             </div>
 
@@ -237,7 +283,7 @@ const UpdateProfile = () => {
                   reset((prev) => ({ ...prev, gender: val }))
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-11! rounded-none border-primary-1007">
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
                 <SelectContent>

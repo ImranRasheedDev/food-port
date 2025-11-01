@@ -46,7 +46,7 @@ export default function HeaderAfterLogin() {
 
   // Fetch all addresses using the /address endpoint
   const { data: addresses, isLoading: addressesLoading } = useAllAddresses();
-  
+
   // Fetch liked restaurants and food trucks for favorites count
   const { data: likedRestaurantsData } = useLikedRestaurants();
   const { data: likedFoodTrucksData } = useLikedFoodTrucks();
@@ -77,84 +77,84 @@ export default function HeaderAfterLogin() {
   };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
-      <LayoutWrapper> 
-      <div className="px-4 py-4 flex items-center justify-between">
-        {/* Mobile: Menu + Logo */}
-        <div className="flex w-full items-center justify-between md:hidden">
-          {/* Logo */}
-          <Link to="/" onClick={closeDrawer}>
-            <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
-          </Link>
+      <LayoutWrapper>
+        <div className="px-4 py-4 flex items-center justify-between">
+          {/* Mobile: Menu + Logo */}
+          <div className="flex w-full items-center justify-between md:hidden">
+            {/* Logo */}
+            <Link to="/" onClick={closeDrawer}>
+              <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
+            </Link>
 
-          {/* Right side icons */}
-          <div className="flex items-center space-x-3">
-            {/* Notification Bell */}
-            <div 
-              ref={mobileBellRef}
-              className="relative cursor-pointer"
-              onClick={toggleNotificationMenu}
-            >
-              <Bell className="w-6 h-6 text-primary-950" />
+            {/* Right side icons */}
+            <div className="flex items-center space-x-3">
+              {/* Notification Bell */}
+              <div
+                ref={mobileBellRef}
+                className="relative cursor-pointer"
+                onClick={toggleNotificationMenu}
+              >
+                <Bell className="w-6 h-6 text-primary-950" />
+              </div>
+
+              {/* Menu Button */}
+              <button
+                onClick={toggleDrawer}
+                aria-label="Toggle Menu"
+                className="text-primary-950"
+              >
+                <Menu className="w-7 h-7" />
+              </button>
             </div>
-            
-            {/* Menu Button */}
-            <button
-              onClick={toggleDrawer}
-              aria-label="Toggle Menu"
-              className="text-primary-950"
-            >
-              <Menu className="w-7 h-7" />
-            </button>
           </div>
-        </div>
 
-        {/* Desktop Header */}
-        <div className="hidden md:flex w-full items-center justify-between">
-          {/* Logo */}
-          <Link to="/">
-            <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
-          </Link>
-          <div className="flex items-center gap-x-1">
-            <MapPin className="text-primary-950" />
-            <p className="text-primary-950 max-w-xl truncate">
-              Your address:{" "}
-              {addressesLoading
-                ? "Loading..."
-                : firstAddress
-                ? `${firstAddress.address}` || ""
-                : window.user?.address || "No address set"}
-            </p>
-          </div>
-          {/* Right side buttons */}
-          <div className="flex items-center space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
-                <User />
-                {window.user?.name}
-                <ChevronDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
-                <DropdownMenuItem
-                  className={"p-0 bg-white hover:bg-primary-990"}
-                >
-                  <Link
-                    to={""}
-                    className="flex items-center gap-x-2 w-full p-5"
+          {/* Desktop Header */}
+          <div className="hidden md:flex w-full items-center justify-between">
+            {/* Logo */}
+            <Link to="/">
+              <img src="/images/footer-logo.png" alt="Logo" className="h-10" />
+            </Link>
+            <div className="flex items-center gap-x-1">
+              <MapPin className="text-primary-950" />
+              <p className="text-primary-950 max-w-xl truncate">
+                Your address:{" "}
+                {addressesLoading
+                  ? "Loading..."
+                  : firstAddress
+                    ? `${firstAddress.address}` || ""
+                    : window.user?.address || "No address set"}
+              </p>
+            </div>
+            {/* Right side buttons */}
+            <div className="flex items-center space-x-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center space-x-1 cursor-pointer border-0 ouline-none">
+                  <User />
+                  {window.user?.name}
+                  <ChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
+                  <DropdownMenuItem
+                    className={"p-0 bg-white hover:bg-primary-990"}
                   >
-                    <LayoutDashboard /> Dashboard
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className={"p-0 bg-white hover:bg-primary-990"}
-                >
-                  <Link
-                    to={"/account-settings"}
-                    className="flex items-center gap-x-2 w-full p-5"
+                    <Link
+                      to={""}
+                      className="flex items-center gap-x-2 w-full p-5"
+                    >
+                      <LayoutDashboard /> Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className={"p-0 bg-white hover:bg-primary-990"}
                   >
-                    <User /> Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                    <Link
+                      to={"/account-settings"}
+                      className="flex items-center gap-x-2 w-full p-5"
+                    >
+                      <User /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem
                   className={"p-0 bg-white hover:bg-primary-990"}
                 >
                   <Link
@@ -163,78 +163,78 @@ export default function HeaderAfterLogin() {
                   >
                     <Megaphone /> Advertise yourself
                   </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
 
-                <DropdownMenuItem
-                  className={"p-0 bg-white hover:bg-primary-990"}
-                >
-                  <Link
-                    to={"/favourites"}
-                    className="flex items-center gap-x-2 w-full p-5"
+                  <DropdownMenuItem
+                    className={"p-0 bg-white hover:bg-primary-990"}
                   >
-                    <Heart /> My Favourites
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className={"m-0"} />
-                <DropdownMenuItem
-                  className={"p-0 bg-white hover:bg-primary-990"}
-                >
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-x-2 w-full p-5 cursor-pointer"
+                    <Link
+                      to={"/favourites"}
+                      className="flex items-center gap-x-2 w-full p-5"
+                    >
+                      <Heart /> My Favourites
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className={"m-0"} />
+                  <DropdownMenuItem
+                    className={"p-0 bg-white hover:bg-primary-990"}
                   >
-                    <FileCheck2 /> Logout
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className="flex items-center space-x-1 cursor-pointer">
-              <Globe />
-              <span>EN</span>
-              <ChevronDown className="w-4 h-4" />
-            </div>
-            <div
-              className="relative cursor-pointer"
-              onClick={() => navigate("/order-confirmation")}
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {getCartItemCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {getCartItemCount()}
-                </span>
-              )}
-            </div>
-            <div className="relative cursor-pointer">
-              <Link to={"/favourites"}>
-                <Heart className="w-6 h-6" />
-              </Link>
-              {favoritesCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {favoritesCount}
-                </span>
-              )}
-            </div>
-            <div 
-              ref={bellRef}
-              className="relative cursor-pointer"
-              onClick={toggleNotificationMenu}
-            >
-              <Bell className="w-6 h-6" />
-              {/* Notification badge can be added here if needed */}
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-x-2 w-full p-5 cursor-pointer"
+                    >
+                      <FileCheck2 /> Logout
+                    </button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <div className="flex items-center space-x-1 cursor-pointer">
+                <Globe />
+                <span>EN</span>
+                <ChevronDown className="w-4 h-4" />
+              </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={() => navigate("/order-confirmation")}
+              >
+                <ShoppingCart className="w-6 h-6" />
+                {getCartItemCount() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {getCartItemCount()}
+                  </span>
+                )}
+              </div>
+              <div className="relative cursor-pointer">
+                <Link to={"/favourites"}>
+                  <Heart className="w-6 h-6" />
+                </Link>
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </div>
+              <div
+                ref={bellRef}
+                className="relative cursor-pointer"
+                onClick={toggleNotificationMenu}
+              >
+                <Bell className="w-6 h-6" />
+                {/* Notification badge can be added here if needed */}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </LayoutWrapper>
 
       {/* Notification Menus */}
-      <NotificationMenu 
-        isOpen={isNotificationOpen} 
+      <NotificationMenu
+        isOpen={isNotificationOpen}
         onClose={closeNotificationMenu}
         triggerRef={mobileBellRef}
       />
-      <DesktopNotificationMenu 
-        isOpen={isNotificationOpen} 
+      <DesktopNotificationMenu
+        isOpen={isNotificationOpen}
         onClose={closeNotificationMenu}
         triggerRef={bellRef}
       />
@@ -278,7 +278,7 @@ export default function HeaderAfterLogin() {
                 <LayoutDashboard className="w-5 h-5" />
                 <span>Dashboard</span>
               </Link>
-              
+
               <Link
                 to="/account-settings"
                 onClick={closeDrawer}

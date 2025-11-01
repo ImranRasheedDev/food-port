@@ -11,55 +11,55 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm">
-      <LayoutWrapper> 
-      <div className=" py-4 flex items-center justify-between">
-        {/* Mobile: Menu + Logo */}
-        <div className="flex w-full items-center justify-between md:hidden">
-          {/* Menu Icon */}
+      <LayoutWrapper>
+        <div className=" py-4 flex items-center justify-between">
+          {/* Mobile: Menu + Logo */}
+          <div className="flex w-full items-center justify-between md:hidden">
+            {/* Menu Icon */}
 
-          {/* Logo */}
-          <Link to="/" onClick={closeDrawer}>
-            <img src="/images/logo.png" alt="Logo" className="h-10" />
-          </Link>
-
-          <button
-            onClick={toggleDrawer}
-            aria-label="Toggle Menu"
-            className="text-white"
-          >
-            <Menu className="w-7 h-7" />
-          </button>
-        </div>
-
-        {/* Desktop Header */}
-        <div className="hidden md:flex w-full items-center justify-between">
-          {/* Logo */}
-          <Link to="/">
-            <img src="/images/logo.png" alt="Logo" className="h-10" />
-          </Link>
-
-          {/* Right side buttons */}
-          <div className="flex items-center space-x-4">
-            <Link
-              to="/auth/login"
-              className="flex justify-center items-center border bg-transparent border-white text-white rounded-full px-12 h-12 hover:bg-white hover:text-black"
-            >
-              Login
+            {/* Logo */}
+            <Link to="/" onClick={closeDrawer}>
+              <img src="/images/logo.png" alt="Logo" className="h-10" />
             </Link>
-            <Link
-              to="/auth/signup"
-              className="flex justify-center items-center border border-primary-50 bg-primary-50 hover:bg-red-600 text-white rounded-full h-12 px-12"
+
+            <button
+              onClick={toggleDrawer}
+              aria-label="Toggle Menu"
+              className="text-white"
             >
-              Sign-Up
+              <Menu className="w-7 h-7" />
+            </button>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex w-full items-center justify-between">
+            {/* Logo */}
+            <Link to="/">
+              <img src="/images/logo.png" alt="Logo" className="h-10" />
             </Link>
-            <div className="flex items-center space-x-1 text-white cursor-pointer pl-6">
+
+            {/* Right side buttons */}
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/auth/login"
+                className="flex justify-center items-center border bg-transparent border-white text-white rounded-full px-12 h-12 hover:bg-white hover:text-black"
+              >
+                Login
+              </Link>
+              <Link
+                to="/auth/signup"
+                className="flex justify-center items-center border border-primary-50 bg-primary-50 hover:bg-red-600 text-white rounded-full h-12 px-12"
+              >
+                Sign-Up
+              </Link>
+              {/* <div className="flex items-center space-x-1 text-white cursor-pointer pl-6">
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
+            </div> */}
+              <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
             </div>
-            <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
           </div>
         </div>
-      </div>
       </LayoutWrapper>
 
       {/* Mobile Drawer */}

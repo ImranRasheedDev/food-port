@@ -1,8 +1,8 @@
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-import DealDiscountCard from "./DealDiscountCard";
+// import DealDiscountCard from "./DealDiscountCard";
 import { Trash2, Minus, Plus } from "lucide-react";
-import CardOne from "./AdsCards/CardOne";
+// import CardOne from "./AdsCards/CardOne";
 
 export default function DynamicCart({
   restaurantData: propRestaurantData,
@@ -36,12 +36,12 @@ export default function DynamicCart({
             Your cart is empty
           </h3>
           <p className="text-gray-500 text-sm">
-          You haven't added anything
-          to your cart!
+            You haven't added anything
+            to your cart!
           </p>
         </div>
 
-        
+
       </div>
     );
   }
@@ -150,7 +150,7 @@ export default function DynamicCart({
       </div>
 
       {/* Ads inside cart */}
-      {Array.isArray(ads) && ads.length > 0 && (
+      {/* {Array.isArray(ads) && ads.length > 0 && (
         <div className="space-y-6 mb-6">
           {ads.length > 3 && (
             <CardOne
@@ -167,7 +167,7 @@ export default function DynamicCart({
             />
           ))}
         </div>
-      )}
+      )} */}
 
       {/* Total and Confirm */}
       <div className="pt-2 pb-3">

@@ -84,7 +84,7 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
     time,
     rating: r.rating || 0,
     isLiked: r.is_like || false, // Get liked status from API
-    onFavoriteClick: () => {},
+    onFavoriteClick: () => { },
     link: `/resturants-detail/${r.id}`,
   };
 }
@@ -185,7 +185,7 @@ const AllResturantsSection = ({ filters = {} }) => {
   const apiReturnedEmpty = apiArray && apiArray.length === 0;
 
 
-  console.log(apiArray,"apiArray")
+  console.log(apiArray, "apiArray")
 
   // Calculate total count from the large dataset
   const estimatedTotal = totalData?.data?.length || null;
@@ -268,8 +268,8 @@ const AllResturantsSection = ({ filters = {} }) => {
   // Show pagination when multiple pages exist (if known) or when prev/next is possible
   const showPagination =
     hasApiData && (totalPages ? totalPages > 1 : hasNextPage || hasPrevPage);
-  
-  console.log(restaurants,"restaurants11")
+
+  console.log(restaurants, "restaurants11")
 
   return (
     <div>
@@ -292,10 +292,10 @@ const AllResturantsSection = ({ filters = {} }) => {
                 name={card.name}
                 description={card.description}
                 image={card.image}
-                location={window.helper.getCountryName(card.country_code)}
-                distance={card.distance}
+                // location={window.helper.getCountryName(card.country_code)}
+                // distance={card.distance}
                 rating={card.rating}
-                time={card.time}
+                // time={card.time}
                 onFavoriteClick={card.onFavoriteClick}
                 isLiked={card.isLiked}
                 restaurantId={card.key}
@@ -318,7 +318,7 @@ const AllResturantsSection = ({ filters = {} }) => {
                 image={restaurant.image}
                 location={window.helper.getCountryName(restaurant.country_code)}
                 name={restaurant.name}
-                onFavoriteClick={() => {}}
+                onFavoriteClick={() => { }}
                 rating={restaurant.rating}
                 time={restaurant.time}
                 isLiked={false}
