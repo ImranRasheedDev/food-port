@@ -42,7 +42,7 @@ const UpdateProfile = () => {
       number: window.user?.number || "",
       country_code: window.user?.country_code || "",
       dob: window.user?.dob || "",
-      gender: window.user?.gender?.id === 0 ? "0" : (window.user?.gender?.id ? String(window.user.gender.id) : "1"),
+      gender: window.user?.gender?.id ? String(window.user.gender.id) : "1",
       image: window.user?.image || "",
     },
   });
@@ -110,6 +110,9 @@ const UpdateProfile = () => {
       const userData = data?.data || {};
       const access_token = window?.user?.access_token;
 
+      console.log('=== UpdateProfile: Profile update successful ===');
+      console.log('UpdateProfile: API response data:', userData);
+
       // Preserve address and location data that might not be returned by API
       const preservedFields = {
         address: window.user?.address || "",
@@ -122,6 +125,8 @@ const UpdateProfile = () => {
         address_data: window.user?.address_data || null,
       };
 
+      console.log('UpdateProfile: Preserved address fields:', preservedFields);
+
       // Merge with existing window.user to preserve address and other fields
       const updatedUser = {
         ...window.user, // Preserve existing fields like address, latitude, longitude, etc.
@@ -130,14 +135,22 @@ const UpdateProfile = () => {
         ...(access_token ? { access_token } : {}),
       };
 
+      console.log('UpdateProfile: Updated user object:', updatedUser);
+      console.log('UpdateProfile: Updated user name:', updatedUser.name);
+      console.log('UpdateProfile: Updated user image:', updatedUser.image);
+      console.log('UpdateProfile: Updated user address:', updatedUser.address);
+
+      // Save to storage first
       await window.helper.setStorageData("user", updatedUser);
+
+      // Then update window.user
       window.user = updatedUser;
 
       // Update image preview if new image is returned from server
       if (userData.image) {
         // Clean the image path - remove escaped slashes
         const cleanImagePath = userData.image.replace(/\\\//g, '/');
-        console.log(' image path:', cleanImagePath);
+        console.log('UpdateProfile: Cleaned image path:', cleanImagePath);
 
         // Try different approaches to construct the image URL
         let imageUrl;
@@ -152,21 +165,38 @@ const UpdateProfile = () => {
           const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
           imageUrl = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${cleanImagePath}` : cleanImagePath;
         }
-        console.log('Setting image preview to:', imageUrl);
+        console.log('UpdateProfile: Setting image preview to:', imageUrl);
         setImagePreview(imageUrl);
       } else {
-        console.log('No image returned from server');
+        console.log('UpdateProfile: No image returned from server');
       }
 
       // Clear selected image since it's now saved
       setSelectedImage(null);
 
       // Dispatch custom event to notify other components of user update
+      console.log('UpdateProfile: Dispatching userUpdated event with data:', updatedUser);
       window.dispatchEvent(new CustomEvent('userUpdated', { detail: updatedUser }));
+      console.log('UpdateProfile: userUpdated event dispatched');
 
-      // Show success toast after all operations complete
+      // Split the updated name for form reset (like initial load)
+      const updatedFullName = userData.name || "";
+      const updatedNameParts = updatedFullName.trim().split(" ");
+      const updatedFirstName = updatedNameParts[0] || "";
+      const updatedLastName = updatedNameParts.slice(1).join(" ") || "";
 
-      reset(userData);
+      reset({
+        first_name: updatedFirstName,
+        last_name: updatedLastName,
+        email: userData.email,
+        number: userData.number,
+        country_code: userData.country_code,
+        dob: userData.dob,
+        gender: userData.gender?.id ? String(userData.gender.id) : "1",
+        image: userData.image || "",
+      });
+
+      console.log('=== UpdateProfile: Profile update complete ===');
     },
     onError: () => {
       isSubmittingRef.current = false;
@@ -188,23 +218,26 @@ const UpdateProfile = () => {
         number = phone.slice(phone.length - 10); // last 10 digits as local number
       }
 
+      // Concatenate first name and last name into single name field (like Signup.jsx)
+      const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
       // Create FormData for file upload
       const formData = new FormData();
-      formData.append('name', data.name);
+      formData.append('name', fullName);
       formData.append('email', data.email);
       formData.append('number', data.number);
       formData.append('country_code', data.country_code);
       formData.append('dob', data.dob);
 
       // Handle gender - ensure it's a valid number
-      // Convert string value to number (1 = Male, 0 = Female)
+      // Convert string value to number (1 = Male, 2 = Female) - matches Signup.jsx
       let genderNumber;
       const genderValue = data.gender;
 
       if (genderValue === '1' || genderValue === 1) {
         genderNumber = 1; // Male
-      } else if (genderValue === '0' || genderValue === 0) {
-        genderNumber = 0; // Female
+      } else if (genderValue === '2' || genderValue === 2) {
+        genderNumber = 2; // Female
       } else {
         // Default to existing gender or Male if not set
         genderNumber = window.user?.gender?.id !== undefined ? window.user.gender.id : 1;
@@ -214,7 +247,7 @@ const UpdateProfile = () => {
       formData.append('gender', genderNumber);
 
       console.log('Form data being sent:', {
-        name: data.name,
+        name: fullName,
         email: data.email,
         number: data.number,
         country_code: data.country_code,
@@ -240,46 +273,48 @@ const UpdateProfile = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Image - Centered on mobile */}
-          <div className="flex justify-center md:justify-start">
-            <div className="relative group cursor-pointer" onClick={handleImageClick}>
-              <img
-                src={imagePreview || (window.user?.image ? (() => {
-                  // Clean the image path - remove escaped slashes
-                  const cleanImagePath = window.user.image.replace(/\\\//g, '/');
-                  console.log('Image display - cleanImagePath:', cleanImagePath);
-                  if (cleanImagePath.startsWith('http')) {
-                    return cleanImagePath;
-                  } else if (cleanImagePath.startsWith('/')) {
-                    return processImageUrl(cleanImagePath);
-                  } else {
-                    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-                    const fullUrl = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${cleanImagePath}` : cleanImagePath;
-                    console.log('Image display - fullUrl:', fullUrl);
-                    return fullUrl;
-                  }
-                })() : processImageUrl("/images/avatar.jpg"))}
-                alt="Profile"
-                className="w-32 h-32 md:w-32 md:h-32 rounded-full object-cover"
-                onError={(e) => {
-                  console.log('Image failed to load:', e.target.src);
-                  e.target.src = processImageUrl("/images/avatar.jpg");
-                }}
-                onLoad={(e) => {
-                  console.log('Image loaded successfully:', e.target.src);
-                }}
-              />
-              {/* Camera icon overlay on hover */}
-              <div className="absolute inset-0 w-32 h-32 md:w-32 md:h-32 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Camera className="w-6 h-6 text-white" />
+          <div>
+            <div className="flex justify-center md:justify-start">
+              <div className="relative group cursor-pointer" onClick={handleImageClick}>
+                <img
+                  src={imagePreview || (window.user?.image ? (() => {
+                    // Clean the image path - remove escaped slashes
+                    const cleanImagePath = window.user.image.replace(/\\\//g, '/');
+                    console.log('Image display - cleanImagePath:', cleanImagePath);
+                    if (cleanImagePath.startsWith('http')) {
+                      return cleanImagePath;
+                    } else if (cleanImagePath.startsWith('/')) {
+                      return processImageUrl(cleanImagePath);
+                    } else {
+                      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+                      const fullUrl = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${cleanImagePath}` : cleanImagePath;
+                      console.log('Image display - fullUrl:', fullUrl);
+                      return fullUrl;
+                    }
+                  })() : processImageUrl("/images/avatar.jpg"))}
+                  alt="Profile"
+                  className="w-32 h-32 md:w-32 md:h-32 rounded-full object-cover"
+                  onError={(e) => {
+                    console.log('Image failed to load:', e.target.src);
+                    e.target.src = processImageUrl("/images/avatar.jpg");
+                  }}
+                  onLoad={(e) => {
+                    console.log('Image loaded successfully:', e.target.src);
+                  }}
+                />
+                {/* Camera icon overlay on hover */}
+                <div className="absolute inset-0 w-32 h-32 md:w-32 md:h-32 bg-black/50 bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
               </div>
-              {/* Hidden file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageSelect}
-                className="hidden"
-              />
             </div>
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
@@ -336,15 +371,10 @@ const UpdateProfile = () => {
               <input
                 type="email"
                 disabled={true}
+                readOnly={true}
                 id="email"
-                className="border w-full border-primary-1007 h-11 px-5"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Invalid email address",
-                  },
-                })}
+                className="border w-full border-primary-1007 h-11 px-5 cursor-not-allowed opacity-50"
+                value={window.user?.email}
               />
               {errors.email && (
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -352,9 +382,9 @@ const UpdateProfile = () => {
             </div>
 
             {/* Phone + Country Code */}
-            <div className="col-span-1 sm:col-span-2">
-              <div className="grid grid-cols-3 gap-2">
-                <div>
+            <div >
+              <div className="flex gap-2">
+                <div className="w-[120px]">
                   <label
                     htmlFor="country_code"
                     className="text-primary-1008 font-normal mb-2 block"
@@ -379,7 +409,7 @@ const UpdateProfile = () => {
                     </p>
                   )}
                 </div>
-                <div className="col-span-2">
+                <div className="flex-1">
                   <label
                     htmlFor="number"
                     className="text-primary-1008 font-normal mb-2 block"
@@ -438,7 +468,7 @@ const UpdateProfile = () => {
                 Gender
               </label>
               <Select
-                value={watch('gender') || String(window.user?.gender?.id === 0 ? '0' : (window.user?.gender?.id || '1'))}
+                value={watch('gender') || String(window.user?.gender?.id || '1')}
                 onValueChange={(val) => {
                   setValue('gender', val);
                 }}
@@ -450,7 +480,7 @@ const UpdateProfile = () => {
                   <SelectGroup>
                     <SelectLabel>Select Gender</SelectLabel>
                     <SelectItem value="1">Male</SelectItem>
-                    <SelectItem value="0">Female</SelectItem>
+                    <SelectItem value="2">Female</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

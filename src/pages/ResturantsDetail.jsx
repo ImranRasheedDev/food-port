@@ -39,28 +39,28 @@ export default function ResturantsDetail() {
 
   // Get restaurant data (will be undefined if loading or error)
   const restaurant = restaurantData?.data;
-  
+
   // Get banner ads data
   const bannerAds = bannerAdsData?.data || [];
-  
+
   // Lazy loading for left side ads
-  const { 
-    ads: leftAds, 
-    isLoading: leftLoading, 
-    hasMore: leftHasMore, 
-    containerRef: leftContainerRef, 
-    loadingRef: leftLoadingRef 
+  const {
+    ads: leftAds,
+    isLoading: leftLoading,
+    hasMore: leftHasMore,
+    containerRef: leftContainerRef,
+    loadingRef: leftLoadingRef
   } = useLazyAds(3);
-  
+
   // Lazy loading for right side ads
-  const { 
-    ads: rightAds, 
-    isLoading: rightLoading, 
-    hasMore: rightHasMore, 
-    containerRef: rightContainerRef, 
-    loadingRef: rightLoadingRef 
+  const {
+    ads: rightAds,
+    isLoading: rightLoading,
+    hasMore: rightHasMore,
+    containerRef: rightContainerRef,
+    loadingRef: rightLoadingRef
   } = useLazyAds(3);
-  
+
   // Get product categories for menu (empty array if no data)
   const allProductCategories = restaurant?.product_categories || [];
   // Filter categories and products based on search term - MUST be before early returns
@@ -70,10 +70,10 @@ export default function ResturantsDetail() {
     }
 
     const searchLower = searchTerm.toLowerCase();
-    
+
     return allProductCategories
       .map(category => {
-        const filteredProducts = category.products?.filter(product => 
+        const filteredProducts = category.products?.filter(product =>
           product.name.toLowerCase().includes(searchLower) ||
           product.description?.toLowerCase().includes(searchLower)
         ) || [];
@@ -83,8 +83,8 @@ export default function ResturantsDetail() {
           products: filteredProducts
         };
       })
-      .filter(category => 
-        category.products.length > 0 || 
+      .filter(category =>
+        category.products.length > 0 ||
         category.name.toLowerCase().includes(searchLower)
       );
   }, [allProductCategories, searchTerm]);
@@ -143,9 +143,9 @@ export default function ResturantsDetail() {
   // Get restaurant categories as tags
   const tags = restaurant?.restaurant_categories?.map((cat) => cat.name) || [];
 
-  console.log(filteredCategories,"filteredCategories")
+  console.log(filteredCategories, "filteredCategories")
 
-const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/images/deals-14.png","/images/add-card-two.png"]
+  const staticImages = ["/images/add-card-one.png", "/images/add-card-two.png", "/images/deals-14.png", "/images/add-card-two.png"]
   return (
     <>
 
@@ -215,14 +215,14 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Show Deals and Discounts after the first category only */}
                   {index === 0 && (
                     <div className="mb-10">
-                      <DealsAndDiscounts 
-                        restaurants={bannerAds} 
-                        isLoading={false} 
-                        hasApiData={false} 
+                      <DealsAndDiscounts
+                        restaurants={bannerAds}
+                        isLoading={false}
+                        hasApiData={false}
                         apiReturnedEmpty={false}
                         hideRestaurantCards={true}
                         image={staticImages[index % staticImages.length]}
@@ -237,7 +237,7 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
                       </div>
                     )
                   }
-                
+
                 </React.Fragment>
               ))
             ) : (
@@ -248,7 +248,7 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
                 </div>
               </div>
             )}
-            
+
             <div className="mb-10">
               <TotalTestimonialsBox
                 rating={restaurant?.rating || 4.5}
@@ -282,7 +282,7 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
               <div className="space-y-6 pt-3">
                 {restaurant?.ratings && restaurant.ratings.length > 0 ? (
                   restaurant.ratings.map((rating) => (
-                    <TestimonialCard 
+                    <TestimonialCard
                       key={rating.id}
                       id={rating.id}
                       name={rating.customer?.user?.name || 'Anonymous'}
@@ -303,9 +303,9 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
 
           <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 pt-22 max-xl:order-1">
             <DynamicCart restaurantData={restaurant} ads={bannerAds} />
-            
+
             {/* Lazy loaded right side ads */}
-            <LazyAdContainer
+            {/* <LazyAdContainer
               ads={rightAds}
               isLoading={rightLoading}
               hasMore={rightHasMore}
@@ -314,7 +314,7 @@ const staticImages=["/images/add-card-one.png","/images/add-card-two.png","/imag
               type="deal"
               staticImages={staticImages}
               onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
-            />
+            /> */}
           </div>
 
         </div>

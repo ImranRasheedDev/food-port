@@ -63,43 +63,16 @@ export default function Header() {
               >
                 Login
               </Link>
-
-              <button
-                onClick={toggleDrawer}
-                aria-label="Toggle Menu"
-                className="text-white"
+              <Link
+                to="/auth/signup"
+                className="flex justify-center items-center border border-primary-50 bg-primary-50 hover:bg-red-600 text-white rounded-full h-12 px-12"
               >
-                <Menu className="w-7 h-7" />
-              </button>
-            </div>
-
-            {/* Desktop Header */}
-            <div className="hidden md:flex w-full items-center justify-between">
-              {/* Logo */}
-              <Link to="/">
-                <img src="/images/logo.png" alt="Logo" className="h-10" />
+                Sign-Up
               </Link>
-
-              {/* Right side buttons */}
-              <div className="flex items-center space-x-4">
-                <Link
-                  to="/auth/login"
-                  className="flex justify-center items-center border bg-transparent border-white text-white rounded-full px-12 h-12 hover:bg-white hover:text-black"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/auth/signup"
-                  className="flex justify-center items-center border border-primary-50 bg-primary-50 hover:bg-red-600 text-white rounded-full h-12 px-12"
-                >
-                  Sign-Up
-                </Link>
-                {/* <div className="flex items-center space-x-1 text-white cursor-pointer pl-6">
-              <span>EN</span>
-              <ChevronDown className="w-4 h-4" />
-            </div> */}
-                <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
-              </div>
+              {/* <div className="flex items-center space-x-1 text-white cursor-pointer pl-6">
+                <span>EN</span>
+                <ChevronDown className="w-4 h-4" />
+              </div> */}
               <div className="relative" onClick={handleCartClick}>
                 <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
                 {getCartItemCount() > 0 && (
@@ -149,13 +122,13 @@ export default function Header() {
               >
                 Sign-Up
               </Link>
-              <button
+              {/* <button
                 onClick={closeDrawer}
                 className="flex items-center space-x-1 text-lg hover:text-primary-50"
               >
                 <span>EN</span>
                 <ChevronDown className="w-4 h-4" />
-              </button>
+              </button> */}
               <div className="flex items-center text-lg hover:text-primary-50" onClick={handleCartClick}>
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5 mr-2" />

@@ -1,8 +1,14 @@
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-// import DealDiscountCard from "./DealDiscountCard";
+import DealDiscountCard from "./DealDiscountCard";
 import { Trash2, Minus, Plus } from "lucide-react";
-// import CardOne from "./AdsCards/CardOne";
+import CardOne from "./AdsCards/CardOne";
+import { processImageUrl, getStaticImagePath } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import SimpleAddressAddModal from "../auth/SimpleAddressAddModal";
+import ConfirmationModal from "../ui/confirmation-modal";
+import { useSetDefaultAddress } from "@/hooks/api";
 
 export default function DynamicCart({
   restaurantData: propRestaurantData,

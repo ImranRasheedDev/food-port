@@ -18,14 +18,30 @@ function Login() {
   const loginUser = useLoginUser({
     onSuccess: async (data) => {
       reset();
-      await window.helper.setStorageData("user", data?.data);
-      window.user = data?.data;
+
+      // Extract address from default_address object
+      const defaultAddress = data?.data?.default_address;
+      const addressString = defaultAddress?.address || "";
+      const latitude = defaultAddress?.location?.latitude || "";
+      const longitude = defaultAddress?.location?.longitude || "";
+
+      // Create user data with address properly set (matching Signup.jsx structure)
+      const userWithAddress = {
+        ...data?.data,
+        address: addressString,
+        latitude: latitude,
+        longitude: longitude,
+      };
+
+      // Save to storage and global user store
+      await window.helper.setStorageData("user", userWithAddress);
+      window.user = userWithAddress;
+
+      // Dispatch custom event to notify HeaderAfterLogin of user update
+      window.dispatchEvent(new CustomEvent('userUpdated', { detail: userWithAddress }));
 
       // Check if user has address after login
-      const hasAddress = !!(window.user && (
-        (Array.isArray(window.user.addresses) && window.user.addresses.length > 0) ||
-        window.user.address
-      ));
+      const hasAddress = !!(addressString && addressString.trim() !== "");
 
       if (!hasAddress) {
         // Navigate to home with address modal flag
@@ -58,6 +74,7 @@ function Login() {
 
       console.log("Login payload:", payload);
       loginUser.mutate(payload);
+
     },
     [loginUser]
   );
@@ -70,7 +87,7 @@ function Login() {
     <AuthLayout bgImage={"/images/bg-login.jpg"}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-          <span className="text-primary-50">Reset </span> Welcome Back
+          <span className="text-primary-50">Welcome Back</span>
         </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

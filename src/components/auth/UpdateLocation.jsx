@@ -34,7 +34,7 @@ const UpdateLocation = () => {
     settingDefault: {},
     updating: {},
   });
-  const { data: addresses, isLoading, error,refetch } = useAllAddresses();
+  const { data: addresses, isLoading, error, refetch } = useAllAddresses();
   const deleteAddress = useDeleteAddress();
   const setDefaultAddress = useSetDefaultAddress();
 
@@ -106,37 +106,46 @@ const UpdateLocation = () => {
       { address_id: addressId },
       {
         onSuccess: async (data) => {
-          console.log("Default address set successfully:", data);
-          
+          console.log("=== UpdateLocation: Default address set successfully ===");
+          console.log("UpdateLocation: Response data:", data);
+
           // Clear loading state
           setLoadingStates((prev) => ({
             ...prev,
             settingDefault: { ...prev.settingDefault, [addressId]: false },
           }));
-          
+
           // Update window.user immediately with the address that was set as default
           const newDefaultAddress = addresses?.data?.find(addr => addr.id === addressId);
+          console.log("UpdateLocation: New default address:", newDefaultAddress);
+
           if (newDefaultAddress && window.user) {
             // Update window.user with new address
             window.user.address = newDefaultAddress.address;
+            window.user.user_address = newDefaultAddress.address; // Also set user_address
             window.user.latitude = newDefaultAddress.latitude || window.user.latitude;
             window.user.longitude = newDefaultAddress.longitude || window.user.longitude;
             window.user.city = newDefaultAddress.city || window.user.city;
             window.user.zip_code = newDefaultAddress.zip_code || window.user.zip_code;
-            
-            console.log("Updated window.user with new default address:", window.user);
-            
+
+            console.log("UpdateLocation: Updated window.user:", window.user);
+            console.log("UpdateLocation: Updated address:", window.user.address);
+
             // Save to storage to persist after reload
             await window.helper.setStorageData("user", window.user);
-            
+            console.log("UpdateLocation: User data saved to storage");
+
             // Dispatch event to notify other components
-            window.dispatchEvent(new CustomEvent('userUpdated', { 
-              detail: { ...window.user } 
+            console.log("UpdateLocation: Dispatching userUpdated event");
+            window.dispatchEvent(new CustomEvent('userUpdated', {
+              detail: { ...window.user }
             }));
+            console.log("UpdateLocation: userUpdated event dispatched");
           }
-          
+
           // Refetch addresses to update the UI
           refetch();
+          console.log("=== UpdateLocation: Default address update complete ===");
         },
         onError: (error) => {
           console.error("Error setting default address:", error);
@@ -150,35 +159,87 @@ const UpdateLocation = () => {
     );
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async (updatedData = null) => {
+    console.log("=== UpdateLocation: Address edited successfully ===");
+    console.log("UpdateLocation: Updated address data:", updatedData);
+    console.log("UpdateLocation: Editing address:", editingAddress);
+
     setIsEditModalOpen(false);
+
+    // If the edited address was the default address, update window.user
+    if (editingAddress && editingAddress.default === true && window.user) {
+      console.log("UpdateLocation: Edited address was default, updating window.user");
+
+      // Refetch addresses first to get the latest data
+      const refetchedAddresses = await refetch();
+      const updatedDefaultAddress = refetchedAddresses?.data?.data?.find(addr => addr.default === true);
+
+      console.log("UpdateLocation: Refetched default address:", updatedDefaultAddress);
+
+      if (updatedDefaultAddress) {
+        window.user.address = updatedDefaultAddress.address;
+        window.user.user_address = updatedDefaultAddress.address; // Also set user_address
+        window.user.latitude = updatedDefaultAddress.latitude || window.user.latitude;
+        window.user.longitude = updatedDefaultAddress.longitude || window.user.longitude;
+        window.user.city = updatedDefaultAddress.city || window.user.city;
+        window.user.zip_code = updatedDefaultAddress.zip_code || window.user.zip_code;
+
+        console.log("UpdateLocation: Updated window.user with edited address:", window.user);
+        console.log("UpdateLocation: Updated address:", window.user.address);
+
+        // Save to storage to persist after reload
+        await window.helper.setStorageData("user", window.user);
+        console.log("UpdateLocation: User data saved to storage");
+
+        // Dispatch event to notify other components
+        console.log("UpdateLocation: Dispatching userUpdated event");
+        window.dispatchEvent(new CustomEvent('userUpdated', {
+          detail: { ...window.user }
+        }));
+        console.log("UpdateLocation: userUpdated event dispatched");
+      }
+    } else {
+      // If not default address, just refetch to update the list
+      refetch();
+    }
+
     setEditingAddress(null);
-    // Addresses will be automatically refetched due to query invalidation
+    console.log("=== UpdateLocation: Edit address complete ===");
   };
 
   const handleAddSuccess = async (newAddress = null) => {
+    console.log("=== UpdateLocation: Address added successfully ===");
+    console.log("UpdateLocation: New address data:", newAddress);
     setIsAddModalOpen(false);
-    
+
     // If a new address was added and it's the first address (becomes default), update window.user
     if (newAddress && newAddress.default === true && window.user) {
+      console.log("UpdateLocation: New address is default, updating window.user");
+
       window.user.address = newAddress.address;
+      window.user.user_address = newAddress.address; // Also set user_address
       window.user.latitude = newAddress.latitude || window.user.latitude;
       window.user.longitude = newAddress.longitude || window.user.longitude;
       window.user.city = newAddress.city || window.user.city;
       window.user.zip_code = newAddress.zip_code || window.user.zip_code;
-      
-      console.log("Updated window.user with new address:", window.user);
-      
+
+      console.log("UpdateLocation: Updated window.user with new address:", window.user);
+      console.log("UpdateLocation: Updated address:", window.user.address);
+
       // Save to storage to persist after reload
       await window.helper.setStorageData("user", window.user);
-      
+      console.log("UpdateLocation: User data saved to storage");
+
       // Dispatch event to notify other components
-      window.dispatchEvent(new CustomEvent('userUpdated', { 
-        detail: { ...window.user } 
+      console.log("UpdateLocation: Dispatching userUpdated event");
+      window.dispatchEvent(new CustomEvent('userUpdated', {
+        detail: { ...window.user }
       }));
+      console.log("UpdateLocation: userUpdated event dispatched");
     }
-    
+
     // Addresses will be automatically refetched due to query invalidation
+    console.log("=== UpdateLocation: Add address complete ===");
   };
 
   if (isLoading) {
@@ -205,7 +266,7 @@ const UpdateLocation = () => {
       <div className="relative">
         {currentDefaultAddress ? (
           <div className="relative">
-            <iframe
+            {/* <iframe
               src={`https://maps.google.com/maps?q=${encodeURIComponent(currentDefaultAddress.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               width="100%"
               height="300"
@@ -214,7 +275,20 @@ const UpdateLocation = () => {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Location Map"
-            ></iframe>
+            ></iframe> */}
+            <div style={{ width: '100%', overflow: 'hidden', height: '300px' }}>
+              <iframe
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(currentDefaultAddress.address)}&output=embed`}
+                width="100%"
+                height="600"
+                style={{ border: 0, borderRadius: '8px', marginTop: '-150px' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Location Map"
+              />
+            </div>
+
             <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
               📍 Your Address
             </div>
@@ -294,14 +368,14 @@ const UpdateLocation = () => {
                       {address.address}
                     </p>
                     <p className="text-gray-500 text-xs">
-                      {address.city && address.zip_code ? `${address.city}, ${address.zip_code}` : 
-                       address.city ? address.city : 
-                       address.zip_code ? address.zip_code : ''}
+                      {address.city && address.zip_code ? `${address.city}, ${address.zip_code}` :
+                        address.city ? address.city :
+                          address.zip_code ? address.zip_code : ''}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                                        {address.default !== true && (
+                    {address.default !== true && (
                       <Button
                         variant="outline"
                         size="sm"

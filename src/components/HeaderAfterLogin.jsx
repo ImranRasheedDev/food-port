@@ -117,42 +117,63 @@ export default function HeaderAfterLogin() {
   useEffect(() => {
     const handleUserUpdate = (event) => {
       console.log("=== HeaderAfterLogin: Received userUpdated event ===");
-      console.log("Event:", event);
+      console.log("HeaderAfterLogin: Event:", event);
       const updatedUser = event.detail;
       console.log("HeaderAfterLogin: Updated user data:", updatedUser);
+      console.log("HeaderAfterLogin: updatedUser.name:", updatedUser.name);
       console.log("HeaderAfterLogin: updatedUser.address:", updatedUser.address);
       console.log("HeaderAfterLogin: updatedUser.user_address:", updatedUser.user_address);
       console.log("HeaderAfterLogin: updatedUser.location:", updatedUser.location);
+      console.log("HeaderAfterLogin: updatedUser.image:", updatedUser.image);
 
-      setUserName(updatedUser.name || "");
+      // Update name
+      const newName = updatedUser.name || "";
+      console.log("HeaderAfterLogin: Updating userName from:", userName, "to:", newName);
+      setUserName(newName);
 
       // Update address from multiple possible fields
-      const address = updatedUser.address || updatedUser.user_address || updatedUser.location || "";
-      console.log("HeaderAfterLogin: Setting address to:", address);
-      console.log("HeaderAfterLogin: Previous userAddress state:", userAddress);
-
-      setUserAddress(address);
+      const newAddress = updatedUser.address || updatedUser.user_address || updatedUser.location || "";
+      console.log("HeaderAfterLogin: Updating address from:", userAddress, "to:", newAddress);
+      setUserAddress(newAddress);
 
       // Handle image URL - could be relative path or full URL
       let imageValue = updatedUser.image || updatedUser.avatar || "";
+      console.log("HeaderAfterLogin: Raw image value:", imageValue);
+
       if (imageValue && imageValue !== null && imageValue.trim() !== "") {
+        // Clean escaped slashes
+        imageValue = imageValue.replace(/\\\//g, '/');
+        console.log("HeaderAfterLogin: Cleaned image value:", imageValue);
+
         if (!imageValue.startsWith('http') && !imageValue.startsWith('/')) {
           // Relative path from API - construct full URL
           const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
           imageValue = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/${imageValue}` : imageValue;
+          console.log("HeaderAfterLogin: Constructed image URL:", imageValue);
         }
       }
+
+      console.log("HeaderAfterLogin: Updating userImage from:", userImage, "to:", imageValue || "");
       setUserImage(imageValue || "");
-      console.log("Header received user update:", updatedUser, "Address:", address);
+
+      // Also update window.user to ensure consistency
+      window.user = updatedUser;
+
+      console.log("HeaderAfterLogin: State update complete");
+      console.log("HeaderAfterLogin: New userName:", newName);
+      console.log("HeaderAfterLogin: New userAddress:", newAddress);
+      console.log("HeaderAfterLogin: New userImage:", imageValue || "");
       console.log("=== End HeaderAfterLogin userUpdated event ===");
     };
 
+    console.log("HeaderAfterLogin: Setting up userUpdated event listener");
     window.addEventListener('userUpdated', handleUserUpdate);
 
     return () => {
+      console.log("HeaderAfterLogin: Cleaning up userUpdated event listener");
       window.removeEventListener('userUpdated', handleUserUpdate);
     };
-  }, []); // Remove window.user dependency to prevent re-registering listener
+  }, []); // Empty dependency array to prevent re-registering listener
 
   // Log user data on mount for debugging
   useEffect(() => {
@@ -231,21 +252,30 @@ export default function HeaderAfterLogin() {
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Desktop Header */}
-            <div className="hidden md:flex w-full items-center justify-between">
-              {/* Logo */}
-              <Link to="/">
-                <img src={processImageUrl("/images/footer-logo.png")} alt="Logo" className="h-10" />
-              </Link>
-              <div className="flex items-center gap-x-1">
-                <MapPin className="text-primary-950" />
-                <p className="text-primary-950 max-w-xl truncate">
-                  Your address:{" "}
-                  {userAddress || "No address set"}
-                </p>
-              </div>
+              {/* Menu Button */}
+              <button
+                onClick={toggleDrawer}
+                aria-label="Toggle Menu"
+                className="text-primary-950"
+              >
+                <Menu className="w-7 h-7" />
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex w-full items-center justify-between">
+            {/* Logo */}
+            <Link to="/">
+              <img src={processImageUrl("/images/footer-logo.png")} alt="Logo" className="h-10" />
+            </Link>
+            <div className="flex items-center gap-x-1">
+              <MapPin className="text-primary-950" />
+              <p className="text-primary-950 max-w-xl truncate">
+                Your address:{" "}
+                {userAddress || "No address set"}
+              </p>
             </div>
             {/* Right side buttons */}
             <div className="flex items-center space-x-4">
@@ -289,7 +319,6 @@ export default function HeaderAfterLogin() {
                     className={"p-0 bg-white hover:bg-primary-990"}
                     onClick={() => setDropdownOpen(false)}
                   >
-
                     <Link
                       to={"/account-settings"}
                       className="flex items-center gap-x-2 w-full p-5"
@@ -298,16 +327,16 @@ export default function HeaderAfterLogin() {
                     </Link>
                   </DropdownMenuItem>
                   {/* <DropdownMenuItem
-                  className={"p-0 bg-white hover:bg-primary-990"}
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <Link
-                    to={""}
-                    className="flex items-center gap-x-2 w-full p-5"
+                    className={"p-0 bg-white hover:bg-primary-990"}
+                    onClick={() => setDropdownOpen(false)}
                   >
-                    <Megaphone /> Advertise yourself
-                  </Link>
-                </DropdownMenuItem> */}
+                    <Link
+                      to={""}
+                      className="flex items-center gap-x-2 w-full p-5"
+                    >
+                      <Megaphone /> Advertise yourself
+                    </Link>
+                  </DropdownMenuItem> */}
 
                   <DropdownMenuItem
                     className={"p-0 bg-white hover:bg-primary-990"}
@@ -475,25 +504,25 @@ export default function HeaderAfterLogin() {
                 <span>My Favourites</span>
               </Link>
 
-              <Link
+              {/* <Link
                 to=""
                 onClick={closeDrawer}
                 className="flex items-center space-x-3 text-lg hover:text-primary-50"
               >
                 <Megaphone className="w-5 h-5" />
                 <span>Advertise yourself</span>
-              </Link>
+              </Link> */}
 
               <div className="pt-4 border-t border-gray-600">
                 {/* Language Selector */}
-                <button
+                {/* <button
                   onClick={closeDrawer}
                   className="flex items-center space-x-3 text-lg hover:text-primary-50 w-full"
                 >
                   <Globe className="w-5 h-5" />
                   <span>EN</span>
                   <ChevronDown className="w-4 h-4 ml-auto" />
-                </button>
+                </button> */}
 
                 {/* Cart */}
                 <button
