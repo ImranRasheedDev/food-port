@@ -15,11 +15,13 @@ const SimpleAddressAddModal = ({ isOpen, onClose, onSuccess }) => {
     reset,
   } = useForm({
     defaultValues: {
+      label: "",
       address: "",
       latitude: "",
       longitude: "",
       city: "",
       zip_code: "",
+      name: "",
     },
   });
 
@@ -32,15 +34,14 @@ const SimpleAddressAddModal = ({ isOpen, onClose, onSuccess }) => {
   });
 
   const onSubmit = (data) => {
-    // Simple add - just address with auto-generated name
     const payload = {
-      name: `Address ${new Date().getTime()}`, // Auto-generated name
+      label: data.label || "Home", // Use provided name or auto-generate
       address: data.address,
       latitude: data.latitude,
       longitude: data.longitude,
       city: data.city,
       zip_code: data.zip_code,
-      label: "Home", // Default label
+      name: data.city || data.address,
     };
     addAddress.mutate(payload);
   };
@@ -56,8 +57,22 @@ const SimpleAddressAddModal = ({ isOpen, onClose, onSuccess }) => {
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Add Address</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name Field */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Add a Label <span className="text-gray-400 text-xs">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-50"
+              placeholder="e.g., Home, Work, Office"
+              {...register("label")}
+            />
+          </div>
+
           {/* Address with Google Places Autocomplete */}
           <div>
             <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">

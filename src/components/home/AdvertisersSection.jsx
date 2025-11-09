@@ -6,41 +6,42 @@ import "swiper/css/pagination";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useBannerAds } from '../../hooks/api/useAds';
 import LayoutWrapper from '../layoutWrapper';
-import Helper from '@/helpers';
+// import Helper from '@/helpers';
 import { useNavigate } from 'react-router-dom';
 import ProductModal from '../InnerPages/ProductModal';
 
-const AdvisersData = [
-    {
-        title: "Make Your First Order and Get 25% Off From",
-        companyName: "Pizzucci",
-        description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
-        link: "",
-    },
-    {
-        title: "Make Your First Order and Get 25% Off From",
-        companyName: "Pizzucci",
-        description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
-        link: "",
-    },
-    {
-        title: "Make Your First Order and Get 25% Off From",
-        companyName: "Pizzucci",
-        description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
-        link: "",
-    },
-    {
-        title: "Make Your First Order and Get 25% Off From",
-        companyName: "Pizzucci",
-        description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
-        link: "",
-    },
-]
+// const AdvisersData = [
+//     {
+//         title: "Make Your First Order and Get 25% Off From",
+//         companyName: "Pizzucci",
+//         description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
+//         link: "",
+//     },
+//     {
+//         title: "Make Your First Order and Get 25% Off From",
+//         companyName: "Pizzucci",
+//         description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
+//         link: "",
+//     },
+//     {
+//         title: "Make Your First Order and Get 25% Off From",
+//         companyName: "Pizzucci",
+//         description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
+//         link: "",
+//     },
+//     {
+//         title: "Make Your First Order and Get 25% Off From",
+//         companyName: "Pizzucci",
+//         description: "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without.",
+//         link: "",
+//     },
+// ]
 const AdvertisersSection = () => {
     const swiperRef = useRef(null);
     const { data, isLoading } = useBannerAds();
     const campaigns = Array.isArray(data?.data) ? data.data : [];
     const navigate = useNavigate();
+    console.log(campaigns, 'campaigns');
 
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState(null);
@@ -71,7 +72,7 @@ const AdvertisersSection = () => {
     };
     return (
         <section className="py-16 bg-white">
-           <LayoutWrapper>  
+            <LayoutWrapper>
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
                     Top <span className="text-primary-50">Advertisers</span> Pick
                 </h2>
@@ -121,34 +122,40 @@ const AdvertisersSection = () => {
                         {
                             (!isLoading ? campaigns : []).map((campaign, index) => (
                                 <SwiperSlide key={campaign?.id ?? index}>
-                                    <AdviserCard
-                                        index={index}
-                                        title={`Make Your First Order and Get 25% Off From`}
-                                        companyName={"Restaurant"}
-                                        description={"In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."}
-                                        link={campaign?.restaurant?.id && campaign?.product?.id ? `/resturants-detail/${campaign.restaurant.id}` : '#'}
-                                        mediaPath={campaign?.media_path}
-                                        onClick={() => handleCardClick(campaign)}
-                                    />
+                                    {/* <AdviserCard
+                                         index={index}
+                                         title={`Make Your First Order and Get 25% Off From`}
+                                         companyName={"Restaurant"}
+                                         description={"In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."}
+                                         link={campaign?.restaurant?.id && campaign?.product?.id ? `/resturants-detail/${campaign.restaurant.id}` : '#'}
+                                         mediaPath={campaign?.media_path}
+                                         onClick={() => handleCardClick(campaign)}
+                                    /> */}
+                                    <div onClick={() => handleCardClick(campaign)} className='cursor-pointer rounded-4xl overflow-hidden h-48 md:h-64'>
+                                        <img src={campaign?.media_path} alt={campaign?.restaurant?.name} className='w-full h-full object-cover' />
+                                    </div>
+                                    {/* <div onClick={() => handleCardClick(campaign)}>
+                                        <img src={campaign?.media_path} alt={campaign?.restaurant?.name} className='w-full h-full object-cover' />
+                                    </div> */}
                                 </SwiperSlide>
                             ))
                         }
 
                     </Swiper>
-                    <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10">
-                        <button
-                            onClick={() => swiperRef.current?.slidePrev()}
-                            className="w-10 h-10 md:w-14 md:h-14 relative -left-3 md:-left-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
-                        >
-                            <ArrowLeft className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
-                        </button>
-                        <button
-                            onClick={() => swiperRef.current?.slideNext()}
-                            className="w-10 h-10 md:w-14 md:h-14 relative -right-3 md:-right-7 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer"
-                        >
-                            <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
-                        </button>
-                    </div>
+                    {/* <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10"> */}
+                    <button
+                        onClick={() => swiperRef.current?.slidePrev()}
+                        className="w-10 h-10 md:w-14 md:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 left-0 md:left-0 z-10"
+                    >
+                        <ArrowLeft className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
+                    </button>
+                    <button
+                        onClick={() => swiperRef.current?.slideNext()}
+                        className="w-10 h-10 md:w-14 md:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 right-0 md:right-0 z-10"
+                    >
+                        <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
+                    </button>
+                    {/* </div> */}
                 </div>
                 <ProductModal
                     open={isProductModalOpen}

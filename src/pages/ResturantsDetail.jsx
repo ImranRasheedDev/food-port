@@ -145,7 +145,7 @@ export default function ResturantsDetail() {
 
   console.log(filteredCategories, "filteredCategories")
 
-  const staticImages = ["/images/add-card-one.png", "/images/add-card-two.png", "/images/deals-14.png", "/images/add-card-two.png"]
+  const staticImages = ["/images/placeholder1.jpg", "/images/placeholder1.jpg", "/images/placeholder1.jpg", "/images/placeholder1.jpg"]
   return (
     <>
 
@@ -255,23 +255,23 @@ export default function ResturantsDetail() {
                 customerCount={restaurant?.rating_count || 0}
                 ratingData={[
                   {
-                    percentage: restaurant?.rating_1 || 0,
+                    percentage: restaurant?.rating_1 / (restaurant?.rating_count || 1) * 100 || 0,
                     count: restaurant?.rating_1 || 0,
                   },
                   {
-                    percentage: restaurant?.rating_2 || 0,
+                    percentage: restaurant?.rating_2 / (restaurant?.rating_count || 1) * 100 || 0,
                     count: restaurant?.rating_2 || 0,
                   },
                   {
-                    percentage: restaurant?.rating_3 || 0,
+                    percentage: restaurant?.rating_3 / (restaurant?.rating_count || 1) * 100 || 0,
                     count: restaurant?.rating_3 || 0,
                   },
                   {
-                    percentage: restaurant?.rating_4 || 0,
+                    percentage: restaurant?.rating_4 / (restaurant?.rating_count || 1) * 100 || 0,
                     count: restaurant?.rating_4 || 0,
                   },
                   {
-                    percentage: restaurant?.rating_5 || 0,
+                    percentage: restaurant?.rating_5 / (restaurant?.rating_count || 1) * 100 || 0,
                     count: restaurant?.rating_5 || 0,
                   },
                 ]}

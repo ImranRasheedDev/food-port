@@ -9,7 +9,7 @@ import LocationCard from "../Cards/LocationCard";
 
 const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = false, isSimpleEdit = false }) => {
   const isEditing = !!address;
-  
+
   const {
     register,
     handleSubmit,
@@ -60,23 +60,25 @@ const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = f
 
   const onSubmit = (data) => {
     if (isEditing && isSimpleEdit) {
-      // Simple edit - just address, keep existing name and label
+      // Simple edit - allow name to be updated
       const payload = {
         address_id: address.id,
-        name: address.name || `Address ${new Date().getTime()}`, // Keep existing name
+        // name: data.name || address.name || `Address ${new Date().getTime()}`,
+        name: data.city || data.address,
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude,
         city: data.city,
         zip_code: data.zip_code,
-        label: address.label || "Home", // Keep existing label
+        label: data.label || address.label || "Home",// Keep existing label
       };
       updateAddress.mutate(payload);
     } else if (isEditing) {
       // Full edit existing address
       const payload = {
         address_id: address.id,
-        name: data.name,
+        name: data.city || data.address,
+        // name: data.name,
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude,
@@ -88,25 +90,25 @@ const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = f
     } else if (isSimpleAdd) {
       // Simple add - just address with auto-generated name
       const payload = {
-        name: `Address ${new Date().getTime()}`, // Auto-generated name
         address: data.address,
+        name: data.city || data.address,
         latitude: data.latitude,
         longitude: data.longitude,
         city: data.city,
         zip_code: data.zip_code,
-        label: "Home", // Default label
+        label: data.label || "Home", // Default label
       };
       addAddress.mutate(payload);
     } else {
       // Full add new address
       const payload = {
-        name: data.name,
+        name: data.city || data.address,
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude,
         city: data.city,
         zip_code: data.zip_code,
-        label: data.label,
+        label: data.label || "Home",
       };
       addAddress.mutate(payload);
     }
@@ -122,34 +124,32 @@ const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = f
       <DialogContent className="max-w-md mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            {isEditing 
-              ? (isSimpleEdit ? "Edit Address" : "Edit Address") 
-              : isSimpleAdd 
-              ? "Add Address" 
-              : "Add New Address"
+            {isEditing
+              ? (isSimpleEdit ? "Edit Address" : "Edit Address")
+              : isSimpleAdd
+                ? "Add Address"
+                : "Add New Address"
             }
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Name - Only show for full add or edit */}
-          {!isSimpleAdd && !isSimpleEdit && (
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Address Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-50"
-                placeholder="e.g., Home, Work, Office"
-                {...register("name", { required: "Address name is required" })}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-              )}
-            </div>
-          )}
+          {/* Name - Show for all modes */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Add a Label {(isSimpleAdd || isSimpleEdit) && <span className="text-gray-400 text-xs">(Optional)</span>}
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-50"
+              placeholder="e.g., Home, Work, Office"
+              {...register("label", { required: (!isSimpleAdd && !isSimpleEdit) ? "Address name is required" : false })}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
+          </div>
 
           {/* Address with Google Places Autocomplete */}
           <div>
@@ -224,20 +224,20 @@ const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = f
                 rules={{ required: "Please select a label" }}
                 render={({ field }) => (
                   <div className="flex gap-3">
-                    <LocationCard 
-                      field={field} 
-                      value="Home" 
-                      icon={<Home className="w-6 h-6" />} 
+                    <LocationCard
+                      field={field}
+                      value="Home"
+                      icon={<Home className="w-6 h-6" />}
                     />
-                    <LocationCard 
-                      field={field} 
-                      value="Work" 
-                      icon={<BriefcaseBusiness className="w-6 h-6" />} 
+                    <LocationCard
+                      field={field}
+                      value="Work"
+                      icon={<BriefcaseBusiness className="w-6 h-6" />}
                     />
-                    <LocationCard 
-                      field={field} 
-                      value="Other" 
-                      icon={<Handshake className="w-6 h-6" />} 
+                    <LocationCard
+                      field={field}
+                      value="Other"
+                      icon={<Handshake className="w-6 h-6" />}
                     />
                   </div>
                 )}
@@ -263,7 +263,7 @@ const AddressEditModal = ({ isOpen, onClose, address, onSuccess, isSimpleAdd = f
               disabled={updateAddress.isPending || addAddress.isPending}
               className="flex-1 bg-primary-50 hover:bg-primary-50/90"
             >
-              {isEditing 
+              {isEditing
                 ? (updateAddress.isPending ? "Updating..." : "Update Address")
                 : (addAddress.isPending ? "Adding..." : "Add Address")
               }

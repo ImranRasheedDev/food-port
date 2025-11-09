@@ -18,69 +18,6 @@ const DealsAndDiscounts = ({
   const swiperRef = useRef(null);
   const { data: bannerAdsData, isLoading: adsLoading } = useBannerAds();
   const campaigns = Array.isArray(bannerAdsData?.data) ? bannerAdsData.data : [];
-  const staticImages = [
-    "/images/deals-12.png",
-    "/images/deals-13.png",
-    "/images/deals-14.png",
-  ];
-
-  // Static sample data for fallback
-  const sampleRestaurants = [
-    {
-      name: "KFC",
-      description: "Chicken quesadilla, avocado...",
-      rating: 3.2,
-      image: "/images/popular-1.png",
-      location: "California",
-      distance: "1 km",
-      time: "30 min",
-    },
-    {
-      name: "Poultry Palace",
-      description: "Chicken quesadilla, avocado...",
-      rating: 3.8,
-      image: "/images/popular-1.png",
-      location: "New Jersey",
-      distance: "3.2 km",
-      time: "25 min",
-    },
-    {
-      name: "The Grill Master's Cafe",
-      description: "Bread, Eggs, Butter, Fries...",
-      rating: 4.3,
-      image: "/images/popular-1.png",
-      location: "New York",
-      distance: "5 km",
-      time: "40 min",
-    },
-    {
-      name: "Cozy Cuppa Cafe",
-      description: "Cheesecake, waffles, Cakes...",
-      rating: 3.8,
-      image: "/images/popular-1.png",
-      location: "Dallas",
-      distance: "4 km",
-      time: "30 min",
-    },
-    {
-      name: "Pizza Palace",
-      description: "Fresh pizza, pasta, salads...",
-      rating: 4.1,
-      image: "/images/popular-1.png",
-      location: "Chicago",
-      distance: "2.5 km",
-      time: "35 min",
-    },
-    {
-      name: "Burger Joint",
-      description: "Gourmet burgers, fries, shakes...",
-      rating: 3.9,
-      image: "/images/popular-1.png",
-      location: "Boston",
-      distance: "1.8 km",
-      time: "25 min",
-    },
-  ];
 
   return (
     <div>
@@ -104,55 +41,54 @@ const DealsAndDiscounts = ({
               spaceBetween: 10,
             },
             768: {
-              slidesPerView: 2,
+              slidesPerView: 1,
               spaceBetween: 20,
             },
             1024: {
-              slidesPerView: 3,
+              slidesPerView: 1,
               spaceBetween: 30,
             },
           }}
           className="mySwiper"
         >
-          {(campaigns.length > 0 ? campaigns.slice(0, 9) : dealsAndDiscounts).map((item, index) => (
+          {(campaigns.length > 0 ? campaigns : dealsAndDiscounts).map((item, index) => (
             <SwiperSlide key={item?.id || index}>
               {campaigns.length > 0 ? (
                 <DealDiscountCard
                   campaignData={item}
-                  image={staticImages[index % staticImages.length]}
+                  image={item.media_path}
                   cardIndex={index}
                 />
               ) : (
                 <DealDiscountCard
-                  title={item.title}
-                  companyName={item.companyName}
-                  link={item.link}
-                  image={item.image}
+                  campaignData={item}
+                  image={item.media_path}
                   cardIndex={index}
                 />
               )}
             </SwiperSlide>
           ))}
         </Swiper>
-        <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10">
-          <button
-            onClick={() => swiperRef.current?.slidePrev()}
-            className="w-10 h-10 relative -left-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010"
-          >
-            <ArrowLeft className="w-6 h-6 text-primary-100" />
-          </button>
-          <button
-            onClick={() => swiperRef.current?.slideNext()}
-            className="w-10 h-10 relative -right-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010"
-          >
-            <ArrowRight className="w-6 h-6 text-primary-100" />
-          </button>
-        </div>
+        <button
+          onClick={() => swiperRef.current?.slidePrev()}
+          className="w-10 h-10 absolute top-1/2 -translate-y-1/2 -left-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010 z-10"
+        >
+          <ArrowLeft className="w-6 h-6 text-primary-100" />
+        </button>
+        <button
+          onClick={() => swiperRef.current?.slideNext()}
+          className="w-10 h-10 absolute top-1/2 -translate-y-1/2 -right-6 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer border border-primary-1010 z-10"
+        >
+          <ArrowRight className="w-6 h-6 text-primary-100" />
+        </button>
+        {/* <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10 ">
+        </div> */}
       </div>
 
       {!hideRestaurantCards && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {isLoading ? (
+            // Loading skeletons
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-gray-200 rounded-lg h-48 mb-4"></div>
@@ -161,6 +97,7 @@ const DealsAndDiscounts = ({
               </div>
             ))
           ) : hasApiData && restaurants.length > 0 ? (
+            // Show actual restaurant data
             restaurants
               .slice(0, 6)
               .map((restaurant, index) => (
@@ -171,7 +108,7 @@ const DealsAndDiscounts = ({
                   image={restaurant.image}
                   location={restaurant.location}
                   name={restaurant.name}
-                  onFavoriteClick={restaurant.onFavoriteClick || (() => {})}
+                  onFavoriteClick={restaurant.onFavoriteClick || (() => { })}
                   rating={restaurant.rating}
                   time={restaurant.time}
                   isLiked={restaurant.isLiked || false}
@@ -182,29 +119,35 @@ const DealsAndDiscounts = ({
                   }
                 />
               ))
-          ) : apiReturnedEmpty ? (
-            <div className="col-span-full text-center py-8">
-              <p className="text-gray-500">No more restaurants available</p>
-            </div>
           ) : (
-            sampleRestaurants
-              .slice(0, 6)
-              .map((restaurant, index) => (
-                <RestaurantCard
-                  key={index}
-                  description={restaurant.description}
-                  distance={restaurant.distance}
-                  image={restaurant.image}
-                  location={restaurant.location}
-                  name={restaurant.name}
-                  onFavoriteClick={() => {}}
-                  rating={restaurant.rating}
-                  time={restaurant.time}
-                  isLiked={false}
-                  restaurantId={index + 1}
-                  link={`/resturants-detail/${index + 1}`}
-                />
-              ))
+            // Error message when no data available
+            <div className="col-span-full text-center py-12">
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-gray-400 mb-3">
+                  <svg
+                    className="w-16 h-16 mx-auto"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-600 text-lg font-medium mb-1">
+                  No restaurants available
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {apiReturnedEmpty
+                    ? "No restaurants found in your area"
+                    : "Please try again later"}
+                </p>
+              </div>
+            </div>
           )}
         </div>
       )}

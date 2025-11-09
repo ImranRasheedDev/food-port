@@ -308,30 +308,31 @@ const AllResturantsSection = ({ filters = {} }) => {
           </div>
         ) : (
           // Fallback to sample data - show only 5
-          sampleRestaurants
-            .slice(0, 6)
-            .map((restaurant, index) => (
-              <RestaurantCard
-                key={index}
-                description={restaurant.description}
-                distance={restaurant.distance}
-                image={restaurant.image}
-                location={window.helper.getCountryName(restaurant.country_code)}
-                name={restaurant.name}
-                onFavoriteClick={() => { }}
-                rating={restaurant.rating}
-                time={restaurant.time}
-                isLiked={false}
-                restaurantId={index + 1}
-                link={`/resturants-detail/${index + 1}`}
-              />
-            ))
+          // sampleRestaurants
+          //   .slice(0, 6)
+          //   .map((restaurant, index) => (
+          //     <RestaurantCard
+          //       key={index}
+          //       description={restaurant.description}
+          //       distance={restaurant.distance}
+          //       image={restaurant.image}
+          //       location={window.helper.getCountryName(restaurant.country_code)}
+          //       name={restaurant.name}
+          //       onFavoriteClick={() => { }}
+          //       rating={restaurant.rating}
+          //       time={restaurant.time}
+          //       isLiked={false}
+          //       restaurantId={index + 1}
+          //       link={`/resturants-detail/${index + 1}`}
+          //     />
+          //   ))
+          null
         )}
       </div>
 
       {/* Deals and Discounts Section with next 5 restaurants */}
       <DealsAndDiscounts
-        restaurants={restaurants.slice(6, 12)}
+        restaurants={restaurants}
         isLoading={isLoading}
         hasApiData={hasApiData}
         apiReturnedEmpty={apiReturnedEmpty}

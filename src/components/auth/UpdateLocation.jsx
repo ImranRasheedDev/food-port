@@ -71,13 +71,12 @@ const UpdateLocation = () => {
           addressId: null,
           addressName: "",
         });
-        refetch
         // Clear loading state
         setLoadingStates((prev) => ({
           ...prev,
           deleting: { ...prev.deleting, [addressId]: false },
         }));
-        refetch()
+        refetch();
         // Addresses will be automatically refetched due to query invalidation
       },
       onError: (error) => {
@@ -354,9 +353,9 @@ const UpdateLocation = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Home className="w-4 h-4 text-gray-500" />
-                      {/* <span className="font-medium">
+                      <span className="font-medium">
                         {address.name || "Address"}
-                      </span> */}
+                      </span>
                       {address.default === true && (
                         <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                           <Star className="w-3 h-3" />

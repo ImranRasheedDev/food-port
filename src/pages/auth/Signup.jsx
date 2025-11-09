@@ -86,7 +86,7 @@ function Signup() {
         latitude: formValues.latitude || "",
         longitude: formValues.longitude || "",
         // city: formValues.city || "",
-        // zip_code: formValues.zip_code || "",
+        // zip_code: formValues.zip_code || "", 
       };
 
       // Save to storage and global user store
@@ -98,8 +98,8 @@ function Signup() {
 
       try {
         const addressPayload = {
-          name: formValues.first_name && formValues.last_name 
-            ? `${formValues.first_name} ${formValues.last_name}` 
+          name: formValues.first_name && formValues.last_name
+            ? `${formValues.first_name} ${formValues.last_name}`
             : data?.data?.name || "",
           address: formValues.address || "",
           latitude: formValues.latitude || "",

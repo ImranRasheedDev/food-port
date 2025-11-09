@@ -1,43 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CardOne from "@/components/Cards/AdsCards/CardOne";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import AllResturantsSection from "@/components/InnerPages/AllResturantsSection";
-import DealsAndDiscounts from "@/components/InnerPages/DealsAndDiscounts";
 import DialyDeals from "@/components/InnerPages/DialyDeals";
 import ProductModal from "@/components/InnerPages/ProductModal";
 import HeroBannerInner from "@/components/InnerPages/HeroBannerInner";
 import ProductFilters from "@/components/InnerPages/ProductFilters";
 import { useBannerAds } from "@/hooks/api";
-import LazyAdContainer from "@/components/ui/LazyAdContainer";
-import { useLazyAds } from "@/hooks/useLazyAds";
 
 function AllResturants() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  // Get location state for category ID
   const location = useLocation();
+  const navigate = useNavigate();
   const categoryId = location.state?.categoryId;
   const categoryName = location.state?.categoryName;
 
-  // Lazy loading for left side ads
-  const { 
-    ads: leftAds, 
-    isLoading: leftLoading, 
-    hasMore: leftHasMore, 
-    containerRef: leftContainerRef, 
-    loadingRef: leftLoadingRef 
-  } = useLazyAds(2);
-  
-  // Lazy loading for right side ads
-  const { 
-    ads: rightAds, 
-    isLoading: rightLoading, 
-    hasMore: rightHasMore, 
-    containerRef: rightContainerRef, 
-    loadingRef: rightLoadingRef 
-  } = useLazyAds(3);
+  // Fetch banner ads
+  const { data: adsData, isLoading: adsLoading } = useBannerAds();
+  const ads = Array.isArray(adsData?.data) ? adsData.data : [];
 
   // State for filters - initialize with category from route state
   const [filters, setFilters] = useState({
@@ -78,59 +61,103 @@ function AllResturants() {
     debouncedUpdateFilters(newFilters);
   }, [debouncedUpdateFilters]);
 
+  // Handle ad click
+  const handleAdClick = (campaign) => {
+    const restaurantId = campaign?.restaurant?.id;
+    const productId = campaign?.product?.id;
+
+    // Priority: restaurant first
+    if (restaurantId && productId) {
+      navigate(`/resturants-detail/${restaurantId}`, { state: { productId } });
+      return;
+    }
+
+    if (restaurantId && !productId) {
+      navigate(`/resturants-detail/${restaurantId}`);
+      return;
+    }
+
+    if (!restaurantId && productId) {
+      setSelectedProductId(productId);
+      setSelectedRestaurant(null);
+      setIsProductModalOpen(true);
+      return;
+    }
+  };
+
+
+
   return (
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
       <div className='max-w-[1480px] mx-auto'>
-      <div className="flex flex-col sm:flex-row gap-x-[30px] px-6 mx-auto justify-center pt-28">
-        <div className="md:w-[20%] w-full">
-          <ProductFilters 
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-          
-          {/* Lazy loaded left side ads */}
-          <div className="my-6">
-            <LazyAdContainer
-              ads={leftAds}
-              isLoading={leftLoading}
-              hasMore={leftHasMore}
-              containerRef={leftContainerRef}
-              loadingRef={leftLoadingRef}
-              type="card"
-              staticImages={['/images/add-card-one.png', '/images/add-card-two.png']}
-              onCardClick={({ productId, restaurant }) => { 
-                setSelectedProductId(productId); 
-                setSelectedRestaurant(restaurant); 
-                setIsProductModalOpen(true); 
-              }}
+        <div className="flex flex-col sm:flex-row gap-x-[30px] px-6 mx-auto justify-center pt-28">
+          {/* Left Sidebar - Filters and Ads */}
+          <div className="md:w-[20%] w-full">
+            <ProductFilters
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
             />
+
+            {/* Left side ads - CardOne only */}
+            <div className="my-6 space-y-6">
+              {adsLoading ? (
+                // Loading skeleton
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-200 rounded-lg h-48"></div>
+                  </div>
+                ))
+              ) : (
+                ads.slice(0, 4).map((campaign, index) => (
+                  <div key={campaign?.id || index} onClick={() => handleAdClick(campaign)} className="cursor-pointer">
+                    <CardOne
+                      campaignData={campaign}
+                      image={campaign?.media_path || '/images/placeholder1.jpg'}
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="md:w-[60%] w-full">
+            <DialyDeals />
+            <AllResturantsSection filters={debouncedFilters} />
+          </div>
+
+          {/* Right Sidebar - Mixed Ads */}
+          <div className="md:w-[20%] w-full">
+            <div className="space-y-6">
+              {adsLoading ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-200 rounded-lg h-48"></div>
+                  </div>
+                ))
+              ) : (
+                ads.slice(4).map((campaign, index) => (
+                  <div key={campaign?.id || index} onClick={() => handleAdClick(campaign)} className="cursor-pointer">
+                    {index % 3 === 0 ? (
+                      <CardOne
+                        campaignData={campaign}
+                        image={campaign?.media_path || '/images/placeholder1.jpg'}
+                      />
+                    ) : (
+                      <DealDiscountCard
+                        campaignData={campaign}
+                        image={campaign?.media_path || '/images/placeholder1.jpg'}
+                      />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-        <div className="md:w-[60%] w-full ">
-          <DialyDeals />
-          <AllResturantsSection filters={debouncedFilters} />
-          {/* <DealsAndDiscounts /> */}
-        </div>
-        <div className="md:w-[20%] w-full">
-          {/* Lazy loaded right side ads */}
-          <LazyAdContainer
-            ads={rightAds}
-            isLoading={rightLoading}
-            hasMore={rightHasMore}
-            containerRef={rightContainerRef}
-            loadingRef={rightLoadingRef}
-            type="mixed"
-            staticImages={['/images/add-card-two.png', '/images/deals-14.png', '/images/add-card-one.png']}
-            onCardClick={({ productId, restaurant }) => { 
-              setSelectedProductId(productId); 
-              setSelectedRestaurant(restaurant); 
-              setIsProductModalOpen(true); 
-            }}
-          />
-        </div>
-      </div>
       </div>
       <ProductModal
         open={isProductModalOpen}
