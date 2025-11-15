@@ -29,7 +29,7 @@ export default function ProductModal({
   const [selectedAddons, setSelectedAddons] = useState({});
   const [instructions, setInstructions] = useState("");
   const [imageError, setImageError] = useState(false);
-  const { addToCart, items: cartItems } = useCart();
+  const { addToCart, items: cartItems, openCartDrawer } = useCart();
   const { 
     confirmationModal, 
     showRestaurantConfirmation, 
@@ -112,6 +112,7 @@ export default function ProductModal({
           toast.success(`${product.name} added to cart!`);
           conflictData.onConfirm();
           setOpen(false);
+          openCartDrawer();
         },
         () => {
           // User cancelled - execute the cancel action
@@ -131,6 +132,7 @@ export default function ProductModal({
     if (!hasConflict) {
       toast.success(`${product.name} added to cart!`);
       setOpen(false);
+      openCartDrawer();
     }
   };
 

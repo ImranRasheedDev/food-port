@@ -11,7 +11,7 @@ import ProductModal from './ProductModal';
 const DialyDeals = () => {
     // Fetch ads for daily deals (position 1)
     const { data, isLoading } = useBannerAds();
-    const campaigns = Array.isArray(data?.data) ? data.data : [];
+    const campaigns = Array.isArray(data?.data) ? data.data.filter(item => item.product !== null) : [];
     const navigate = useNavigate();
     console.log(campaigns, 'campaigns');
 
@@ -70,7 +70,7 @@ const DialyDeals = () => {
                             onImageError={() => handleImageError(ad.id || index)}
                             onCardClick={onCardClick}
                         /> */}
-                        <div onClick={() => handleCardClick(campaign)} className='cursor-pointer rounded-4xl overflow-hidden h-64 md:h-96'>
+                        <div onClick={() => handleCardClick(campaign)} className='cursor-pointer lg:rounded-4xl rounded-xl overflow-hidden h-[160px] lg:h-[230px] 2xl:h-96'>
                             <img src={campaign?.media_path || '/images/placeholder1.jpg'} alt={campaign?.restaurant?.name} className='w-full h-full object-cover' />
                         </div>
                     </SwiperSlide>

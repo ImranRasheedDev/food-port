@@ -280,7 +280,7 @@ const AllResturantsSection = ({ filters = {} }) => {
           "We're committed to cook healthy to ensure they retain their freshness and nutritional value, guaranteeing a delightful experience."
         }
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
         ) : hasApiData ? (

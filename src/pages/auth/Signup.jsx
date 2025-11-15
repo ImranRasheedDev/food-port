@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRegisterUser, useAddAddress } from "@/hooks/api";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { getFcmToken } from "@/lib/generateFcmToken";
+import { usePageLoader } from "@/hooks/usePageLoader";
 
 import {
   Select,
@@ -68,6 +69,7 @@ function Signup() {
   const addAddress = useAddAddress({
     onSuccess: () => { },
   });
+  
   // Initialize the register user mutation
   const registerUser = useRegisterUser({
     onSuccess: async (data) => {
@@ -165,6 +167,9 @@ function Signup() {
       isSubmittingRef.current = false;
     },
   });
+
+  // Show loader when signing up
+  usePageLoader(registerUser.isPending || addAddress.isPending, 'Creating your account...');
 
   const onSubmit = useCallback(
     async (data) => {

@@ -97,8 +97,8 @@ export default function TotalTestimonialsBox({ rating = 0, customerCount, rating
     };
 
     return (
-        <div className="flex items-center w-full gap-4 ">
-            <div className="bg-primary-50 p-8 rounded-lg text-center w-1/2">
+        <div className="md:flex items-center w-full gap-4 ">
+            <div className="bg-primary-50 p-8 rounded-lg text-center w-full md:w-1/2 max-md:mb-6">
                 <h3 className="text-white text-[56px] font-semibold" >
                     {rating}
                 </h3>

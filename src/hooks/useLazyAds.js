@@ -18,10 +18,13 @@ export const useLazyAds = (initialLimit = 3) => {
   // Update all ads when new data comes
   useEffect(() => {
     if (adsData?.data) {
+      // Filter out ads where product is null
+      const filteredAds = adsData.data.filter(item => item.product !== null);
+      
       if (currentPage === 1) {
-        setAllAds(adsData.data);
+        setAllAds(filteredAds);
       } else {
-        setAllAds(prev => [...prev, ...adsData.data]);
+        setAllAds(prev => [...prev, ...filteredAds]);
       }
       
       // Check if there are more ads to load

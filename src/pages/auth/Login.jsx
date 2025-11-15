@@ -10,6 +10,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLoginUser } from "@/hooks/api";
 import { getFcmToken } from "@/lib/generateFcmToken";
+import { usePageLoader } from "@/hooks/usePageLoader";
+
 function Login() {
   const [loading, setLoading] = useState(false);
 
@@ -58,6 +60,9 @@ function Login() {
     formState: { errors },
     reset,
   } = useForm();
+
+  // Show loader when logging in
+  usePageLoader(loginUser.isPending, 'Logging in...');
 
   const onSubmit = useCallback(
     async (data) => {

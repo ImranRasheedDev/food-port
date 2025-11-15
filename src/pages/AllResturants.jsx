@@ -20,7 +20,7 @@ function AllResturants() {
 
   // Fetch banner ads
   const { data: adsData, isLoading: adsLoading } = useBannerAds();
-  const ads = Array.isArray(adsData?.data) ? adsData.data : [];
+  const ads = Array.isArray(adsData?.data) ? adsData.data.filter(item => item.product !== null) : [];
 
   // State for filters - initialize with category from route state
   const [filters, setFilters] = useState({
@@ -91,27 +91,35 @@ function AllResturants() {
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
-      <div className='max-w-[1480px] mx-auto'>
-        <div className="flex flex-col sm:flex-row gap-x-[30px] px-6 mx-auto justify-center pt-28">
-          {/* Left Sidebar - Filters and Ads */}
-          <div className="md:w-[20%] w-full">
-            <ProductFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-            />
+      <div className='w-full max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-[30px] pt-8 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-28 pb-8 sm:pb-12">
 
-            {/* Left side ads - CardOne only */}
-            <div className="my-6 space-y-6">
+          {/* Left Sidebar - Filters and Ads */}
+          <aside className="w-full lg:w-[22%] 2xl:w-[20%] order-1 lg:order-1">
+            {/* Filters Section */}
+            <div className="mb-6">
+              <ProductFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            </div>
+
+            {/* Left side ads - CardOne only - Hidden on mobile, visible on tablet+ */}
+            <div className="hidden md:block space-y-4 lg:space-y-6">
               {adsLoading ? (
                 // Loading skeleton
                 Array.from({ length: 2 }).map((_, i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-lg h-48"></div>
+                    <div className="bg-gray-200 rounded-lg h-40 sm:h-48"></div>
                   </div>
                 ))
               ) : (
                 ads.slice(0, 4).map((campaign, index) => (
-                  <div key={campaign?.id || index} onClick={() => handleAdClick(campaign)} className="cursor-pointer">
+                  <div
+                    key={campaign?.id || index}
+                    onClick={() => handleAdClick(campaign)}
+                    className="cursor-pointer transition-transform hover:scale-[1.02]"
+                  >
                     <CardOne
                       campaignData={campaign}
                       image={campaign?.media_path || '/images/placeholder1.jpg'}
@@ -120,27 +128,33 @@ function AllResturants() {
                 ))
               )}
             </div>
-          </div>
+          </aside>
 
           {/* Main Content */}
-          <div className="md:w-[60%] w-full">
-            <DialyDeals />
-            <AllResturantsSection filters={debouncedFilters} />
-          </div>
+          <main className="w-full lg:w-[56%] xl:w-[60%] order-2 lg:order-2">
+            <div className="space-y-8 sm:space-y-10">
+              <DialyDeals />
+              <AllResturantsSection filters={debouncedFilters} />
+            </div>
+          </main>
 
-          {/* Right Sidebar - Mixed Ads */}
-          <div className="md:w-[20%] w-full">
-            <div className="space-y-6">
+          {/* Right Sidebar - Mixed Ads - Hidden on mobile and tablet, visible on desktop */}
+          <aside className="w-full lg:w-[22%] xl:w-[20%] order-3 lg:order-3 hidden lg:block">
+            <div className="space-y-4 lg:space-y-6">
               {adsLoading ? (
                 // Loading skeleton
                 Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-lg h-48"></div>
+                    <div className="bg-gray-200 rounded-lg h-40 sm:h-48"></div>
                   </div>
                 ))
               ) : (
                 ads.slice(4).map((campaign, index) => (
-                  <div key={campaign?.id || index} onClick={() => handleAdClick(campaign)} className="cursor-pointer">
+                  <div
+                    key={campaign?.id || index}
+                    onClick={() => handleAdClick(campaign)}
+                    className="cursor-pointer transition-transform hover:scale-[1.02]"
+                  >
                     {index % 3 === 0 ? (
                       <CardOne
                         campaignData={campaign}
@@ -156,9 +170,33 @@ function AllResturants() {
                 ))
               )}
             </div>
-          </div>
+          </aside>
+        </div>
+
+        {/* Mobile Bottom Ads Section - Only visible on mobile/tablet */}
+        <div className="lg:hidden pb-8 space-y-4">
+          {!adsLoading && ads.length > 0 && (
+            <>
+              <h3 className="text-lg sm:text-xl font-semibold mb-4">Featured Deals</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {ads.slice(0, 4).map((campaign, index) => (
+                  <div
+                    key={campaign?.id || index}
+                    onClick={() => handleAdClick(campaign)}
+                    className="cursor-pointer transition-transform hover:scale-[1.02]"
+                  >
+                    <CardOne
+                      campaignData={campaign}
+                      image={campaign?.media_path || '/images/placeholder1.jpg'}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
+
       <ProductModal
         open={isProductModalOpen}
         setOpen={setIsProductModalOpen}

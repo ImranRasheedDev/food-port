@@ -3,13 +3,13 @@ import { processImageUrl } from '@/lib/utils';
 export default function HeroBanner({ user = false }) {
     return (
         <section
-            className={`${user ? "bg-[url('/images/hero-bg-2.png')]  min-h-[450px] relative" : "bg-[url('/images/hero-bg.png')] min-h-screen"} flex items-center justify-start bg-cover bg-center`}
+            className={`${user ? "bg-[url('/images/hero-bg-2.png')]  md:min-h-[450px] relative" : "bg-[url('/images/hero-bg.png')] min-h-screen"} flex items-center justify-start bg-cover bg-center`}
         >
             {user ? (
                 <>
                     <div className="max-w-[1280px] mx-auto px-4 flex flex-col md:flex-row items-stretch min-h-[450px] w-full">
                         {/* Text Content */}
-                        <div className="w-full md:w-2/5 flex py-40 items-center relative z-10">
+                        <div className="w-full md:w-2/5 flex md:py-40 pt-40 pb-20 items-center relative z-10">
                             <div className="flex flex-col items-start w-full">
                                 <h1 className="text-2xl md:text-3xl max-w-2xl md:max-w-none font-bold text-white mb-6 leading-tight">
                                     DISCOVER FLAVOURS FROM TOP RESTAURANTS & FOOD TRUCK
@@ -20,9 +20,9 @@ export default function HeroBanner({ user = false }) {
                                 </p>
                             </div>
                         </div>
-                        
+
                         {/* Image - positioned absolutely to cover right side */}
-                        <div className=" md:block absolute top-0 right-0 w-3/5 h-full">
+                        <div className="md:block hidden absolute top-0 right-0 w-3/5 h-full">
                             <img src={processImageUrl("/images/banner-right.png")} alt="Banner Right" className="absolute bottom-0 right-0 w-full object-cover object-right" />
                         </div>
                     </div>

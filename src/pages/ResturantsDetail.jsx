@@ -1,5 +1,4 @@
 import CardOne from "@/components/Cards/AdsCards/CardOne";
-import DynamicCart from "@/components/Cards/DynamicCart";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import ProductCard from "@/components/Cards/ProductCard";
 import ProductModal from "@/components/InnerPages/ProductModal";
@@ -41,7 +40,7 @@ export default function ResturantsDetail() {
   const restaurant = restaurantData?.data;
 
   // Get banner ads data
-  const bannerAds = bannerAdsData?.data || [];
+  const bannerAds = Array.isArray(bannerAdsData?.data) ? bannerAdsData.data.filter(item => item.product !== null) : [];
 
   // Lazy loading for left side ads
   const {
@@ -173,152 +172,138 @@ export default function ResturantsDetail() {
         onSearchChange={handleSearchChange}
       />
       <div className="bg-primary-1014 pt-20 pb-20">
-        <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-x-[30px] px-6 mx-auto justify-center ">
-          <div className="2xl:col-span-1 xl:col-span-1 lg:col-span-1 col-span-1 pt-22 hidden xl:block">
-            {/* Lazy loaded left side ads */}
-            <LazyAdContainer
-              ads={leftAds}
-              isLoading={leftLoading}
-              hasMore={leftHasMore}
-              containerRef={leftContainerRef}
-              loadingRef={leftLoadingRef}
-              type="card"
-              staticImages={staticImages}
-              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
-            />
-          </div>
-          <div className="2xl:col-span-2 xl:col-span-1 lg:col-span-1 col-span-1 max-xl:order-2 ">
-            {filteredCategories?.length > 0 ? (
-              filteredCategories.map((category, index) => (
-                <React.Fragment key={category.id}>
-                  <div
-                    id={`category-${category.id}`}
-                    className="mb-10"
-                  >
-                    <SectionInfo
-                      title={category.name}
-                      description={`Explore our delicious ${category.name.toLowerCase()} selection`}
-                    />
-                    <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-4">
-                      {category.products?.map((product) => (
-                        <ProductCard
-                          key={product.id}
-                          onClick={() => {
-                            setSelectedProductId(product.id);
-                            setOpen(true);
-                          }}
-                          title={product.name}
-                          price={product.price?.toString() || "0.00"}
-                          description={product.description}
-                          image={product.image_url || "/images/product-1.png"}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Show Deals and Discounts after the first category only */}
-                  {index === 0 && (
-                    <div className="mb-10">
-                      <DealsAndDiscounts
-                        restaurants={bannerAds}
-                        isLoading={false}
-                        hasApiData={false}
-                        apiReturnedEmpty={false}
-                        hideRestaurantCards={true}
-                        image={staticImages[index % staticImages.length]}
-                      />
-                    </div>
-                  )}
-
-                  {
-                    index === 2 && (
-                      <div className="mb-10">
-                        <ChickenSandwichCard image={staticImages[index % staticImages.length]} />
-                      </div>
-                    )
-                  }
-
-                </React.Fragment>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-lg text-gray-500 mb-2">No products found</div>
-                <div className="text-sm text-gray-400">
-                  Try searching for a different item
-                </div>
-              </div>
-            )}
-
-            <div className="mb-10">
-              <TotalTestimonialsBox
-                rating={restaurant?.rating || 4.5}
-                customerCount={restaurant?.rating_count || 0}
-                ratingData={[
-                  {
-                    percentage: restaurant?.rating_1 / (restaurant?.rating_count || 1) * 100 || 0,
-                    count: restaurant?.rating_1 || 0,
-                  },
-                  {
-                    percentage: restaurant?.rating_2 / (restaurant?.rating_count || 1) * 100 || 0,
-                    count: restaurant?.rating_2 || 0,
-                  },
-                  {
-                    percentage: restaurant?.rating_3 / (restaurant?.rating_count || 1) * 100 || 0,
-                    count: restaurant?.rating_3 || 0,
-                  },
-                  {
-                    percentage: restaurant?.rating_4 / (restaurant?.rating_count || 1) * 100 || 0,
-                    count: restaurant?.rating_4 || 0,
-                  },
-                  {
-                    percentage: restaurant?.rating_5 / (restaurant?.rating_count || 1) * 100 || 0,
-                    count: restaurant?.rating_5 || 0,
-                  },
-                ]}
+        <div className="w-full max-w-[1480px] mx-auto">
+          <div className="px-6 flex lg:gap-x-6 flex-row">
+            <div className="w-full lg:w-1/3">
+              <LazyAdContainer
+                ads={leftAds}
+                isLoading={leftLoading}
+                hasMore={leftHasMore}
+                containerRef={leftContainerRef}
+                loadingRef={leftLoadingRef}
+                type="card"
+                staticImages={staticImages}
+                onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
               />
             </div>
-            <div className="mb-10">
-              <SectionInfo title={"Customer Feedback"} />
-              <div className="space-y-6 pt-3">
-                {restaurant?.ratings && restaurant.ratings.length > 0 ? (
-                  restaurant.ratings.map((rating) => (
-                    <TestimonialCard
-                      key={rating.id}
-                      id={rating.id}
-                      name={rating.customer?.user?.name || 'Anonymous'}
-                      rating={rating.rating}
-                      comment={rating.comment}
-                      date={rating.created_at}
-                      img={rating.customer?.user?.image || "/images/avatar.jpg"}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 text-lg">Customer feedback not yet</p>
+            <div className="w-full lg:w-2/3">
+              {filteredCategories?.length > 0 ? (
+                filteredCategories.map((category, index) => (
+                  <React.Fragment key={category.id}>
+                    <div
+                      id={`category-${category.id}`}
+                      className="mb-10"
+                    >
+                      <SectionInfo
+                        title={category.name}
+                        description={`Explore our delicious ${category.name.toLowerCase()} selection`}
+                      />
+                      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
+                        {category.products?.map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            onClick={() => {
+                              setSelectedProductId(product.id);
+                              setOpen(true);
+                            }}
+                            title={product.name}
+                            price={product.price?.toString() || "0.00"}
+                            description={product.description}
+                            image={product.image_url || "/images/product-1.png"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Show Deals and Discounts after the first category only */}
+                    {index === 0 && (
+                      <div className="mb-10">
+                        <DealsAndDiscounts
+                          restaurants={bannerAds}
+                          isLoading={false}
+                          hasApiData={false}
+                          apiReturnedEmpty={false}
+                          hideRestaurantCards={true}
+                          image={staticImages[index % staticImages.length]}
+                        />
+                      </div>
+                    )}
+
+                    {
+                      index === 2 && (
+                        <div className="mb-10">
+                          <ChickenSandwichCard image={staticImages[index % staticImages.length]} />
+                        </div>
+                      )
+                    }
+
+                  </React.Fragment>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-lg text-gray-500 mb-2">No products found</div>
+                  <div className="text-sm text-gray-400">
+                    Try searching for a different item
                   </div>
-                )}
+                </div>
+              )}
+
+              <div className="mb-10">
+                <TotalTestimonialsBox
+                  rating={restaurant?.rating || 4.5}
+                  customerCount={restaurant?.rating_count || 0}
+                  ratingData={[
+                    {
+                      percentage: restaurant?.rating_1 / (restaurant?.rating_count || 1) * 100 || 0,
+                      count: restaurant?.rating_1 || 0,
+                    },
+                    {
+                      percentage: restaurant?.rating_2 / (restaurant?.rating_count || 1) * 100 || 0,
+                      count: restaurant?.rating_2 || 0,
+                    },
+                    {
+                      percentage: restaurant?.rating_3 / (restaurant?.rating_count || 1) * 100 || 0,
+                      count: restaurant?.rating_3 || 0,
+                    },
+                    {
+                      percentage: restaurant?.rating_4 / (restaurant?.rating_count || 1) * 100 || 0,
+                      count: restaurant?.rating_4 || 0,
+                    },
+                    {
+                      percentage: restaurant?.rating_5 / (restaurant?.rating_count || 1) * 100 || 0,
+                      count: restaurant?.rating_5 || 0,
+                    },
+                  ]}
+                />
+              </div>
+              <div className="mb-10">
+                <SectionInfo title={"Customer Feedback"} />
+                <div className="space-y-6 pt-3">
+                  {restaurant?.ratings && restaurant.ratings.length > 0 ? (
+                    restaurant.ratings.map((rating) => (
+                      <TestimonialCard
+                        key={rating.id}
+                        id={rating.id}
+                        name={rating.customer?.user?.name || 'Anonymous'}
+                        rating={rating.rating}
+                        comment={rating.comment}
+                        date={rating.created_at}
+                        img={rating.customer?.user?.image || "/images/avatar.jpg"}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 text-lg">Customer feedback not yet</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="2xl:col-span-1 mb-4 md:mb-0 xl:col-span-1 lg:col-span-1 col-span-1 pt-22 max-xl:order-1">
-            <DynamicCart restaurantData={restaurant} ads={bannerAds} />
-
-            {/* Lazy loaded right side ads */}
-            {/* <LazyAdContainer
-              ads={rightAds}
-              isLoading={rightLoading}
-              hasMore={rightHasMore}
-              containerRef={rightContainerRef}
-              loadingRef={rightLoadingRef}
-              type="deal"
-              staticImages={staticImages}
-              onCardClick={({ productId }) => { setSelectedProductId(productId); setOpen(true); }}
-            /> */}
           </div>
 
         </div>
       </div>
+
       <ProductModal
         open={open}
         setOpen={setOpen}

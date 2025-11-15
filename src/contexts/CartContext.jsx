@@ -14,6 +14,8 @@ export const CartProvider = ({ children }) => {
         return localData ? JSON.parse(localData) : null;
     });
 
+    const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
     const [confirmationModal, setConfirmationModal] = useState({
         isOpen: false,
         title: '',
@@ -137,6 +139,10 @@ export const CartProvider = ({ children }) => {
         return cartItems.length === 0;
     };
 
+    const openCartDrawer = () => setIsCartDrawerOpen(true);
+    const closeCartDrawer = () => setIsCartDrawerOpen(false);
+    const toggleCartDrawer = () => setIsCartDrawerOpen(prev => !prev);
+
     const value = useMemo(() => ({
         items: cartItems,
         addToCart,
@@ -147,8 +153,12 @@ export const CartProvider = ({ children }) => {
         getCartItemCount,
         isCartEmpty,
         restaurantData,
-        setRestaurantInfo
-    }), [cartItems, restaurantData]);
+        setRestaurantInfo,
+        isCartDrawerOpen,
+        openCartDrawer,
+        closeCartDrawer,
+        toggleCartDrawer
+    }), [cartItems, restaurantData, isCartDrawerOpen]);
 
     return (
         <CartContext.Provider value={value}>

@@ -17,7 +17,7 @@ const DealsAndDiscounts = ({
 }) => {
   const swiperRef = useRef(null);
   const { data: bannerAdsData, isLoading: adsLoading } = useBannerAds();
-  const campaigns = Array.isArray(bannerAdsData?.data) ? bannerAdsData.data : [];
+  const campaigns = Array.isArray(bannerAdsData?.data) ? bannerAdsData.data.filter(item => item.product !== null) : [];
 
   return (
     <div>
@@ -86,7 +86,7 @@ const DealsAndDiscounts = ({
       </div>
 
       {!hideRestaurantCards && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
           {isLoading ? (
             // Loading skeletons
             Array.from({ length: 6 }).map((_, i) => (

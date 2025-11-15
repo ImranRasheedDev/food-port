@@ -38,7 +38,7 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
     // Handle filter changes - Only one selection per group
     const handleFilterChange = (filterType, itemId, checked) => {
         let newFilters
-        
+
         if (checked) {
             // Replace entire array with single selection (radio button behavior)
             newFilters = [itemId]
@@ -46,14 +46,14 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
             // Remove selection if unchecked
             newFilters = []
         }
-        
+
         onFiltersChange({ ...filters, [filterType]: newFilters })
     }
 
     return (
-        <div className='bg-white rounded-lg p-4 border border-primary-1006'>
+        <div className='bg-white rounded-lg xl:p-4 border border-primary-1006'>
             {/* Price Range - Radio Buttons */}
-            <div className='border-b border-primary-1006 pb-6 mb-6 mx-7 pt-7'>
+            <div className='border-b border-primary-1006 pb-3 pt-3  xl:pb-6 mb-6 xl:pt-7 xl:mx-7 mx-3'>
                 <h2 className='text-primary-1008 text-sm font-semibold mb-3'>
                     Price
                 </h2>
@@ -67,11 +67,10 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
                             key={option.value}
                             type="button"
                             onClick={() => handlePriceRangeChange(option.value)}
-                            className={`w-full border border-primary-1010 rounded-4xl text-center h-8 text-sm font-medium transition-colors ${
-                                priceRange === option.value 
-                                    ? 'bg-primary-50 text-white border-primary-50' 
-                                    : 'bg-white text-primary-1008 hover:bg-gray-50'
-                            }`}
+                            className={`w-full border border-primary-1010 rounded-4xl text-center h-8 text-sm font-medium transition-colors ${priceRange === option.value
+                                ? 'bg-primary-50 text-white border-primary-50'
+                                : 'bg-white text-primary-1008 hover:bg-gray-50'
+                                }`}
                         >
                             {option.label}
                         </button>
@@ -80,16 +79,16 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
             </div>
 
             {/* Suggested Filters */}
-            <CheckboxGroup 
-                title="Suggested" 
-                items={suggestedFilters} 
+            <CheckboxGroup
+                title="Suggested"
+                items={suggestedFilters}
                 selectedItems={filters.suggested || []}
                 onItemChange={(itemId, checked) => handleFilterChange('suggested', itemId, checked)}
             />
 
             {/* Dynamic Categories */}
             {categoriesLoading ? (
-                <div className="border-b border-primary-1006 pb-6 mb-6 mx-7">
+                <div className="border-b border-primary-1006 pb-3 pt-3 xl:pb-6 mb-6 xl:pt-7 xl:mx-7 mx-3">
                     <h2 className='text-primary-1008 text-sm font-semibold mb-3'>Category</h2>
                     <div className="space-y-3">
                         {[1, 2, 3, 4, 5].map((i) => (
@@ -101,18 +100,18 @@ const ProductFilters = ({ filters, onFiltersChange }) => {
                     </div>
                 </div>
             ) : (
-                <CheckboxGroup 
-                    title="Category" 
-                    items={categoryFilters} 
+                <CheckboxGroup
+                    title="Category"
+                    items={categoryFilters}
                     selectedItems={filters.category || []}
                     onItemChange={(itemId, checked) => handleFilterChange('category', itemId, checked)}
                 />
             )}
 
             {/* Distance Filters */}
-            <CheckboxGroup 
-                title="Distance" 
-                items={distanceFilters} 
+            <CheckboxGroup
+                title="Distance"
+                items={distanceFilters}
                 className="border-b-0 pb-0"
                 selectedItems={filters.distance || []}
                 onItemChange={(itemId, checked) => handleFilterChange('distance', itemId, checked)}

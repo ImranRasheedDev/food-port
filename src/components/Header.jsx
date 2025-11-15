@@ -7,23 +7,14 @@ import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const { getCartItemCount, items, restaurantData } = useCart();
+  const { getCartItemCount, items, restaurantData, openCartDrawer } = useCart();
   const navigate = useNavigate();
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
 
   const handleCartClick = () => {
-    if (getCartItemCount() <= 0) {
-      navigate('/cart');
-      return;
-    }
-    const rid = restaurantData?.id || items?.[0]?.restaurantId || items?.[0]?.restaurant_id;
-    if (rid) {
-      navigate(`/resturants-detail/${rid}`);
-    } else {
-      navigate('/cart');
-    }
+    openCartDrawer();
   };
 
   return (

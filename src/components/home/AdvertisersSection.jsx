@@ -39,7 +39,7 @@ import ProductModal from '../InnerPages/ProductModal';
 const AdvertisersSection = () => {
     const swiperRef = useRef(null);
     const { data, isLoading } = useBannerAds();
-    const campaigns = Array.isArray(data?.data) ? data.data : [];
+    const campaigns = Array.isArray(data?.data) ? data.data.filter(item => item.product !== null) : [];
     const navigate = useNavigate();
     console.log(campaigns, 'campaigns');
 
@@ -131,7 +131,7 @@ const AdvertisersSection = () => {
                                          mediaPath={campaign?.media_path}
                                          onClick={() => handleCardClick(campaign)}
                                     /> */}
-                                    <div onClick={() => handleCardClick(campaign)} className='cursor-pointer rounded-4xl overflow-hidden h-48 md:h-64'>
+                                    <div onClick={() => handleCardClick(campaign)} className='cursor-pointer lg:rounded-4xl rounded-xl overflow-hidden h-[150px] lg:h-48 xl:h-64'>
                                         <img src={campaign?.media_path} alt={campaign?.restaurant?.name} className='w-full h-full object-cover' />
                                     </div>
                                     {/* <div onClick={() => handleCardClick(campaign)}>
@@ -145,15 +145,15 @@ const AdvertisersSection = () => {
                     {/* <div className="flex space-x-2 absolute top-1/2 -translate-y-1/2 w-full justify-between z-10"> */}
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="w-10 h-10 md:w-14 md:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 left-0 md:left-0 z-10"
+                        className="w-10 h-10 lg:w-14 lg:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 left-0 md:left-0 z-10"
                     >
-                        <ArrowLeft className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
+                        <ArrowLeft className="w-4 h-4 lg:w-6 lg:h-6 text-primary-100" />
                     </button>
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="w-10 h-10 md:w-14 md:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 right-0 md:right-0 z-10"
+                        className="w-10 h-10 lg:w-14 lg:h-14 shadow-lg bg-white rounded-full flex items-center justify-center cursor-pointer absolute top-1/2 -translate-y-1/2 right-0 md:right-0 z-10"
                     >
-                        <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-primary-100" />
+                        <ArrowRight className="w-4 h-4 lg:w-6 lg:h-6 text-primary-100" />
                     </button>
                     {/* </div> */}
                 </div>

@@ -114,7 +114,7 @@ const DealDiscountCard = ({
 
     return (
         <div
-            className={`cursor-pointer rounded-4xl overflow-hidden h-64 md:h-96`}
+            className={`cursor-pointer lg:rounded-4xl rounded-xl overflow-hidden h-[160px] lg:h-[230px] 2xl:h-96`}
             role="button"
             // tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(e); } }}

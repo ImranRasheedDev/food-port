@@ -165,7 +165,7 @@ export default function DynamicCart({
 
   if (isCartEmpty()) {
     return (
-      <div className="border h-[960px] flex flex-col justify-center items-center p-4 border-primary-1007 rounded-lg p-4">
+      <div className="border h-[400px] flex flex-col justify-center items-center p-4 border-primary-1007 rounded-lg">
         <div className="text-center">
           <div className="mb-4">
             <img

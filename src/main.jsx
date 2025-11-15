@@ -15,7 +15,7 @@ import InitialLoader from "@/components/InitialLoader";
 if ("serviceWorker" in navigator) {
   const basePath = import.meta.env.VITE_BASE_URL || '/';
   const swPath = `${basePath}firebase-messaging-sw.js`;
-  
+
   navigator.serviceWorker
     .register(swPath)
     .then((registration) => {
@@ -29,13 +29,13 @@ const init = async () => {
   // Show initial loader immediately
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<InitialLoader />);
-  
+
   // Run bootstrap process
   await bootstrap();
-  
+
   // Get the base path from environment or detect it
   const basePath = import.meta.env.VITE_BASE_URL || '/';
-  
+
   // Render the main app after bootstrap completes
   root.render(
     <BrowserRouter basename={basePath}>
@@ -45,7 +45,7 @@ const init = async () => {
             <App />
           </NotificationProvider>
 
-          <ToastContainer position="top-right" />
+          {/* <ToastContainer position="top-right" /> */}
         </GoogleMapsProvider>
       </QueryProvider>
     </BrowserRouter>
