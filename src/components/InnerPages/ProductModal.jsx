@@ -2,10 +2,10 @@ import { Minus, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-//   DialogDescription,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
+  //   DialogDescription,
+  //   DialogHeader,
+  //   DialogTitle,
+  //   DialogTrigger,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
@@ -30,12 +30,12 @@ export default function ProductModal({
   const [instructions, setInstructions] = useState("");
   const [imageError, setImageError] = useState(false);
   const { addToCart, items: cartItems, openCartDrawer } = useCart();
-  const { 
-    confirmationModal, 
-    showRestaurantConfirmation, 
-    handleConfirm, 
-    handleCancel, 
-    closeModal 
+  const {
+    confirmationModal,
+    showRestaurantConfirmation,
+    handleConfirm,
+    handleCancel,
+    closeModal
   } = useCartConfirmation();
 
   // Reset state when modal closes
@@ -123,11 +123,11 @@ export default function ProductModal({
     };
 
     // Check if there's a restaurant conflict first
-    const hasConflict = cartItems.length > 0 && 
+    const hasConflict = cartItems.length > 0 &&
       cartItems[0].restaurantId !== cartData.restaurantId;
 
     addToCart(cartData, handleRestaurantConflict);
-    
+
     // Only show success toast if there's no conflict (item added directly)
     if (!hasConflict) {
       toast.success(`${product.name} added to cart!`);
@@ -206,10 +206,10 @@ export default function ProductModal({
 
     // Enforce minimum quantity
     const minQuantity = addon.min || 1;
-    
+
     // Don't allow quantity below minimum
     if (quantity < minQuantity) return;
-    
+
     // Check category-level max limit (total quantity across all addons in category)
     if (addon.categoryMax !== null) {
       const categoryAddons = Object.values(selectedAddons).filter(
@@ -218,14 +218,14 @@ export default function ProductModal({
       const currentTotalQuantity = categoryAddons.reduce((total, a) => {
         return total + (a.selected ? a.quantity : 0);
       }, 0);
-      
+
       // Calculate what the new total would be
       const newTotalQuantity = currentTotalQuantity - addon.quantity + quantity;
-      
+
       // Don't allow if new total exceeds category max
       if (newTotalQuantity > addon.categoryMax) return;
     }
-    
+
     // Check individual addon max limit
     if (addon.max !== null && quantity > addon.max) return;
 
@@ -332,176 +332,174 @@ export default function ProductModal({
           const selectedCount = categoryAddons.filter(
             (a) => a.selected
           ).length;
-          
+
           // Calculate total quantity across all selected addons in this category
           const totalQuantity = categoryAddons.reduce((total, addon) => {
             return total + (addon.selected ? addon.quantity : 0);
           }, 0);
-          
+
           const maxReached = category.max !== null && totalQuantity >= category.max;
           const minReached = category.min !== null && selectedCount >= category.min;
 
           return (
-          <div key={category.id} className="mx-8 mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold">
-                {category.name}
-                {category.required && (
-                  <span className="text-red-500 ml-1">*</span>
+            <div key={category.id} className="mx-8 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xl font-bold">
+                  {category.name}
+                  {category.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                </h2>
+                {(category.min > 0 || category.max !== null) && (
+                  <div className="text-sm text-gray-600 flex gap-2 items-center">
+                    {category.min > 0 && (
+                      <span className={`${!minReached ? 'text-red-500' : 'text-green-600'}`}>
+                        Min: {category.min}
+                      </span>
+                    )}
+                    {category.max !== null && (
+                      <span className={`${maxReached ? 'text-red-500' : 'text-blue-600'}`}>
+                        Max: {category.max}
+                      </span>
+                    )}
+                    <span className="text-gray-500">
+                      ({totalQuantity}/{category.max !== null ? category.max : '∞'})
+                    </span>
+                  </div>
                 )}
-              </h2>
-              {(category.min > 0 || category.max !== null) && (
-                <div className="text-sm text-gray-600 flex gap-2 items-center">
-                  {category.min > 0 && (
-                    <span className={`${!minReached ? 'text-red-500' : 'text-green-600'}`}>
-                      Min: {category.min}
-                    </span>
-                  )}
-                  {category.max !== null && (
-                    <span className={`${maxReached ? 'text-red-500' : 'text-blue-600'}`}>
-                      Max: {category.max}
-                    </span>
-                  )}
-                  <span className="text-gray-500">
-                    ({totalQuantity}/{category.max !== null ? category.max : '∞'})
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="border border-primary-1007 rounded-xl p-7 mt-4">
-              {category.type === "radio" ? (
-                <RadioGroup
-                  value={
-                    Object.keys(selectedAddons).find(
-                      (id) =>
-                        selectedAddons[id].categoryId === category.id &&
-                        selectedAddons[id].selected
-                    ) || ""
-                  }
-                  onValueChange={(value) => {
-                    // Deselect all other addons in this category
-                    const newAddons = { ...selectedAddons };
-                    Object.keys(newAddons).forEach((id) => {
-                      if (newAddons[id].categoryId === category.id) {
-                        newAddons[id].selected = id === value;
-                      }
-                    });
-                    setSelectedAddons(newAddons);
-                  }}
-                  className="space-y-5"
-                >
-                  {category.product_addons.map((addon) => (
-                    <div key={addon.id} className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        className="border-primary-50 data-[state=checked]:[&>span>svg]:fill-white data-[state=checked]:bg-primary-50"
-                        value={addon.id.toString()}
-                        id={addon.id.toString()}
-                      />
-                      <Label htmlFor={addon.id.toString()}>{addon.name}</Label>
-                      <p className="text-primary-1015 ml-auto">
-                        {addon.price === 0
-                          ? "Free"
-                          : `$${addon.price.toFixed(2)}`}
-                      </p>
-                    </div>
-                  ))}
-                </RadioGroup>
-              ) : (
-                <div className="space-y-5">
-                  {category.product_addons.map((addon) => {
-                    const isSelected = selectedAddons[addon.id]?.selected;
-                    const buttonDisabled = !isSelected && maxReached;
-                    const currentQuantity = selectedAddons[addon.id]?.quantity || 1;
-                    const minQuantity = selectedAddons[addon.id]?.min || 1;
-                    const maxQuantity = selectedAddons[addon.id]?.max;
-                    
-                    const minusDisabled = !isSelected || currentQuantity <= minQuantity;
-                    
-                    // Check if adding one more would exceed category max
-                    const wouldExceedCategoryMax = category.max !== null && 
-                      (totalQuantity + 1) > category.max;
-                    
-                    const plusDisabled = !isSelected || 
-                      (maxQuantity !== null && currentQuantity >= maxQuantity) ||
-                      wouldExceedCategoryMax;
-
-                    return (
+              </div>
+              <div className="border border-primary-1007 rounded-xl p-7 mt-4">
+                {category.type === "radio" ? (
+                  <RadioGroup
+                    value={
+                      Object.keys(selectedAddons).find(
+                        (id) =>
+                          selectedAddons[id].categoryId === category.id &&
+                          selectedAddons[id].selected
+                      ) || ""
+                    }
+                    onValueChange={(value) => {
+                      // Deselect all other addons in this category
+                      const newAddons = { ...selectedAddons };
+                      Object.keys(newAddons).forEach((id) => {
+                        if (newAddons[id].categoryId === category.id) {
+                          newAddons[id].selected = id === value;
+                        }
+                      });
+                      setSelectedAddons(newAddons);
+                    }}
+                    className="space-y-5"
+                  >
+                    {category.product_addons.map((addon) => (
                       <div key={addon.id} className="flex items-center space-x-2">
-                        <Checkbox
+                        <RadioGroupItem
+                          className="border-primary-50 data-[state=checked]:[&>span>svg]:fill-white data-[state=checked]:bg-primary-50"
+                          value={addon.id.toString()}
                           id={addon.id.toString()}
-                          checked={isSelected || false}
-                          onCheckedChange={(checked) =>
-                            handleAddonChange(addon.id, checked)
-                          }
-                          disabled={buttonDisabled}
-                          className="border-primary-50 data-[state=checked]:bg-primary-50 data-[state=checked]:border-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
-                        {buttonDisabled && (
-                          <span className="text-xs text-red-500 ml-1">Category max reached</span>
-                        )}
-                        <Label htmlFor={addon.id.toString()} className="flex-1">
-                          <div className="flex flex-col">
-                            <span>{addon.name}</span>
-                            {(minQuantity > 1 || maxQuantity !== null) && (
-                              <span className="text-xs text-gray-500">
-                                {minQuantity > 1 && `Min: ${minQuantity}`}
-                                {minQuantity > 1 && maxQuantity !== null && ' • '}
-                                {maxQuantity !== null && `Max: ${maxQuantity}`}
-                              </span>
-                            )}
-                          </div>
-                        </Label>
-                        {isSelected && (
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() =>
-                                handleAddonQuantityChange(
-                                  addon.id,
-                                  currentQuantity - 1
-                                )
-                              }
-                              disabled={minusDisabled}
-                              className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${
-                                minusDisabled 
-                                  ? 'opacity-50 cursor-not-allowed' 
-                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
-                              }`}
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="font-bold w-8 text-center">
-                              {currentQuantity}
-                            </span>
-                            <button
-                              onClick={() =>
-                                handleAddonQuantityChange(
-                                  addon.id,
-                                  currentQuantity + 1
-                                )
-                              }
-                              disabled={plusDisabled}
-                              className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${
-                                plusDisabled 
-                                  ? 'opacity-50 cursor-not-allowed' 
-                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
-                              }`}
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
+                        <Label htmlFor={addon.id.toString()}>{addon.name}</Label>
                         <p className="text-primary-1015 ml-auto">
                           {addon.price === 0
                             ? "Free"
                             : `$${addon.price.toFixed(2)}`}
                         </p>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    ))}
+                  </RadioGroup>
+                ) : (
+                  <div className="space-y-5">
+                    {category.product_addons.map((addon) => {
+                      const isSelected = selectedAddons[addon.id]?.selected;
+                      const buttonDisabled = !isSelected && maxReached;
+                      const currentQuantity = selectedAddons[addon.id]?.quantity || 1;
+                      const minQuantity = selectedAddons[addon.id]?.min || 1;
+                      const maxQuantity = selectedAddons[addon.id]?.max;
+
+                      const minusDisabled = !isSelected || currentQuantity <= minQuantity;
+
+                      // Check if adding one more would exceed category max
+                      const wouldExceedCategoryMax = category.max !== null &&
+                        (totalQuantity + 1) > category.max;
+
+                      const plusDisabled = !isSelected ||
+                        (maxQuantity !== null && currentQuantity >= maxQuantity) ||
+                        wouldExceedCategoryMax;
+
+                      return (
+                        <div key={addon.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={addon.id.toString()}
+                            checked={isSelected || false}
+                            onCheckedChange={(checked) =>
+                              handleAddonChange(addon.id, checked)
+                            }
+                            disabled={buttonDisabled}
+                            className="border-primary-50 data-[state=checked]:bg-primary-50 data-[state=checked]:border-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                          {buttonDisabled && (
+                            <span className="text-xs text-red-500 ml-1">Category max reached</span>
+                          )}
+                          <Label htmlFor={addon.id.toString()} className="flex-1">
+                            <div className="flex flex-col">
+                              <span>{addon.name}</span>
+                              {(minQuantity > 1 || maxQuantity !== null) && (
+                                <span className="text-xs text-gray-500">
+                                  {minQuantity > 1 && `Min: ${minQuantity}`}
+                                  {minQuantity > 1 && maxQuantity !== null && ' • '}
+                                  {maxQuantity !== null && `Max: ${maxQuantity}`}
+                                </span>
+                              )}
+                            </div>
+                          </Label>
+                          {isSelected && (
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={() =>
+                                  handleAddonQuantityChange(
+                                    addon.id,
+                                    currentQuantity - 1
+                                  )
+                                }
+                                disabled={minusDisabled}
+                                className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${minusDisabled
+                                  ? 'opacity-50 cursor-not-allowed'
+                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
+                                  }`}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="font-bold w-8 text-center">
+                                {currentQuantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  handleAddonQuantityChange(
+                                    addon.id,
+                                    currentQuantity + 1
+                                  )
+                                }
+                                disabled={plusDisabled}
+                                className={`border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full ${plusDisabled
+                                  ? 'opacity-50 cursor-not-allowed'
+                                  : 'cursor-pointer hover:bg-primary-50 hover:text-white'
+                                  }`}
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                          <p className="text-primary-1015 ml-auto">
+                            {addon.price === 0
+                              ? "Free"
+                              : `$${addon.price.toFixed(2)}`}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           );
         })}
 
@@ -513,48 +511,50 @@ export default function ProductModal({
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
           />
-          <div className="flex justify-between items-center mt-8 mb-8 w-full gap-4">
-            <div className="flex justify-between items-center gap-2 ">
-              <button
-                disabled={countValue === 1}
-                className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => setCountValue(countValue - 1)}
-              >
-                <Minus className="w-4 h-4 text-primary-50" />
-              </button>
-              <span className="font-bold">{countValue}</span>
-              <button
-                onClick={() => setCountValue(countValue + 1)}
-                className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer"
-              >
-                <Plus className="w-4 h-4 text-primary-50" />
-              </button>
-            </div>
-                         <div className="w-full">
-              {isAddToCartDisabled && (
-                <p className="text-sm text-red-500 mb-2 text-center">
-                  Please select required addons and ensure minimum quantities are met
-                </p>
-              )}
-              <button
-                disabled={isAddToCartDisabled}
-                onClick={handleAddToCart}
-                className={`cursor-pointer text-white px-4 py-3 rounded-full w-full block ${
-                  isAddToCartDisabled
+          <div className="mt-8 mb-8">
+
+            <div className="flex justify-between items-center  w-full gap-4">
+              <div className="flex justify-between items-center gap-2 ">
+                <button
+                  disabled={countValue === 1}
+                  className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setCountValue(countValue - 1)}
+                >
+                  <Minus className="w-4 h-4 text-primary-50" />
+                </button>
+                <span className="font-bold">{countValue}</span>
+                <button
+                  onClick={() => setCountValue(countValue + 1)}
+                  className="border-2 border-primary-50 text-primary-50 w-6 h-6 flex justify-center items-center rounded-full cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 text-primary-50" />
+                </button>
+              </div>
+              <div className="w-full">
+                <button
+                  disabled={isAddToCartDisabled}
+                  onClick={handleAddToCart}
+                  className={`cursor-pointer text-white px-4 py-3 rounded-full w-full block ${isAddToCartDisabled
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-primary-50 hover:bg-primary-60"
-                } transition-colors`}
-              >
-                <div className="flex justify-between items-center">
-                  <span>Add to cart</span>
-                  <span className="font-bold">${totalPrice.toFixed(2)}</span>
-                </div>
-              </button>
+                    } transition-colors`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span>Add to cart</span>
+                    <span className="font-bold">${totalPrice.toFixed(2)}</span>
+                  </div>
+                </button>
+              </div>
             </div>
+            {isAddToCartDisabled && (
+              <p className="text-sm text-red-500 mt-2 text-center">
+                Please select required addons and ensure minimum quantities are met
+              </p>
+            )}
           </div>
         </div>
       </DialogContent>
-      
+
       {/* Confirmation Modal */}
       <ConfirmationModal
         open={confirmationModal.isOpen}

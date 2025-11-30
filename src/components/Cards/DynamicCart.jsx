@@ -21,6 +21,7 @@ export default function DynamicCart({
     removeFromCart,
     updateItemQuantity,
     restaurantData: contextRestaurantData,
+    closeCartDrawer
   } = useCart();
   const navigate = useNavigate();
   const [imageErrors, setImageErrors] = useState({});
@@ -338,6 +339,7 @@ export default function DynamicCart({
               setIsAddressModalOpen(true);
               return;
             }
+            closeCartDrawer();
             navigate("/pay");
           }}
           className="bg-primary-50 text-white block w-full py-3 cursor-pointer rounded-full text-sm"

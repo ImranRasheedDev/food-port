@@ -1,42 +1,211 @@
-import React from "react";
-import { useForm, Controller } from "react-hook-form";
-// import { BriefcaseBusiness, Handshake, Home } from "lucide-react";
-import LocationCard from "../Cards/LocationCard";
-import { processImageUrl } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { MapPin } from "lucide-react";
+import { useAddAddress, useUpdateAddress } from "@/hooks/api";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
 
-const SetLocationForm = () => {
+const SetLocationForm = ({ address = null }) => {
+    const navigate = useNavigate();
+    const isEditing = !!address;
+    const [currentAddress, setCurrentAddress] = useState(null);
+
     const {
         register,
-        control,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors },
+        reset,
     } = useForm({
         defaultValues: {
-            yourAddress: "",
-            yourStreetAddress: "",
-            floor: "",
-            hourNo: "",
-            label: "Home", // default selected
+            label: "",
+            address: "",
+            latitude: "",
+            longitude: "",
+            city: "",
+            zip_code: "",
+        },
+    });
+
+    // Watch the address field for map display
+    const watchedAddress = watch("address");
+    const watchedLatitude = watch("latitude");
+    const watchedLongitude = watch("longitude");
+
+    // Set current address for map display
+    useEffect(() => {
+        if (watchedAddress && watchedLatitude && watchedLongitude) {
+            setCurrentAddress({
+                address: watchedAddress,
+                latitude: watchedLatitude,
+                longitude: watchedLongitude,
+            });
+        }
+    }, [watchedAddress, watchedLatitude, watchedLongitude]);
+
+    // Populate form when address changes (edit mode)
+    useEffect(() => {
+        if (address) {
+            setValue("label", address.label || "");
+            setValue("address", address.address || "");
+            setValue("latitude", address.latitude || "");
+            setValue("longitude", address.longitude || "");
+            setValue("city", address.city || "");
+            setValue("zip_code", address.zip_code || "");
+
+            // Set current address for map
+            setCurrentAddress({
+                address: address.address,
+                latitude: address.latitude,
+                longitude: address.longitude,
+            });
+        }
+    }, [address, setValue]);
+
+    const updateAddress = useUpdateAddress({
+        onSuccess: async (data) => {
+            console.log("=== SetLocationForm: Address updated successfully ===");
+            console.log("SetLocationForm: Updated address data:", data);
+
+            // If the edited address was the default address, update window.user
+            if (address && address.default === true && window.user) {
+                console.log("SetLocationForm: Updated address was default, updating window.user");
+
+                const formData = watch();
+                window.user.address = formData.address;
+                window.user.user_address = formData.address;
+                window.user.latitude = formData.latitude || window.user.latitude;
+                window.user.longitude = formData.longitude || window.user.longitude;
+                window.user.city = formData.city || window.user.city;
+                window.user.zip_code = formData.zip_code || window.user.zip_code;
+
+                console.log("SetLocationForm: Updated window.user:", window.user);
+
+                // Save to storage to persist after reload
+                await window.helper.setStorageData("user", window.user);
+                console.log("SetLocationForm: User data saved to storage");
+
+                // Dispatch event to notify other components
+                console.log("SetLocationForm: Dispatching userUpdated event");
+                window.dispatchEvent(new CustomEvent('userUpdated', {
+                    detail: { ...window.user }
+                }));
+                console.log("SetLocationForm: userUpdated event dispatched");
+            }
+            toast.success("Address updated successfully");
+
+            // reset();
+            // navigate("/account-settings");
+        },
+    });
+
+    const addAddress = useAddAddress({
+        onSuccess: async (data) => {
+            console.log("=== SetLocationForm: Address added successfully ===");
+            console.log("SetLocationForm: New address data:", data);
+
+            // If the new address is the default (first address), update window.user
+            if (data?.data?.default === true && window.user) {
+                console.log("SetLocationForm: New address is default, updating window.user");
+
+                window.user.address = data.data.address;
+                window.user.user_address = data.data.address;
+                window.user.latitude = data.data.latitude || window.user.latitude;
+                window.user.longitude = data.data.longitude || window.user.longitude;
+                window.user.city = data.data.city || window.user.city;
+                window.user.zip_code = data.data.zip_code || window.user.zip_code;
+
+                console.log("SetLocationForm: Updated window.user:", window.user);
+
+                // Save to storage to persist after reload
+                await window.helper.setStorageData("user", window.user);
+                console.log("SetLocationForm: User data saved to storage");
+
+                // Dispatch event to notify other components
+                console.log("SetLocationForm: Dispatching userUpdated event");
+                window.dispatchEvent(new CustomEvent('userUpdated', {
+                    detail: { ...window.user }
+                }));
+                console.log("SetLocationForm: userUpdated event dispatched");
+            }
+
+            reset();
+            navigate("/profile");
         },
     });
 
     const onSubmit = (data) => {
-        console.log("Form Data:", data);
+        if (isEditing) {
+            // Update existing address
+            const payload = {
+                address_id: address.id,
+                label: data.label || "Home",
+                address: data.address,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                city: data.city,
+                zip_code: data.zip_code,
+                name: data.city || data.address,
+            };
+            updateAddress.mutate(payload);
+        } else {
+            // Add new address
+            const payload = {
+                label: data.label || "Home",
+                address: data.address,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                city: data.city,
+                zip_code: data.zip_code,
+                name: data.city || data.address,
+            };
+            addAddress.mutate(payload);
+        }
     };
+
+
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">Set Your Location</h2>
+            <h2 className="text-2xl font-bold mb-4">
+                {isEditing ? "Edit Your Location" : "Set Your Location"}
+            </h2>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <img
-                        src={processImageUrl("/images/map.jpg")}
-                        alt=""
-                        className="w-full h-40 object-cover"
-                    />
+                {/* Map Display */}
+                <div className="relative">
+                    {currentAddress ? (
+                        <div className="relative">
+                            <div style={{ width: '100%', overflow: 'hidden', height: '300px' }}>
+                                <iframe
+                                    src={`https://maps.google.com/maps?q=${encodeURIComponent(currentAddress.address)}&output=embed`}
+                                    width="100%"
+                                    height="600"
+                                    style={{ border: 0, borderRadius: '8px', marginTop: '-150px' }}
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    title="Location Map"
+                                />
+                            </div>
+
+                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                📍 Your Address
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-center bg-gray-100 rounded-lg h-[300px]">
+                            <div className="text-center text-gray-500">
+                                <MapPin className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                                <p>Select an address to see it on the map</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className="space-y-8 w-1/2 mt-10">
+                <div className="space-y-8 w-full lg:w-1/2 mt-10">
                     {/* Address */}
                     <div>
                         <label
@@ -45,93 +214,57 @@ const SetLocationForm = () => {
                         >
                             Your Address
                         </label>
-                        <input
-                            type="text"
+                        <AddressAutocomplete
                             id="yourAddress"
-                            className="border w-full border-primary-1007 h-11 px-5"
-                            {...register("yourAddress", { required: "Address is required" })}
+                            placeholder="Search address"
+                            setValue={setValue}
+                            icon={<MapPin className="w-5 h-5" />}
+                            error={errors.address?.message}
                         />
-                        {errors.yourAddress && (
-                            <p className="text-red-500 text-sm">
-                                {errors.yourAddress.message}
-                            </p>
+                        <input type="hidden" {...register("address", { required: "Address is required" })} />
+                        <input type="hidden" {...register("latitude", { required: "Please select a valid address" })} />
+                        <input type="hidden" {...register("longitude", { required: "Please select a valid address" })} />
+                        <input type="hidden" {...register("city")} />
+                        <input type="hidden" {...register("zip_code")} />
+                        {errors.address && (
+                            <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
                         )}
-                    </div>
-
-                    {/* Street Address */}
-                    <div>
-                        <label
-                            htmlFor="yourStreetAddress"
-                            className="text-primary-1008 font-normal mb-2 block"
-                        >
-                            Your Street address
-                        </label>
-                        <input
-                            type="text"
-                            id="yourStreetAddress"
-                            className="border w-full border-primary-1007 h-11 px-5"
-                            {...register("yourStreetAddress", {
-                                required: "Street Address is required",
-                            })}
-                        />
-                        {errors.yourStreetAddress && (
-                            <p className="text-red-500 text-sm">
-                                {errors.yourStreetAddress.message}
-                            </p>
+                        {errors.latitude && (
+                            <p className="text-red-500 text-sm mt-1">{errors.latitude.message}</p>
                         )}
-                    </div>
-
-                    {/* Floor */}
-                    <div>
-                        <input
-                            type="text"
-                            id="floor"
-                            placeholder="Floor"
-                            className="border w-full border-primary-1007 h-11 px-5"
-                            {...register("floor")}
-                        />
-                    </div>
-
-                    {/* Hour No */}
-                    <div>
-                        <input
-                            type="text"
-                            id="hourNo"
-                            placeholder="House No"
-                            className="border w-full border-primary-1007 h-11 px-5"
-                            {...register("hourNo")}
-                        />
                     </div>
 
                     {/* Label Selection */}
                     <div>
-                        <label className="text-primary-1008 font-normal mb-6 block">
-                            Add a Label
+                        <label
+                            htmlFor="labelInput"
+                            className="text-primary-1008 font-normal mb-2 block"
+                        >
+                            Add a Label <span className="text-gray-400 text-xs">(Optional)</span>
                         </label>
-                        <Controller
-                            control={control}
-                            name="label"
-                            rules={{ required: "Please select a label" }}
-                            render={({ field }) => (
-                                <div className="flex gap-x-6">
-                                    <LocationCard field={field} value="Home" icon={<Home className="w-8 h-8" />} />
-                                    <LocationCard field={field} value="Work" icon={<BriefcaseBusiness className="w-8 h-8" />} />
-                                    <LocationCard field={field} value="Partner" icon={<Handshake className="w-8 h-8" />} />
-                                </div>
-                            )}
+                        <input
+                            type="text"
+                            id="labelInput"
+                            placeholder="e.g., Home, Work, Office"
+                            className="border w-full border-primary-1007 h-14 px-5 rounded-full focus:outline-none bg-white focus:ring-2 focus:ring-primary-50"
+                            {...register("label")}
                         />
-                        {errors.label && (
-                            <p className="text-red-500 text-sm">{errors.label.message}</p>
-                        )}
                     </div>
 
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        className="bg-primary-50 text-white rounded-full w-full max-w-md py-3 inline-block cursor-pointer"
-                    >
-                        Save Changes
-                    </button>
+                    {/* Submit Buttons */}
+                    <div className="flex gap-3">
+
+                        <button
+                            type="submit"
+                            disabled={updateAddress.isPending || addAddress.isPending}
+                            className="bg-primary-50 text-white rounded-full flex-1 max-w-md py-3 inline-block cursor-pointer hover:bg-primary-50/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isEditing
+                                ? (updateAddress.isPending ? "Updating..." : "Update Address")
+                                : (addAddress.isPending ? "Adding..." : "Add Address")
+                            }
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

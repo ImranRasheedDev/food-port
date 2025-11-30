@@ -6,12 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { formatCartForAPI, usePlaceOrder, useAllAddresses, useRestaurantDetail } from "@/hooks/api";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
-import { 
-  CreditCard, 
-  MapPin, 
-  Clock, 
-  Shield, 
-  CheckCircle, 
+import {
+  CreditCard,
+  MapPin,
+  Clock,
+  Shield,
+  CheckCircle,
   ShoppingBag,
   ArrowLeft,
   User,
@@ -37,7 +37,7 @@ function clampAmountForCurrency(amountCents, currency = "usd") {
 }
 
 async function createStripePaymentIntent(amountCents, metadata = {}) {
-  const secretKey = import.meta.env.VITE_STRIPE_SECRET_KEY ||"sk_test_51HhEh1HhiY9nz3fzIOMVCt20Ckb8peqhHDYqtRnm4WUTEk3r78foFGEcDdf0vjV6ordoui53YjtF6Mlsw9DNeWyL004vnc4y0F" ;
+  const secretKey = import.meta.env.VITE_STRIPE_SECRET_KEY || "sk_test_51HhEh1HhiY9nz3fzIOMVCt20Ckb8peqhHDYqtRnm4WUTEk3r78foFGEcDdf0vjV6ordoui53YjtF6Mlsw9DNeWyL004vnc4y0F";
   if (!secretKey) throw new Error("Missing VITE_STRIPE_SECRET_KEY");
   const params = new URLSearchParams();
   const currency = "usd";
@@ -60,7 +60,7 @@ async function createStripePaymentIntent(amountCents, metadata = {}) {
     }
   });
 
-  console.log(params,"params",metadata);
+  console.log(params, "params", metadata);
   const res = await fetch("https://api.stripe.com/v1/payment_intents", {
     method: "POST",
     headers: {
@@ -82,6 +82,7 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
   const elements = useElements();
   const navigate = useNavigate();
   const { items, clearCart } = useCart();
+
   const placeOrderMutation = usePlaceOrder({
     onSuccess: (data) => {
       clearCart();
@@ -166,34 +167,34 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
             Customer Information
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {cardholderName && (
-            <div>
+            {cardholderName && (
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                 <div className="relative">
-              <input
-                type="text"
+                  <input
+                    type="text"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900 focus:ring-2 focus:ring-[#D6071B] focus:border-transparent transition-all duration-200"
-                value={cardholderName}
-                readOnly
-              />
+                    value={cardholderName}
+                    readOnly
+                  />
                   <User className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
-            </div>
-          )}
-          {email && (
-            <div>
+              </div>
+            )}
+            {email && (
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <div className="relative">
-              <input
-                type="email"
+                  <input
+                    type="email"
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900 focus:ring-2 focus:ring-[#D6071B] focus:border-transparent transition-all duration-200"
-                value={email}
-                readOnly
-              />
+                    value={email}
+                    readOnly
+                  />
                   <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
-            </div>
-          )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -204,15 +205,15 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
           <CreditCard className="w-5 h-5 text-[#D6071B]" />
           Payment Information
         </h3>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200 hover:border-[#D6071B]/30 transition-colors duration-200">
             <div className="flex items-center gap-2 mb-2">
               <Lock className="w-4 h-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Card Details</span>
             </div>
-            <CardElement 
-              options={{ 
+            <CardElement
+              options={{
                 hidePostalCode: true,
                 style: {
                   base: {
@@ -227,13 +228,13 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
                     color: '#EF4444',
                   },
                 },
-              }} 
+              }}
             />
-      </div>
+          </div>
 
-      <button
-        type="submit"
-        disabled={!stripe || submitting || disabled}
+          <button
+            type="submit"
+            disabled={!stripe || submitting || disabled}
             className="w-full h-14 rounded-full font-medium transition-all duration-200 bg-[#D6071B] text-white hover:bg-[#B8061A] active:bg-[#A0051A] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
             {submitting ? (
@@ -247,8 +248,8 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
                 Complete Payment - ${(finalTotalCents / 100).toFixed(2)}
               </>
             )}
-      </button>
-    </form>
+          </button>
+        </form>
 
         {/* Security Badge */}
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
@@ -261,6 +262,10 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
 }
 
 export default function Pay() {
+  const getInitialAddress = () => {
+    return window.user?.address || window.user?.user_address || window.user?.location || "";
+  };
+  const [userAddress, setUserAddress] = useState(getInitialAddress());
   const { items, getCartTotal, restaurantData } = useCart();
   // Fallbacks from localStorage if context is empty (direct /pay navigation)
   const lsCart = (() => {
@@ -304,10 +309,10 @@ export default function Pay() {
     // Commission percent present but excluded from UI total by requirement
     const commissionPercent =
       detail.commission_percent != null ? parseFloat(detail.commission_percent)
-      : detail.platform_fee_percent != null ? parseFloat(detail.platform_fee_percent)
-      : effectiveRestaurant?.commission_percent != null ? parseFloat(effectiveRestaurant.commission_percent)
-      : effectiveRestaurant?.platform_fee_percent != null ? parseFloat(effectiveRestaurant.platform_fee_percent)
-      : 0;
+        : detail.platform_fee_percent != null ? parseFloat(detail.platform_fee_percent)
+          : effectiveRestaurant?.commission_percent != null ? parseFloat(effectiveRestaurant.commission_percent)
+            : effectiveRestaurant?.platform_fee_percent != null ? parseFloat(effectiveRestaurant.platform_fee_percent)
+              : 0;
     const commissionAmount = parseFloat((subtotal * (commissionPercent / 100)).toFixed(2));
     const computed = {
       finalTotal,
@@ -334,7 +339,7 @@ export default function Pay() {
     return computed;
   }, [getCartTotal, restaurantData, detail]);
 
-  console.log(totals,"totals");
+  console.log(totals, "totals");
 
   useEffect(() => {
     let isMounted = true;
@@ -514,11 +519,13 @@ export default function Pay() {
                 {/* Delivery Address */}
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
+                    </div>
                     <div>
                       <h4 className="font-medium text-blue-900">Delivery Address</h4>
                       <p className="text-sm text-blue-700 mt-1">
-                        {hasUsableAddress ? 'Address confirmed' : 'Please add delivery address'}
+                        {hasUsableAddress ? userAddress : 'Please add delivery address'}
                       </p>
                     </div>
                   </div>
@@ -543,20 +550,20 @@ export default function Pay() {
                       <span className="font-medium text-amber-800">Address Required</span>
                     </div>
                     <p className="text-amber-700 text-sm mt-1">Please add a default delivery address to continue with your order.</p>
-            </div>
-          )}
+                  </div>
+                )}
 
-          {stripePromise && (
-          <Elements stripe={stripePromise} options={options}>
-              <Checkout
-                clientSecret={clientSecret}
-                paymentIntentId={paymentIntentId}
-                finalTotalCents={totals.finalTotalCents}
-                restaurantId={restaurantId}
-                disabled={!hasUsableAddress}
-                deliveryAddressId={selectedAddressId}
-                userAddresses={(allAddresses?.data || (window.user?.addresses || []))}
-              />
+                {stripePromise && (
+                  <Elements stripe={stripePromise} options={options}>
+                    <Checkout
+                      clientSecret={clientSecret}
+                      paymentIntentId={paymentIntentId}
+                      finalTotalCents={totals.finalTotalCents}
+                      restaurantId={restaurantId}
+                      disabled={!hasUsableAddress}
+                      deliveryAddressId={selectedAddressId}
+                      userAddresses={(allAddresses?.data || (window.user?.addresses || []))}
+                    />
                   </Elements>
                 )}
               </div>

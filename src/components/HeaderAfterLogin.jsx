@@ -294,7 +294,7 @@ export default function HeaderAfterLogin() {
                   <ChevronDown />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={"w-3xs shadow-lg p-0"}>
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() => setDropdownOpen(false)}
                     className={"p-0 bg-white hover:bg-primary-990"}
                   >
@@ -305,7 +305,7 @@ export default function HeaderAfterLogin() {
                     >
                       <LayoutDashboard /> Dashboard
                     </Link>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem
                     className={"p-0 bg-white hover:bg-primary-990"}
                     onClick={() => setDropdownOpen(false)}
@@ -361,17 +361,6 @@ export default function HeaderAfterLogin() {
               <span>EN</span>
               <ChevronDown className="w-4 h-4" />
             </div> */}
-              <div
-                className="relative cursor-pointer"
-                onClick={handleCartClick}
-              >
-                <ShoppingCart className="w-6 h-6" />
-                {getCartItemCount() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary-50 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {getCartItemCount()}
-                  </span>
-                )}
-              </div>
               <div className="relative cursor-pointer">
                 <Link to={"/favourites"}>
                   <Heart className="w-6 h-6" />
@@ -382,6 +371,32 @@ export default function HeaderAfterLogin() {
                   </span>
                 )}
               </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={handleCartClick}
+              >
+                {/* <ShoppingCart className="w-6 h-6" /> */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="26"
+                  height="26"
+                  fill="none"
+                  viewBox="0 0 26 26"
+                >
+                  <path
+                    fill="#39434D"
+                    fillRule="evenodd"
+                    d="M13.002 2.167c2.752 0 4.79 1.788 4.931 4.505h3.57a1.083 1.083 0 0 1 1.073 1.236l-1.857 12.828c-.077.534-.534.93-1.073.93H6.36c-.54 0-.997-.396-1.073-.93L3.43 7.909a1.083 1.083 0 0 1 1.072-1.236l3.474.006c.14-2.717 2.276-4.511 5.027-4.511m6.022 15.437H6.98a.433.433 0 0 0-.429.495l.225 1.57c.03.214.214.373.43.373H18.8a.43.43 0 0 0 .428-.372l.225-1.571a.433.433 0 0 0-.429-.495m1.354-9.307H5.625a.433.433 0 0 0-.433.433c0 .286.001.041.004.061l.998 6.816c.031.214.214.372.43.372H19.38a.43.43 0 0 0 .429-.372l.999-6.816a.433.433 0 0 0-.43-.494m-7.376-4.61c-1.718 0-3.084.996-3.347 2.598a.334.334 0 0 0 .325.393l5.96-.006a.32.32 0 0 0 .32-.322c0-.02-.05-.043-.005-.059-.379-1.608-1.53-2.604-3.253-2.604"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+                {getCartItemCount() > 0 && (
+                  <span className="absolute top-1/2 -translate-y-1/2 -right-3 text-primary-950 text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {getCartItemCount()}
+                  </span>
+                )}
+              </div>
+
               <div
                 ref={bellRef}
                 className="relative cursor-pointer"

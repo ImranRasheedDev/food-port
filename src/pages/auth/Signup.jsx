@@ -207,7 +207,7 @@ function Signup() {
           Sign-up As <span className="text-primary-50">A User</span>
         </h1>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* First Name and Last Name */}
         <div className="flex gap-2">
           <div className="basis-1/2">

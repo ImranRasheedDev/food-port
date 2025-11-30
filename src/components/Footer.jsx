@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 export default function Footer() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
-  
+
   const subscribeMutation = useSubscribeNewsletter({
     disableToast: true, // Disable automatic toasts from the API hook
     onSuccess: (data) => {
@@ -35,7 +35,7 @@ export default function Footer() {
           className="flex flex-col py-10 md:flex-row justify-between items-center"
         >
           <div>
-            <h3 className="text-3xl text-center md:text-left font-bold mb-1">
+            <h3 className="text-[28px] text-center md:text-left font-semibold mb-1">
               Join Our <span className="text-primary-50">Newsletter</span>
             </h3>
             <p className="text-primary-800 text-center md:text-left font-medium text-lg mb-6 md:mb-0">
@@ -46,7 +46,7 @@ export default function Footer() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex w-[100%] md:w-auto flex-col md:flex-row md:mt-0 gap-y-4 md:gap-y-0 gap-x-3">
             <div className="flex flex-col w-full md:w-80">
               <Input
-                {...register('email', { 
+                {...register('email', {
                   required: 'Email is required',
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -60,10 +60,10 @@ export default function Footer() {
                 <span className="text-red-500 text-sm mt-1">{errors.email.message}</span>
               )}
             </div>
-            <Button 
+            <Button
               type="submit"
               disabled={subscribeMutation.isPending}
-              className="bg-primary-50 rounded-lg px-8 h-14 cursor-pointer disabled:opacity-50"
+              className="bg-primary-1024 text-lg rounded-lg px-4 h-14 cursor-pointer disabled:opacity-50"
             >
               {subscribeMutation.isPending ? 'Subscribing...' : 'Subscribe'}
             </Button>
@@ -73,7 +73,7 @@ export default function Footer() {
       <hr className="pb-10 mt-10" />
       <LayoutWrapper>
         <div className="grid grid-cols-1 md:grid-cols-5 items-end ">
-          <div>
+          <div className="col-span-1 md:col-span-2 md:mr-14">
             <img src={processImageUrl("/images/footer-logo.png")} alt="" className="" />
             <p className="text-primary-800 leading-relaxed mt-5">
               Food Port, a new food ordering app, faced the challenge of
@@ -82,7 +82,7 @@ export default function Footer() {
               owners.
             </p>
           </div>
-          <div></div>
+          {/* <div></div> */}
           <div>
             <ul className="space-y-5">
               <li>
@@ -135,7 +135,7 @@ export default function Footer() {
       <hr className="pb-10 mt-10" />
       {/* Copyright */}
       <div className="text-center pb-4 text-primary-800">
-        <p>© {new Date().getFullYear()} The Top Notch Designs. All Rights Reserved.</p>
+        <p>© {new Date().getFullYear()} <Link to="https://thetopnotchdesigns.com/" target="_blank">The Top Notch Designs</Link>. All Rights Reserved.</p>
       </div>
     </footer>
   );

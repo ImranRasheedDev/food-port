@@ -1,13 +1,11 @@
 import { Home, MapPin, Edit, Trash2, Star, Plus } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   useAllAddresses,
   useDeleteAddress,
   useSetDefaultAddress,
 } from "@/hooks/api";
-import AddressEditModal from "./AddressEditModal";
-import SimpleAddressAddModal from "./SimpleAddressAddModal";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,9 +19,7 @@ import { Trash2 as TrashIcon, AlertTriangle } from "lucide-react";
 import { processImageUrl } from "@/lib/utils";
 
 const UpdateLocation = () => {
-  const [editingAddress, setEditingAddress] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({
     isOpen: false,
     addressId: null,
@@ -32,7 +28,6 @@ const UpdateLocation = () => {
   const [loadingStates, setLoadingStates] = useState({
     deleting: {},
     settingDefault: {},
-    updating: {},
   });
   const { data: addresses, isLoading, error, refetch } = useAllAddresses();
   const deleteAddress = useDeleteAddress();
@@ -42,8 +37,13 @@ const UpdateLocation = () => {
   const currentDefaultAddress = addresses?.data?.find(addr => addr.default === true);
 
   const handleEdit = (address) => {
-    setEditingAddress(address);
-    setIsEditModalOpen(true);
+    // Navigate to SetLocation page with address data
+    navigate("/set-location", { state: { address } });
+  };
+
+  const handleAdd = () => {
+    // Navigate to SetLocation page without address data
+    navigate("/set-location");
   };
 
   const handleDeleteClick = (address) => {
@@ -158,89 +158,6 @@ const UpdateLocation = () => {
     );
   };
 
-  const handleEditSuccess = async (updatedData = null) => {
-    console.log("=== UpdateLocation: Address edited successfully ===");
-    console.log("UpdateLocation: Updated address data:", updatedData);
-    console.log("UpdateLocation: Editing address:", editingAddress);
-
-    setIsEditModalOpen(false);
-
-    // If the edited address was the default address, update window.user
-    if (editingAddress && editingAddress.default === true && window.user) {
-      console.log("UpdateLocation: Edited address was default, updating window.user");
-
-      // Refetch addresses first to get the latest data
-      const refetchedAddresses = await refetch();
-      const updatedDefaultAddress = refetchedAddresses?.data?.data?.find(addr => addr.default === true);
-
-      console.log("UpdateLocation: Refetched default address:", updatedDefaultAddress);
-
-      if (updatedDefaultAddress) {
-        window.user.address = updatedDefaultAddress.address;
-        window.user.user_address = updatedDefaultAddress.address; // Also set user_address
-        window.user.latitude = updatedDefaultAddress.latitude || window.user.latitude;
-        window.user.longitude = updatedDefaultAddress.longitude || window.user.longitude;
-        window.user.city = updatedDefaultAddress.city || window.user.city;
-        window.user.zip_code = updatedDefaultAddress.zip_code || window.user.zip_code;
-
-        console.log("UpdateLocation: Updated window.user with edited address:", window.user);
-        console.log("UpdateLocation: Updated address:", window.user.address);
-
-        // Save to storage to persist after reload
-        await window.helper.setStorageData("user", window.user);
-        console.log("UpdateLocation: User data saved to storage");
-
-        // Dispatch event to notify other components
-        console.log("UpdateLocation: Dispatching userUpdated event");
-        window.dispatchEvent(new CustomEvent('userUpdated', {
-          detail: { ...window.user }
-        }));
-        console.log("UpdateLocation: userUpdated event dispatched");
-      }
-    } else {
-      // If not default address, just refetch to update the list
-      refetch();
-    }
-
-    setEditingAddress(null);
-    console.log("=== UpdateLocation: Edit address complete ===");
-  };
-
-  const handleAddSuccess = async (newAddress = null) => {
-    console.log("=== UpdateLocation: Address added successfully ===");
-    console.log("UpdateLocation: New address data:", newAddress);
-    setIsAddModalOpen(false);
-
-    // If a new address was added and it's the first address (becomes default), update window.user
-    if (newAddress && newAddress.default === true && window.user) {
-      console.log("UpdateLocation: New address is default, updating window.user");
-
-      window.user.address = newAddress.address;
-      window.user.user_address = newAddress.address; // Also set user_address
-      window.user.latitude = newAddress.latitude || window.user.latitude;
-      window.user.longitude = newAddress.longitude || window.user.longitude;
-      window.user.city = newAddress.city || window.user.city;
-      window.user.zip_code = newAddress.zip_code || window.user.zip_code;
-
-      console.log("UpdateLocation: Updated window.user with new address:", window.user);
-      console.log("UpdateLocation: Updated address:", window.user.address);
-
-      // Save to storage to persist after reload
-      await window.helper.setStorageData("user", window.user);
-      console.log("UpdateLocation: User data saved to storage");
-
-      // Dispatch event to notify other components
-      console.log("UpdateLocation: Dispatching userUpdated event");
-      window.dispatchEvent(new CustomEvent('userUpdated', {
-        detail: { ...window.user }
-      }));
-      console.log("UpdateLocation: userUpdated event dispatched");
-    }
-
-    // Addresses will be automatically refetched due to query invalidation
-    console.log("=== UpdateLocation: Add address complete ===");
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -307,31 +224,37 @@ const UpdateLocation = () => {
       {addresses?.data?.find((addr) => addr.default === true) && (
         <div className="flex justify-between items-center mt-4 p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary-50" />
-            <div>
-              <p className="font-medium">Current Address:</p>
-              <p className="text-gray-600">
-                {addresses.data.find((addr) => addr.default === true)?.address}
-              </p>
-            </div>
+            <MapPin className="w-5 h-5 text-primary-950" />
+            <p className=" text-primary-950">Your address :</p>
+            <p className="text-primary-950">
+              {addresses.data.find((addr) => addr.default === true)?.address}
+            </p>
+
           </div>
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm text-gray-500">Default</span>
+          <div>
+            <Link
+              to={"/set-location"}
+              className="border-0 bg-transparent shadow-none underline"
+            >
+              {/* <Edit className="w-3 h-3 mr-1" /> */}
+              Edit
+            </Link>
+            {/* <Star className="w-4 h-4 text-yellow-500" />
+            <span className="text-sm text-gray-500">Default</span> */}
           </div>
         </div>
       )}
 
       {/* Add New Address Button */}
-      <div className="my-6">
+      {/* <div className="my-6">
         <Button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={handleAdd}
           className="w-full bg-primary-50 hover:bg-primary-50/90"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add New Address
         </Button>
-      </div>
+      </div> */}
 
       {/* Saved Addresses */}
       <div className="my-4">
@@ -389,7 +312,7 @@ const UpdateLocation = () => {
                       </Button>
                     )}
 
-                    <Button
+                    {/* <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(address)}
@@ -397,9 +320,9 @@ const UpdateLocation = () => {
                     >
                       <Edit className="w-3 h-3 mr-1" />
                       Edit
-                    </Button>
+                    </Button> */}
 
-                    {address.default !== true && (
+                    {/* {address.default !== true && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -411,8 +334,8 @@ const UpdateLocation = () => {
                         {loadingStates.deleting[address.id]
                           ? "Deleting..."
                           : "Delete"}
-                      </Button>
-                    )}
+                      </Button> */}
+                    {/* )} */}
                   </div>
                 </div>
               </div>
@@ -420,25 +343,6 @@ const UpdateLocation = () => {
           </div>
         )}
       </div>
-
-      {/* Edit Address Modal - Simple Mode */}
-      <AddressEditModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingAddress(null);
-        }}
-        address={editingAddress}
-        onSuccess={handleEditSuccess}
-        isSimpleEdit={true}
-      />
-
-      {/* Add Address Modal - Simple Mode */}
-      <SimpleAddressAddModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSuccess={handleAddSuccess}
-      />
 
       {/* Delete Confirmation Modal */}
       <Dialog

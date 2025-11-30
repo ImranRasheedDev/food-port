@@ -95,7 +95,7 @@ function Login() {
           <span className="text-primary-50">Welcome Back</span>
         </h1>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Social Login Buttons */}
         {/* <div className="space-y-3">
           <SocialButton
