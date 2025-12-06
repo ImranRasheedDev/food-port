@@ -138,7 +138,7 @@ export default function PopularRestaurants({ user = false }) {
   const { data, isLoading } = useRestaurants({
     page: 1,
     limit: 5,
-    featured: "1",
+    // featured: "1",
     moveable: "0",
   });
 

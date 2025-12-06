@@ -16,7 +16,7 @@ export const createResourceHooks = (resourceName, endpoint) => {
         endpoint,
         params,
         {
-          keepPreviousData: true,
+          keepPreviousData: false, // Changed to false to allow immediate updates on pagination
           ...options,
         }
       );
@@ -97,6 +97,7 @@ export const useRestaurantDetail = (restaurantId, options = {}) => {
     {},
     {
       enabled: !!restaurantId,
+      // paginate,
       ...options,
     }
   );

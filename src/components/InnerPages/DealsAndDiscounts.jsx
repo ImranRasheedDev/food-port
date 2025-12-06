@@ -99,7 +99,7 @@ const DealsAndDiscounts = ({
           ) : hasApiData && restaurants.length > 0 ? (
             // Show actual restaurant data
             restaurants
-              .slice(0, 6)
+              .slice(6,12)
               .map((restaurant, index) => (
                 <RestaurantCard
                   key={restaurant.key || index}

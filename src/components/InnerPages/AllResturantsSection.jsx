@@ -7,45 +7,6 @@ import { NoData } from "@/components/ui/empty";
 import DealsAndDiscounts from "./DealsAndDiscounts";
 import Pagination from "@/components/ui/pagination";
 
-// Sample data for fallback
-const sampleRestaurants = [
-  {
-    name: "KFC",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.2,
-    image: "/images/popular-1.png",
-    country_code: "California",
-    distance: "1 km",
-    time: "30 min",
-  },
-  {
-    name: "Poultry Palace",
-    description: "Chicken quesadilla, avocado...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "New Jersey",
-    distance: "3.2 km",
-    time: "25 min",
-  },
-  {
-    name: "The Grill Master's Cafe",
-    description: "Bread, Eggs, Butter, Fries...",
-    rating: 4.3,
-    image: "/images/popular-1.png",
-    location: "New York",
-    distance: "5 km",
-    time: "40 min",
-  },
-  {
-    name: "Cozy Cuppa Cafe",
-    description: "Cheesecake, waffles, Cakes...",
-    rating: 3.8,
-    image: "/images/popular-1.png",
-    location: "Dallas",
-    distance: "4 km",
-    time: "30 min",
-  },
-];
 
 // Function to map API restaurant data to card format
 async function mapApiRestaurantToCard(r, userLat, userLng) {
@@ -100,12 +61,12 @@ const AllResturantsSection = ({ filters = {} }) => {
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-
   // Build API parameters based on filters
   const buildApiParams = () => {
     const params = {
-      limit: 12, // Show 12 restaurants per page (6 + 6)
+      limit: 12,
       page: currentPage,
+      paginate: "",
     };
 
     // Handle suggested filters
@@ -180,15 +141,17 @@ const AllResturantsSection = ({ filters = {} }) => {
   const { data: totalData } = useRestaurants(totalCountParams);
 
   const [restaurants, setRestaurants] = useState([]);
-  const apiArray = data?.data;
-  const hasApiData = apiArray && apiArray.length > 0;
-  const apiReturnedEmpty = apiArray && apiArray.length === 0;
-
+  // Handle paginated response structure: data.data.data for paginated, data.data for non-paginated
+  const apiArray = data?.data?.data || data?.data;
+  const hasApiData = Array.isArray(apiArray) && apiArray.length > 0;
+  const apiReturnedEmpty = Array.isArray(apiArray) && apiArray.length === 0;
 
   console.log(apiArray, "apiArray")
+  console.log(data, "full response data")
 
-  // Calculate total count from the large dataset
-  const estimatedTotal = totalData?.data?.length || null;
+  // Get pagination info from paginated response
+  const paginationMeta = data?.data?.last_page ? data.data : null;
+  const estimatedTotal = paginationMeta?.total || totalData?.data?.length || null;
 
   // Get user coordinates - either from default address or use static coordinates
   const getUserCoordinates = () => {
@@ -242,10 +205,13 @@ const AllResturantsSection = ({ filters = {} }) => {
           )
         );
         setRestaurants(cards);
+      } else if (apiArray && apiArray.length === 0) {
+        // Clear restaurants when API returns empty array
+        setRestaurants([]);
       }
     }
     loadCards();
-  }, [apiArray, userCoordinates.lat, userCoordinates.lng]);
+  }, [data, userCoordinates.lat, userCoordinates.lng]);
 
   // Pagination functions
   const handlePageChange = (page) => {
@@ -256,10 +222,9 @@ const AllResturantsSection = ({ filters = {} }) => {
 
   // Calculate pagination info - 12 items per page
   const itemsPerPage = 12;
-  const currentDataCount = apiArray?.length || 0;
-  const totalPages = estimatedTotal
-    ? Math.ceil(estimatedTotal / itemsPerPage)
-    : null;
+  const currentDataCount = Array.isArray(apiArray) ? apiArray.length : 0;
+  // Use last_page from paginated response if available
+  const totalPages = paginationMeta?.last_page || (estimatedTotal ? Math.ceil(estimatedTotal / itemsPerPage) : null);
   const hasPrevPage = currentPage > 1;
   const hasNextPage = totalPages
     ? currentPage < totalPages

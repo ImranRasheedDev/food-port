@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {  ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { RestaurantCard } from "../Cards/PrimaryCard";
 import { useRestaurants } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
@@ -130,28 +130,29 @@ async function mapApiRestaurantToCard(r, userLat, userLng) {
     time,
     rating: r.rating,
     isLiked: r.is_like || false, // Get liked status from API
-    onFavoriteClick: () => {},
+    onFavoriteClick: () => { },
   };
 }
 export default function PopularTruckFood({ user = false }) {
   const { data, isLoading } = useRestaurants({
     page: 1,
     limit: 5,
-    featured: "0",
     moveable: "1",
+    // featured: "0",
   });
-  
+
+
   // Get user addresses from window.user instead of API call
-  
+
   const [restaurants, setRestaurants] = useState([]);
   const apiArray = data?.data;
   const hasApiData = apiArray && apiArray.length > 0;
   const apiReturnedEmpty = apiArray && apiArray.length === 0;
   const maxCards = user ? 8 : 4;
-  
+
   // Check if user is logged in
   const isUserLoggedIn = window.lodash.isEmpty(window.user) ? false : true;
-  
+
   // Get user coordinates - either from window.user addresses or use static coordinates
   const getUserCoordinates = () => {
     if (isUserLoggedIn && window.user?.addresses) {
@@ -164,14 +165,14 @@ export default function PopularTruckFood({ user = false }) {
         };
       }
     }
-    
+
     // Fallback to static coordinates (New York coordinates)
     return {
       lat: 40.650426,
       lng: -73.943136
     };
   };
-  
+
   const userCoordinates = getUserCoordinates();
   useEffect(() => {
     async function loadCards() {
@@ -188,7 +189,7 @@ export default function PopularTruckFood({ user = false }) {
   }, [apiArray, userCoordinates.lat, userCoordinates.lng, maxCards]);
   return (
     <section className="py-16 bg-white">
-        <LayoutWrapper>
+      <LayoutWrapper>
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -199,8 +200,8 @@ export default function PopularTruckFood({ user = false }) {
               )}
             </h2>
             <p className="text-gray-600">
-              {isUserLoggedIn 
-                ? "Find nearby popular Foodtruck." 
+              {isUserLoggedIn
+                ? "Find nearby popular Foodtruck."
                 : "Discover the most popular Food trucks."
               }
             </p>
@@ -233,7 +234,7 @@ export default function PopularTruckFood({ user = false }) {
             <NoData title="No Popular Food Trucks" />
           ) : (
             // fallback static UI
-           ""
+            ""
           )}
         </div>
 

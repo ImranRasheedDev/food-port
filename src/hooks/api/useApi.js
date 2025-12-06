@@ -95,8 +95,11 @@ const buildUrl = (endpoint, params = {}) => {
     
     // Add new parameters (will override existing ones with same key)
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        if (Array.isArray(value)) {
+      if (value !== undefined && value !== null) {
+        if (value === '' || key === 'paginate') {
+          // Allow empty values for paginate or when explicitly set to empty string
+          existingParams.set(key, value);
+        } else if (Array.isArray(value)) {
           value.forEach((v) => existingParams.set(key, v));
         } else {
           existingParams.set(key, value);
@@ -115,8 +118,11 @@ const buildUrl = (endpoint, params = {}) => {
     const url = new URL(endpoint, window.location.origin);
     
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        if (Array.isArray(value)) {
+      if (value !== undefined && value !== null) {
+        if (value === '' || key === 'paginate') {
+          // Allow empty values for paginate or when explicitly set to empty string
+          url.searchParams.append(key, value);
+        } else if (Array.isArray(value)) {
           value.forEach((v) => url.searchParams.append(key, v));
         } else {
           url.searchParams.append(key, value);
@@ -136,13 +142,15 @@ export const useApiQuery = (queryKey, endpoint, params = {}, options = {}) => {
     ? [...queryKey, JSON.stringify(params)]
     : [queryKey, JSON.stringify(params)];
 
+  console.log('React Query Key:', stableQueryKey);
+
   return useQuery({
     queryKey: stableQueryKey,
     queryFn: () => httpClient(buildUrl(endpoint, params), { method: 'GET' }),
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
     retry: 2,
-    refetchOnMount: false,
+    refetchOnMount: true, // Changed to true to ensure fresh data
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     structuralSharing: true,
