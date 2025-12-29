@@ -28,8 +28,13 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import LayoutNotFound from "./pages/LayoutNotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import CookiePolicy from "./pages/CookiePolicy";
+import FAQ from "./pages/FAQ";
+import ContactUs from "./pages/ContactUs";
 import Pay from "./pages/Pay";
 import Cart from "./pages/Cart";
+import About from "./pages/About";
 
 // Global Cart Drawer Component
 function GlobalCartDrawer() {
@@ -66,6 +71,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="about-us" element={<About />} />
             <Route path="all-resturants" element={<AllResturants />} />
             <Route
               path="resturants-detail/:restaurant_id"
@@ -84,6 +90,10 @@ function App() {
             <Route path="order-waiting" element={<OrderWaiting />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="cookie-policy" element={<CookiePolicy />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="contact-us" element={<ContactUs />} />
 
             {/* 404 Route for Layout routes */}
             <Route path="*" element={<LayoutNotFound />} />

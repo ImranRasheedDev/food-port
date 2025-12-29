@@ -261,15 +261,35 @@ export default function HeaderAfterLogin() {
             <Link to="/">
               <img src={processImageUrl("/images/footer-logo.png")} alt="Logo" className="h-10" />
             </Link>
-            <div className="flex items-center gap-x-1">
+            {/* <div className="flex items-center gap-x-1">
               <MapPin className="text-primary-950" />
               <p className="text-primary-950 max-w-xl truncate">
                 Your address:{" "}
                 {userAddress || "No address set"}
               </p>
-            </div>
+            </div> */}
             {/* Right side buttons */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-8">
+              <Link
+                to="/"
+              >
+                Home
+              </Link>
+              <Link
+                to="/about-us"
+              >
+                About us
+              </Link>
+              <Link
+                to="/contact-us"
+              >
+                Contact us
+              </Link>
+              <Link
+                to="/become-a-partner"
+              >
+                Become a partner
+              </Link>
               <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer border-0 outline-none">
                   {userImage && userImage.trim() !== "" ? (

@@ -21,11 +21,12 @@ export default function OrderWaiting() {
         <>
             <div className="h-[150px]" />
 
-                <div className="text-center pb-10">
-                    <img src={processImageUrl("/images/preparing-order.png")} alt="order-waiting" className="mx-auto" />
-                    <h2 className="text-3xl font-semibold mb-2">Preparing Your Order</h2>
-                    <p className="text-primary-50">Estimated Preparing time (45mins)</p>
-                </div>
-            </>
+            <div className="text-center pb-10">
+                <img src={processImageUrl("/images/preparing-order.png")} alt="order-waiting" className="mx-auto" />
+                <h2 className="text-3xl font-semibold mb-2">Preparing Your Order</h2>
+                <p className="text-primary-50 mb-5">Estimated Preparing time (45mins)</p>
+                <button className="bg-primary-50 text-white  gap-2 px-8 h-12 rounded-none">Get Direction</button>
+            </div>
+        </>
     )
 }

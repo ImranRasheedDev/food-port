@@ -7,7 +7,7 @@ export default function HeroBanner({ user = false }) {
                 user ? (
 
                     <>
-                        <div className="h-[80px]" />
+                        <div className="h-[72px]" />
                         <section className="bg-[url('/images/hero-bg-2.png')] lg:h-[400px] h-[200px] bg-no-repeat bg-cover bg-center">
                             <LayoutWrapper className="h-full relative">
                                 <div className="flex flex-col justify-center h-full">
@@ -29,7 +29,7 @@ export default function HeroBanner({ user = false }) {
 
                 ) : (
                     <>
-                        <div className="h-[80px]" />
+                        <div className="h-[72px]" />
                         <section className="bg-[url('/images/hero-bg.png')] min-h-screen flex items-center justify-start bg-cover bg-center">
                             <LayoutWrapper>
                                 <div className="flex py-24 md:12 lg:0 items-center  justify-start">

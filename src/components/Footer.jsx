@@ -86,28 +86,28 @@ export default function Footer() {
           <div>
             <ul className="space-y-5">
               <li>
-                <a href="#" className="text-primary-900">
+                <Link to="/about-us" className="text-primary-900">
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-primary-900">
+                <Link to="/jobs" className="text-primary-900">
                   Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-primary-900">
+                <Link to="/faq" className="text-primary-900">
                   FAQs
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
           <div>
             <ul className="space-y-5">
               <li>
-                <a href="#" className="text-primary-900">
+                <Link to="/terms-and-conditions" className="text-primary-900">
                   Terms and Conditions
-                </a>
+                </Link>
               </li>
               <li>
                 <Link to="/privacy-policy" className="text-primary-900">
@@ -115,9 +115,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className=" text-primary-900">
+                <Link to="/cookie-policy" className=" text-primary-900">
                   Cookie Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
