@@ -83,9 +83,24 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
   const navigate = useNavigate();
   const { items, clearCart } = useCart();
 
+  const { data: restaurantData } = useRestaurantDetail(restaurantId, { enabled: !!restaurantId });
+  
   const placeOrderMutation = usePlaceOrder({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       clearCart();
+      
+      // Save restaurant data to localStorage for directions
+      if (restaurantData?.data) {
+        const restaurantInfo = {
+          name: restaurantData.data.name,
+          address: restaurantData.data.address,
+          latitude: restaurantData.data.latitude || restaurantData.data.lat,
+          longitude: restaurantData.data.longitude || restaurantData.data.lng,
+          city: restaurantData.data.city,
+        };
+        await window.helper.setStorageData("lastOrderRestaurant", restaurantInfo);
+      }
+      
       navigate("/order-waiting", { state: { orderData: data } });
     },
     onError: () => toast.error("Failed to place order. Please try again."),

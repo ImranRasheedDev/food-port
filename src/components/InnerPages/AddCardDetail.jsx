@@ -6,7 +6,7 @@ import { Label } from "../ui/label";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCart } from "@/contexts/CartContext";
-import { formatCartForAPI, usePlaceOrder } from "@/hooks/api";
+import { formatCartForAPI, usePlaceOrder, useRestaurantDetail } from "@/hooks/api";
 import LayoutWrapper from "../layoutWrapper";
 
 // Function to confirm a previously created payment intent using card details (frontend-only demo)
@@ -53,9 +53,24 @@ export default function AddCardDetail() {
   const location = useLocation();
   const { returnTo, totalPrice, platformFee, paymentIntentId, clientSecret, restaurantId, selectedAddressId } = location.state || {};
   const { items, getCartTotal, clearCart } = useCart();
+  const { data: restaurantData } = useRestaurantDetail(restaurantId, { enabled: !!restaurantId });
+  
   const placeOrderMutation = usePlaceOrder({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       clearCart();
+      
+      // Save restaurant data to localStorage for directions
+      if (restaurantData?.data) {
+        const restaurantInfo = {
+          name: restaurantData.data.name,
+          address: restaurantData.data.address,
+          latitude: restaurantData.data.latitude || restaurantData.data.lat,
+          longitude: restaurantData.data.longitude || restaurantData.data.lng,
+          city: restaurantData.data.city,
+        };
+        await window.helper.setStorageData("lastOrderRestaurant", restaurantInfo);
+      }
+      
       navigate("/order-waiting", { state: { orderData: data } });
     },
     onError: () => toast.error("Failed to place order. Please try again."),

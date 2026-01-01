@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
-const faqs = [
+export const faqs = [
     {
         id: "item-1",
         question: "How do I place an order?",

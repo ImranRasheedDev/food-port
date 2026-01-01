@@ -35,6 +35,7 @@ import ContactUs from "./pages/ContactUs";
 import Pay from "./pages/Pay";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
+import BecomePartner from "./pages/BecomePartner";
 
 // Global Cart Drawer Component
 function GlobalCartDrawer() {
@@ -94,7 +95,7 @@ function App() {
             <Route path="cookie-policy" element={<CookiePolicy />} />
             <Route path="faq" element={<FAQ />} />
             <Route path="contact-us" element={<ContactUs />} />
-
+            <Route path="become-a-partner" element={<BecomePartner />} />
             {/* 404 Route for Layout routes */}
             <Route path="*" element={<LayoutNotFound />} />
           </Route>
