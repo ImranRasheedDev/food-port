@@ -1,5 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { MapPin, X } from 'lucide-react';
+import SearchBar from "@/components/home/SearchBar";
 import CardOne from "@/components/Cards/AdsCards/CardOne";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import AllResturantsSection from "@/components/InnerPages/AllResturantsSection";
@@ -18,24 +20,35 @@ function AllResturants() {
   const categoryId = location.state?.categoryId;
   const categoryName = location.state?.categoryName;
 
+  // Get location coordinates from route state (from SearchBar location search)
+  const locationLatitude = location.state?.latitude;
+  const locationLongitude = location.state?.longitude;
+  const locationName = location.state?.locationName;
+
   // Fetch banner ads
   const { data: adsData, isLoading: adsLoading } = useBannerAds();
   const ads = Array.isArray(adsData?.data) ? adsData.data.filter(item => item.product !== null) : [];
 
-  // State for filters - initialize with category from route state
+  // State for filters - initialize with category and location from route state
   const [filters, setFilters] = useState({
     suggested: [],
     category: categoryId ? [categoryId] : [],
     distance: [],
     price_range: '',
+    latitude: locationLatitude || null,
+    longitude: locationLongitude || null,
+    locationName: locationName || '',
   });
 
-  // Debounced filters for API calls - initialize with category from route state
+  // Debounced filters for API calls - initialize with category and location from route state
   const [debouncedFilters, setDebouncedFilters] = useState({
     suggested: [],
     category: categoryId ? [categoryId] : [],
     distance: [],
     price_range: '',
+    latitude: locationLatitude || null,
+    longitude: locationLongitude || null,
+    locationName: locationName || '',
   });
 
   // Debounce function
@@ -60,6 +73,53 @@ function AllResturants() {
     setFilters(newFilters);
     debouncedUpdateFilters(newFilters);
   }, [debouncedUpdateFilters]);
+
+  // Handle clearing location filter
+  const handleClearLocation = useCallback(() => {
+    const newFilters = {
+      ...filters,
+      latitude: null,
+      longitude: null,
+      locationName: '',
+    };
+    setFilters(newFilters);
+    setDebouncedFilters(newFilters);
+    // Clear location state from URL
+    navigate('/all-resturants', { replace: true, state: { ...location.state, latitude: null, longitude: null, locationName: null } });
+  }, [filters, navigate, location.state]);
+
+  // Handle location selection from SearchBar
+  const handleLocationSelect = useCallback(({ latitude, longitude, locationName }) => {
+    const newFilters = {
+      ...filters,
+      latitude,
+      longitude,
+      locationName,
+    };
+    setFilters(newFilters);
+    setDebouncedFilters(newFilters);
+    // Update URL state
+    navigate('/all-resturants', { replace: true, state: { ...location.state, latitude, longitude, locationName } });
+  }, [filters, navigate, location.state]);
+
+  // Update filters when location state changes (e.g., navigating from SearchBar)
+  useEffect(() => {
+    if (locationLatitude && locationLongitude) {
+      setFilters(prev => ({
+        ...prev,
+        latitude: locationLatitude,
+        longitude: locationLongitude,
+        locationName: locationName || '',
+      }));
+      setDebouncedFilters(prev => ({
+        ...prev,
+        latitude: locationLatitude,
+        longitude: locationLongitude,
+        locationName: locationName || '',
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationLatitude, locationLongitude, locationName]);
 
   // Handle ad click
   const handleAdClick = (campaign) => {
@@ -91,8 +151,35 @@ function AllResturants() {
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
+      {/* SearchBar - same as home page */}
+      <SearchBar
+        initialLocationName={debouncedFilters.locationName}
+        initialLatitude={debouncedFilters.latitude}
+        initialLongitude={debouncedFilters.longitude}
+        onLocationSelect={handleLocationSelect}
+      />
       <div className='w-full max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-[30px] pt-8 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-28 pb-8 sm:pb-12">
+        {/* Location Filter Indicator */}
+        {debouncedFilters.latitude && debouncedFilters.longitude && debouncedFilters.locationName && (
+          <div className='pt-4 max-w-[90%] mx-auto'>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-gray-600">Showing results near:</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                <MapPin className="w-4 h-4" />
+                <span>{debouncedFilters.locationName}</span>
+                <button
+                  onClick={handleClearLocation}
+                  className="ml-1 p-0.5 hover:bg-primary-200 rounded-full transition-colors"
+                  aria-label="Clear location filter"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div >
+        )
+        }
+        <div className={`flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-[30px] ${debouncedFilters.latitude && debouncedFilters.longitude && debouncedFilters.locationName ? 'pt-4' : 'pt-8 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-28'} pb-8 sm:pb-12`}>
 
           {/* Left Sidebar - Filters and Ads */}
           <aside className="w-full lg:w-[22%] 2xl:w-[20%] order-1 lg:order-1">
@@ -195,7 +282,7 @@ function AllResturants() {
             </>
           )}
         </div>
-      </div>
+      </div >
 
       <ProductModal
         open={isProductModalOpen}

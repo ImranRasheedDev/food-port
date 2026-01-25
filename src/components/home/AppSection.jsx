@@ -21,8 +21,7 @@ export default function AppSection() {
             {/* Right side - Content */}
             <div className="text-white text-center lg:text-left order-1 lg:order-2">
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 leading-normal">
-                Get Started With Fresh <br className="hidden sm:block" /> Feast
-                Today!
+                Get Started With FoodPort Today!
               </h2>
               <p className="text-sm sm:text-base md:text-md mb-4 sm:mb-6 opacity-90 leading-relaxed">
                 It's never been easier to order food. Look for the finest

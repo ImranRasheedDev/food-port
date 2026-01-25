@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { useAddAddress, useUpdateAddress } from "@/hooks/api";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
-import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 
 const SetLocationForm = ({ address = null }) => {
@@ -27,6 +26,7 @@ const SetLocationForm = ({ address = null }) => {
             longitude: "",
             city: "",
             zip_code: "",
+            house_no: "",
         },
     });
 
@@ -49,19 +49,26 @@ const SetLocationForm = ({ address = null }) => {
     // Populate form when address changes (edit mode)
     useEffect(() => {
         if (address) {
-            setValue("label", address.label || "");
+            // Handle both flat and nested location structures from API
+            const latitude = address.latitude || address.location?.latitude || "";
+            const longitude = address.longitude || address.location?.longitude || "";
+
+            setValue("label", address.name || address.label || "");
             setValue("address", address.address || "");
-            setValue("latitude", address.latitude || "");
-            setValue("longitude", address.longitude || "");
+            setValue("latitude", latitude);
+            setValue("longitude", longitude);
             setValue("city", address.city || "");
             setValue("zip_code", address.zip_code || "");
+            setValue("house_no", address.house_no || "");
 
             // Set current address for map
-            setCurrentAddress({
-                address: address.address,
-                latitude: address.latitude,
-                longitude: address.longitude,
-            });
+            if (address.address) {
+                setCurrentAddress({
+                    address: address.address,
+                    latitude: latitude,
+                    longitude: longitude,
+                });
+            }
         }
     }, [address, setValue]);
 
@@ -96,9 +103,7 @@ const SetLocationForm = ({ address = null }) => {
                 console.log("SetLocationForm: userUpdated event dispatched");
             }
             toast.success("Address updated successfully");
-
-            // reset();
-            // navigate("/account-settings");
+            navigate("/account-settings");
         },
     });
 
@@ -132,8 +137,9 @@ const SetLocationForm = ({ address = null }) => {
                 console.log("SetLocationForm: userUpdated event dispatched");
             }
 
+            toast.success("Address added successfully");
             reset();
-            navigate("/profile");
+            navigate("/account-settings");
         },
     });
 
@@ -142,25 +148,20 @@ const SetLocationForm = ({ address = null }) => {
             // Update existing address
             const payload = {
                 address_id: address.id,
-                label: data.label || "Home",
+                name: data.label || "Home",
                 address: data.address,
                 latitude: data.latitude,
                 longitude: data.longitude,
-                city: data.city,
-                zip_code: data.zip_code,
-                name: data.city || data.address,
             };
             updateAddress.mutate(payload);
         } else {
             // Add new address
             const payload = {
-                label: data.label || "Home",
+                name: data.label || "Home",
                 address: data.address,
                 latitude: data.latitude,
                 longitude: data.longitude,
-                city: data.city,
-                zip_code: data.zip_code,
-                name: data.city || data.address,
+                house_no: data.house_no || "",
             };
             addAddress.mutate(payload);
         }
@@ -220,6 +221,7 @@ const SetLocationForm = ({ address = null }) => {
                             setValue={setValue}
                             icon={<MapPin className="w-5 h-5" />}
                             error={errors.address?.message}
+                            defaultValue={address?.address || ""}
                         />
                         <input type="hidden" {...register("address", { required: "Address is required" })} />
                         <input type="hidden" {...register("latitude", { required: "Please select a valid address" })} />
@@ -250,6 +252,25 @@ const SetLocationForm = ({ address = null }) => {
                             {...register("label")}
                         />
                     </div>
+
+                    {/* House Number - Only for Add New Address */}
+                    {!isEditing && (
+                        <div>
+                            <label
+                                htmlFor="houseNoInput"
+                                className="text-primary-1008 font-normal mb-2 block"
+                            >
+                                House/Apt Number <span className="text-gray-400 text-xs">(Optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="houseNoInput"
+                                placeholder="e.g., Apt 4B, Suite 100, House 25"
+                                className="border w-full border-primary-1007 h-14 px-5 rounded-full focus:outline-none bg-white focus:ring-2 focus:ring-primary-50"
+                                {...register("house_no")}
+                            />
+                        </div>
+                    )}
 
                     {/* Submit Buttons */}
                     <div className="flex gap-3">

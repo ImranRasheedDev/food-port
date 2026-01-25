@@ -1,5 +1,6 @@
 import { MapPin, Search } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Input } from '../ui/input'
 import SearchCard from '../Cards/SearchCard'
 import SearchContainer from '../Cards/SearchContainer'
@@ -7,16 +8,22 @@ import LocationSearchCard from '../Cards/LocationSearchCard'
 import CurrentLocationCard from '../Cards/CurrentLocationCard'
 import { useRestaurants } from '@/hooks/api'
 import { Skeleton } from '@/components/ui/skeleton'
-import usePlacesAutocomplete, { getGeocode } from 'use-places-autocomplete'
+import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete'
 import LayoutWrapper from '../layoutWrapper'
 import { processImageUrl } from '@/lib/utils';
-const SearchBar = () => {
+const SearchBar = ({
+    initialLocationName = '',
+    initialLatitude = null,
+    initialLongitude = null,
+    onLocationSelect = null // callback when location is selected (for in-page filtering)
+}) => {
+    const navigate = useNavigate()
     const [showSearch, setShowSearch] = useState(false)
     const [showLocation, setShowLocation] = useState(false)
 
     const [searchTerm, setSearchTerm] = useState('')
-    const [locationTerm, setLocationTerm] = useState('')
-    const [selectedAddress, setSelectedAddress] = useState('')
+    const [locationTerm, setLocationTerm] = useState(initialLocationName)
+    const [selectedAddress, setSelectedAddress] = useState(initialLocationName)
 
     // Debounce search term to limit API calls
     const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -85,6 +92,14 @@ const SearchBar = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [locationTerm])
 
+    // Update location term when initial value changes (e.g., when navigating to page with location or clearing)
+    useEffect(() => {
+        setLocationTerm(initialLocationName || '')
+        setSelectedAddress(initialLocationName || '')
+        setPlacesValue(initialLocationName || '', false)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialLocationName])
+
     const containerRef = useRef(null)
 
     const extractPostalCode = (components) => {
@@ -98,14 +113,47 @@ const SearchBar = () => {
         clearSuggestions()
         try {
             const results = await getGeocode({ address: description })
+            const { lat, lng } = await getLatLng(results[0])
             const components = results?.[0]?.address_components || []
             const zip = extractPostalCode(components)
             const display = zip || description
+
+            // Update local state
             setSelectedAddress(display)
             setLocationTerm(display)
+            setShowLocation(false)
+
+            // If callback provided, use it (for in-page filtering)
+            if (onLocationSelect) {
+                onLocationSelect({
+                    latitude: lat,
+                    longitude: lng,
+                    locationName: display
+                })
+            } else {
+                // Navigate to AllResturants with lat/lng
+                navigate('/all-resturants', {
+                    state: {
+                        latitude: lat,
+                        longitude: lng,
+                        locationName: display
+                    }
+                })
+            }
         } catch (e) {
+            // Update local state
             setSelectedAddress(description)
             setLocationTerm(description)
+            setShowLocation(false)
+
+            // Fallback - navigate without coordinates
+            if (!onLocationSelect) {
+                navigate('/all-resturants', {
+                    state: {
+                        locationName: description
+                    }
+                })
+            }
         }
     }
 
@@ -120,13 +168,54 @@ const SearchBar = () => {
                         const components = results[0].address_components || []
                         const zip = extractPostalCode(components)
                         const addr = zip || results[0].formatted_address
+
+                        // Update local state
                         setSelectedAddress(addr)
                         setLocationTerm(addr)
-                        setPlacesValue(addr, false)
+                        setShowLocation(false)
+
+                        // If callback provided, use it (for in-page filtering)
+                        if (onLocationSelect) {
+                            onLocationSelect({
+                                latitude: latitude,
+                                longitude: longitude,
+                                locationName: addr
+                            })
+                        } else {
+                            // Navigate to AllResturants with lat/lng
+                            navigate('/all-resturants', {
+                                state: {
+                                    latitude: latitude,
+                                    longitude: longitude,
+                                    locationName: addr
+                                }
+                            })
+                        }
                     }
                 })
             } catch (e) {
-                // no-op fallback if geocoder not available
+                // Update local state
+                setSelectedAddress('Current Location')
+                setLocationTerm('Current Location')
+                setShowLocation(false)
+
+                // If callback provided, use it
+                if (onLocationSelect) {
+                    onLocationSelect({
+                        latitude: latitude,
+                        longitude: longitude,
+                        locationName: 'Current Location'
+                    })
+                } else {
+                    // Fallback - navigate with coordinates only
+                    navigate('/all-resturants', {
+                        state: {
+                            latitude: latitude,
+                            longitude: longitude,
+                            locationName: 'Current Location'
+                        }
+                    })
+                }
             }
         })
     }

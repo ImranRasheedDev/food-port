@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
 
-export default function AddressAutocomplete({ id = "address", placeholder = "Address", setValue, error, icon }) {
+export default function AddressAutocomplete({ id = "address", placeholder = "Address", setValue, error, icon, defaultValue = "" }) {
   const {
     ready,
     value,
@@ -13,7 +13,15 @@ export default function AddressAutocomplete({ id = "address", placeholder = "Add
     clearSuggestions,
   } = usePlacesAutocomplete({
     debounce: 300,
+    defaultValue: defaultValue,
   });
+
+  // Update input value when defaultValue changes (e.g., when editing an address)
+  useEffect(() => {
+    if (defaultValue) {
+      setHookValue(defaultValue, false);
+    }
+  }, [defaultValue, setHookValue]);
 
   // Handle input change
   const handleInput = (e) => {

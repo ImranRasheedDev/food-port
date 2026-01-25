@@ -286,9 +286,14 @@ export default function HeaderAfterLogin() {
                 Contact us
               </Link>
               <Link
+                to="/advertisement"
+              >
+                Advertisement
+              </Link>
+              <Link
                 to="/become-a-partner"
               >
-                Become a partner
+                Become a Partner
               </Link>
               <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer border-0 outline-none">

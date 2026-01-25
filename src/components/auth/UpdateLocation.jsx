@@ -1,6 +1,6 @@
 import { Home, MapPin, Edit, Trash2, Star, Plus } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useAllAddresses,
   useDeleteAddress,
@@ -16,7 +16,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Trash2 as TrashIcon, AlertTriangle } from "lucide-react";
-import { processImageUrl } from "@/lib/utils";
 
 const UpdateLocation = () => {
   const navigate = useNavigate();
@@ -221,32 +220,29 @@ const UpdateLocation = () => {
       </div>
 
       {/* Current Address Display */}
-      {addresses?.data?.find((addr) => addr.default === true) && (
+      {currentDefaultAddress && (
         <div className="flex justify-between items-center mt-4 p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary-950" />
             <p className=" text-primary-950">Your address :</p>
             <p className="text-primary-950">
-              {addresses.data.find((addr) => addr.default === true)?.address}
+              {currentDefaultAddress.address}
             </p>
 
           </div>
           <div>
-            <Link
-              to={"/set-location"}
-              className="border-0 bg-transparent shadow-none underline"
+            <button
+              onClick={() => handleEdit(currentDefaultAddress)}
+              className="border-0 bg-transparent shadow-none underline cursor-pointer"
             >
-              {/* <Edit className="w-3 h-3 mr-1" /> */}
               Edit
-            </Link>
-            {/* <Star className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm text-gray-500">Default</span> */}
+            </button>
           </div>
         </div>
       )}
 
       {/* Add New Address Button */}
-      {/* <div className="my-6">
+      <div className="my-6">
         <Button
           onClick={handleAdd}
           className="w-full bg-primary-50 hover:bg-primary-50/90"
@@ -254,7 +250,7 @@ const UpdateLocation = () => {
           <Plus className="w-4 h-4 mr-2" />
           Add New Address
         </Button>
-      </div> */}
+      </div>
 
       {/* Saved Addresses */}
       <div className="my-4">
@@ -312,7 +308,7 @@ const UpdateLocation = () => {
                       </Button>
                     )}
 
-                    {/* <Button
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(address)}
@@ -320,9 +316,10 @@ const UpdateLocation = () => {
                     >
                       <Edit className="w-3 h-3 mr-1" />
                       Edit
-                    </Button> */}
+                    </Button>
 
-                    {/* {address.default !== true && (
+                    {/* Only show delete if more than one address and not default */}
+                    {addresses?.data?.length > 1 && address.default !== true && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -334,8 +331,8 @@ const UpdateLocation = () => {
                         {loadingStates.deleting[address.id]
                           ? "Deleting..."
                           : "Delete"}
-                      </Button> */}
-                    {/* )} */}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

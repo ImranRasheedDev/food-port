@@ -126,6 +126,12 @@ const AllResturantsSection = ({ filters = {} }) => {
       params.delivery_address = filters.delivery_address;
     }
 
+    // Handle location coordinates (from search bar location search)
+    if (filters.latitude && filters.longitude) {
+      params.latitude = filters.latitude;
+      params.longitude = filters.longitude;
+    }
+
     return params;
   };
 

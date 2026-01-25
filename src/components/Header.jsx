@@ -67,10 +67,16 @@ export default function Header() {
                 Contact us
               </Link>
               <Link
+                to="/advertisement"
+                className="text-white"
+              >
+                Advertisement
+              </Link>
+              <Link
                 to="/become-a-partner"
                 className="text-white"
               >
-                Become a partner
+                Become a Partner
               </Link>
               <Link
                 to="/auth/login"

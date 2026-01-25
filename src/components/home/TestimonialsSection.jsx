@@ -10,27 +10,33 @@ import LayoutWrapper from "../layoutWrapper";
 
 const testimonials = [
     {
-        name: "Selena Gomz",
-        age: "22 Years",
-        text: "“Fresh Feast has truly revolutionized my approach to eating healthy! Their diverse menu options make it easy to find something delicious and nutritious every time”",
+        name: "Restaurant Owner",
+        role: "Restaurant Owner",
+        text: "\"FoodPort has completely changed how we manage suppliers and daily operations. Everything is more organized, faster, and easier to track.\"",
         avatar: "/images/bg-otp.jpg",
     },
     {
-        name: "David Ken",
-        age: "24 Years",
-        text: "“Fresh Feast has truly revolutionized my approach to eating healthy! Their diverse menu options make it easy to find something delicious and nutritious every time”",
+        name: "Food Truck Operator",
+        role: "Food Truck Operator",
+        text: "\"As a food truck, staying connected on the move is critical. FoodPort helps us manage vendors and communication without slowing us down.\"",
         avatar: "/images/bg-otp.jpg",
     },
     {
-        name: "Jennifer Sina",
-        age: "21 Years",
-        text: "“Fresh Feast has truly revolutionized my approach to eating healthy! Their diverse menu options make it easy to find something delicious and nutritious every time”",
+        name: "Food Supplier",
+        role: "Food Supplier",
+        text: "\"The platform gave us better visibility and smoother coordination with our restaurant partners. It's a real game changer for suppliers.\"",
         avatar: "/images/bg-otp.jpg",
     },
     {
-        name: "Jennifer Sina",
-        age: "21 Years",
-        text: "“Fresh Feast has truly revolutionized my approach to eating healthy! Their diverse menu options make it easy to find something delicious and nutritious every time”",
+        name: "Brand Advertiser",
+        role: "Brand Advertiser",
+        text: "\"Advertising through FoodPort puts our brand directly in front of food businesses that matter. The engagement feels genuine and targeted.\"",
+        avatar: "/images/bg-otp.jpg",
+    },
+    {
+        name: "Distribution Partner",
+        role: "Distribution Partner",
+        text: "\"What stands out most is how simple everything feels. FoodPort actually understands how the food industry works.\"",
         avatar: "/images/bg-otp.jpg",
     },
 ];
@@ -56,7 +62,7 @@ export default function TestimonialsSection() {
                         {/* Slider controls */}
                         <div className="">
                             <div className="text-6xl font-bold mb-8">
-                                02<span className="text-2xl text-primary-600"> / 05</span>
+                                {String(activeIndex + 1).padStart(2, '0')}<span className="text-2xl text-primary-600"> / {String(testimonials.length).padStart(2, '0')}</span>
                             </div>
                             <div className="flex space-x-2">
                                 <button
@@ -109,7 +115,7 @@ export default function TestimonialsSection() {
                                     <TestimonialCard
                                         activeIndex={activeIndex}
                                         index={index}
-                                        age={testimonial.age}
+                                        role={testimonial.role}
                                         avatar={testimonial.avatar}
                                         name={testimonial.name}
                                         text={testimonial.text}

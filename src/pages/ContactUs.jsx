@@ -1,35 +1,54 @@
 import LayoutWrapper from "@/components/layoutWrapper";
 import { processImageUrl } from "@/lib/utils";
-import { Phone, MessageCircle, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 export default function ContactUs() {
-    const handleCallNow = () => {
-        window.location.href = "tel:+1-202-555-0126";
+    const [formData, setFormData] = useState({
+        email: "",
+        name: "",
+        message: "",
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
-    const handleContactUs = () => {
-        window.location.href = "mailto:info@foodport.com";
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Handle form submission
+        console.log("Form submitted:", formData);
+        window.helper.sweetAlert("success", "Message Sent", "We'll get back to you soon!");
+        setFormData({ email: "", name: "", message: "" });
     };
 
     return (
         <>
             <div className="h-[72px]" />
-            {/* First Section - Banner same as FAQ page */}
-            <section
-                className={`bg-[url('/images/hero-bg-2.png')] h-[250px] sm:h-[400px] md:h-[250px] relative flex items-center justify-start bg-cover bg-center`}
-            >
-                <div className="absolute bottom-0 right-0 ml-auto text-right hidden sm:block">
-                    <img src={processImageUrl("/images/about-banner.png")} className="w-full h-full object-cover" alt="Inner Banner" />
+            {/* Banner Section */}
+            <section className="bg-gradient-to-r from-[#d6071b] to-[#ff4d4d] h-[250px] sm:h-[364px] relative flex items-center justify-start overflow-hidden">
+                {/* Food images on the right */}
+                <div className="absolute right-0 bottom-0 h-full hidden lg:flex items-end">
+                    <img
+                        src={processImageUrl("/images/contact-banner.png")}
+                        className="h-full object-cover"
+                        alt="Food images"
+                    />
                 </div>
+
+                {/* Text content */}
                 <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full px-4 sm:px-6 md:px-8">
                     <div className="max-w-[1280px] mx-auto">
                         <div>
-                            <h1 className="lg:text-5xl text-2xl font-bold text-white mb-6 leading-tight uppercase">
+                            <h1 className="lg:text-5xl text-2xl font-semibold text-white mb-4 leading-tight uppercase font-poppins">
                                 Contact Us
                             </h1>
-                            <p className="text-sm sm:text-base  text-white/90 mb-6 sm:mb-8 leading-relaxed">
-                                Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with <br />
+                            <p className="text-sm sm:text-base text-white/90 leading-relaxed max-w-[500px]">
+                                Food Port, a new food ordering app, faced the challenge of entering a crowded market saturated with
                                 established players. They needed to attract the hungry foodies, restaurant and food truck owners.
                             </p>
                         </div>
@@ -37,129 +56,56 @@ export default function ContactUs() {
                 </div>
             </section>
 
-            {/* Second Section - Two Grid Cards */}
-            <section className="py-16">
+            {/* Chat with us Form Section */}
+            <section className="py-12 sm:py-16">
                 <LayoutWrapper>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                        {/* First Card - Call us now */}
-                        <div className="bg-white  shadow-md p-6 flex items-start gap-6">
-                            {/* Left Side - Icon */}
-                            <div className="bg-primary-1011 p-4 shrink-0 w-16 h-16 flex items-center justify-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="48"
-                                    height="48"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                >
-                                    <path
-                                        fill="#E59D00"
-                                        d="M17.344 23.4a15.68 15.68 0 0 0 7.312 7.294 1.5 1.5 0 0 0 1.482-.113l4.687-3.13a1.48 1.48 0 0 1 1.425-.132l8.775 3.769a1.48 1.48 0 0 1 .9 1.556A9 9 0 0 1 33 40.5 25.5 25.5 0 0 1 7.5 15a9 9 0 0 1 7.856-8.925 1.48 1.48 0 0 1 1.557.9l3.768 8.794a1.5 1.5 0 0 1-.112 1.406l-3.131 4.763a1.5 1.5 0 0 0-.094 1.462"
-                                        opacity="0.2"
-                                    ></path>
-                                    <path
-                                        stroke="#fff"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="3"
-                                        d="M17.344 23.4a15.68 15.68 0 0 0 7.312 7.294 1.5 1.5 0 0 0 1.482-.113l4.687-3.13a1.48 1.48 0 0 1 1.425-.132l8.775 3.769a1.48 1.48 0 0 1 .9 1.556A9 9 0 0 1 33 40.5 25.5 25.5 0 0 1 7.5 15a9 9 0 0 1 7.856-8.925 1.48 1.48 0 0 1 1.557.9l3.768 8.794a1.5 1.5 0 0 1-.112 1.406l-3.131 4.763a1.5 1.5 0 0 0-.094 1.462"
-                                    ></path>
-                                    <path fill="#E59D00" d="M29.888 7.5A15.02 15.02 0 0 1 40.5 18.113"></path>
-                                    <path
-                                        stroke="#fff"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="3"
-                                        d="M29.888 7.5A15.02 15.02 0 0 1 40.5 18.113"
-                                    ></path>
-                                    <path fill="#2DA5F3" d="M28.331 13.294a8.98 8.98 0 0 1 6.375 6.375"></path>
-                                    <path
-                                        stroke="#fff"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="3"
-                                        d="M28.331 13.294a8.98 8.98 0 0 1 6.375 6.375"
-                                    ></path>
-                                </svg>
-                            </div>
-
-                            {/* Right Side - Content */}
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-primary-900 mb-3">
-                                    Call us now
-                                </h3>
-                                <p className="text-primary-1019 text-sm mb-1">
-                                    we are available online from 9:00 AM to 5:00 PM
-                                </p>
-                                <p className="text-primary-1019 text-sm mb-4">
-                                    (GMT95:45) Talk with use now
-                                </p>
-                                <p className="text-2xl font-normal text-primary-1008 mb-4">
-                                    +1-202-555-0126
-                                </p>
-                                <button
-                                    onClick={handleCallNow}
-                                    className="bg-primary-1011 text-white flex items-center gap-2 px-8 h-12 rounded-none"
-                                >
-                                    Call Now
-                                    <ArrowRight />
-                                </button>
-                            </div>
+                    <div className="bg-[#f8fafc] rounded p-6 sm:p-12 max-w-[1280px] mx-auto">
+                        {/* Heading */}
+                        <div className="mb-8">
+                            <h2 className="text-lg font-semibold text-[#191c1f] mb-3">
+                                Chat with us
+                            </h2>
+                            <p className="text-[#475156] text-base leading-relaxed">
+                                Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed molestie accumsan dui, non iaculis primis in faucibu raesent eget sem purus.
+                            </p>
                         </div>
 
-                        {/* Second Card - Chat with us */}
-                        <div className="bg-white rounded-lg shadow-md p-6 flex items-start gap-6">
-                            {/* Left Side - Icon */}
-                            <div className="bg-primary-1026 rounded-lg p-4 shrink-0 w-16 h-16 flex items-center justify-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="48"
-                                    height="48"
-                                    fill="none"
-                                    viewBox="0 0 48 48"
-                                >
-                                    <path
-                                        fill="#FFBFBB"
-                                        d="M8.512 33.188a17.981 17.981 0 1 1 6.3 6.3L8.587 41.25a1.482 1.482 0 0 1-1.837-1.837z"
-                                        opacity="0.2"
-                                    ></path>
-                                    <path
-                                        stroke="#E6160A"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="3"
-                                        d="M8.512 33.188a17.981 17.981 0 1 1 6.3 6.3L8.587 41.25a1.482 1.482 0 0 1-1.837-1.837z"
-                                    ></path>
-                                    <path
-                                        fill="#E6160A"
-                                        d="M24 26.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5M15 26.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5M33 26.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5"
-                                    ></path>
-                                </svg>
-                            </div>
-
-                            {/* Right Side - Content */}
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-primary-900 mb-3">
-                                    Chat with us
-                                </h3>
-                                <p className="text-primary-1019 text-sm mb-1">
-                                    we are available online from 9:00 AM to 5:00 PM
-                                </p>
-                                <p className="text-primary-1019 text-sm mb-4">
-                                    (GMT95:45) Talk with use now
-                                </p>
-                                <p className="text-2xl font-normal text-primary-1008 mb-4">
-                                    info@foodport.com
-                                </p>
-                                <button
-                                    onClick={handleContactUs}
-                                    className="bg-primary-50 text-white flex items-center gap-2 px-8 h-12 rounded-none"
-                                >
-                                    Contact Us
-                                    <ArrowRight className="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
+                        {/* Form */}
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="Email address"
+                                className="w-full h-[44px] px-4 bg-white border border-[#e4e7e9] rounded-sm text-sm text-[#191c1f] placeholder:text-[#77878f] focus:outline-none focus:border-primary-50"
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Name"
+                                className="w-full h-[44px] px-4 bg-white border border-[#e4e7e9] rounded-sm text-sm text-[#191c1f] placeholder:text-[#77878f] focus:outline-none focus:border-primary-50"
+                                required
+                            />
+                            <textarea
+                                name="message"
+                                value={formData.message}
+                                onChange={handleChange}
+                                placeholder="Message"
+                                rows={4}
+                                className="w-full px-4 py-3 bg-white border border-[#e4e7e9] rounded-sm text-sm text-[#191c1f] placeholder:text-[#77878f] focus:outline-none focus:border-primary-50 resize-none"
+                                required
+                            />
+                            <button
+                                type="submit"
+                                className="w-full h-[48px] bg-primary-50 text-white font-bold text-sm uppercase tracking-wide rounded-sm flex items-center justify-center gap-2 transition-colors mt-4"
+                            >
+                                Send Message
+                            </button>
+                        </form>
                     </div>
                 </LayoutWrapper>
             </section>

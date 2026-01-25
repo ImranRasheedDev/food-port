@@ -77,7 +77,7 @@ const AdvertisersSection = () => {
                     Top <span className="text-primary-50">Advertisers</span> Pick
                 </h2>
 
-                <p className="text-gray-600 mb-10">We're committed to cook healthy to ensure they retain their freshness and <br /> nutritional value, guaranteeing a delightful experience.</p>
+                <p className="text-gray-600 mb-10">Discover exclusive deals and special offers from our featured restaurants <br /> and food trucks handpicked just for you.</p>
                 <div className='relative'>
                     <Swiper
                         slidesPerView={1}

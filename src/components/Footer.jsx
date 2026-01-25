@@ -100,6 +100,11 @@ export default function Footer() {
                   FAQs
                 </Link>
               </li>
+              <li>
+                <Link to="/advertisement" className="text-primary-900">
+                  Advertisement
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
