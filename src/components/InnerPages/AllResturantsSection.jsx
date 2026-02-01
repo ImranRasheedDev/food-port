@@ -4,7 +4,6 @@ import { RestaurantCard } from "../Cards/PrimaryCard";
 import { useRestaurants, useAllAddresses } from "@/hooks/api";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { NoData } from "@/components/ui/empty";
-import DealsAndDiscounts from "./DealsAndDiscounts";
 import Pagination from "@/components/ui/pagination";
 
 
@@ -152,9 +151,6 @@ const AllResturantsSection = ({ filters = {} }) => {
   const hasApiData = Array.isArray(apiArray) && apiArray.length > 0;
   const apiReturnedEmpty = Array.isArray(apiArray) && apiArray.length === 0;
 
-  console.log(apiArray, "apiArray")
-  console.log(data, "full response data")
-
   // Get pagination info from paginated response
   const paginationMeta = data?.data?.last_page ? data.data : null;
   const estimatedTotal = paginationMeta?.total || totalData?.data?.length || null;
@@ -240,74 +236,40 @@ const AllResturantsSection = ({ filters = {} }) => {
   const showPagination =
     hasApiData && (totalPages ? totalPages > 1 : hasNextPage || hasPrevPage);
 
-  console.log(restaurants, "restaurants11")
-
   return (
     <div>
-      {/* First Section - Show 6 cards */}
+      {/* Featured Restaurants Section */}
       <SectionInfo
-        title={"All Restaurants"}
+        title={"Featured Restaurants"}
         description={
           "We're committed to cook healthy to ensure they retain their freshness and nutritional value, guaranteeing a delightful experience."
         }
       />
+
+      {/* Restaurant Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+          Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)
         ) : hasApiData ? (
-          restaurants
-            .slice(0, 6)
-            .map((card) => (
-              <RestaurantCard
-                key={card.key}
-                name={card.name}
-                description={card.description}
-                image={card.image}
-                // location={window.helper.getCountryName(card.country_code)}
-                // distance={card.distance}
-                rating={card.rating}
-                // time={card.time}
-                onFavoriteClick={card.onFavoriteClick}
-                isLiked={card.isLiked}
-                restaurantId={card.key}
-                link={card.link}
-              />
-            ))
+          restaurants.map((card) => (
+            <RestaurantCard
+              key={card.key}
+              name={card.name}
+              description={card.description}
+              image={card.image}
+              rating={card.rating}
+              onFavoriteClick={card.onFavoriteClick}
+              isLiked={card.isLiked}
+              restaurantId={card.key}
+              link={card.link}
+            />
+          ))
         ) : apiReturnedEmpty ? (
           <div className="col-span-full">
             <NoData title="No Restaurants Found" />
           </div>
-        ) : (
-          // Fallback to sample data - show only 5
-          // sampleRestaurants
-          //   .slice(0, 6)
-          //   .map((restaurant, index) => (
-          //     <RestaurantCard
-          //       key={index}
-          //       description={restaurant.description}
-          //       distance={restaurant.distance}
-          //       image={restaurant.image}
-          //       location={window.helper.getCountryName(restaurant.country_code)}
-          //       name={restaurant.name}
-          //       onFavoriteClick={() => { }}
-          //       rating={restaurant.rating}
-          //       time={restaurant.time}
-          //       isLiked={false}
-          //       restaurantId={index + 1}
-          //       link={`/resturants-detail/${index + 1}`}
-          //     />
-          //   ))
-          null
-        )}
+        ) : null}
       </div>
-
-      {/* Deals and Discounts Section with next 5 restaurants */}
-      <DealsAndDiscounts
-        restaurants={restaurants}
-        isLoading={isLoading}
-        hasApiData={hasApiData}
-        apiReturnedEmpty={apiReturnedEmpty}
-      />
 
       {/* Pagination */}
       <Pagination

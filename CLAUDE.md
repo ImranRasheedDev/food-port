@@ -54,11 +54,17 @@ Centralized HTTP client with TanStack React Query hooks:
 
 Query caching: 5min stale time, 10min cache time, 2 retries.
 
+**File uploads**: Pass `FormData` directly to mutations - the client auto-removes `Content-Type` header for proper multipart handling.
+
 ### Context Providers
 
-- `CartProvider` - Shopping cart state with localStorage persistence (`food-port-cart`, `food-port-restaurant`), handles multi-restaurant conflicts
-- `LoaderProvider` - Global loading state
-- `NotificationProvider` - Firebase push notification state
+Provider wrapping order (outer to inner): `BrowserRouter` → `QueryProvider` → `GoogleMapsProvider` → `NotificationProvider` → `LoaderProvider` → `CartProvider`
+
+- `CartProvider` - Shopping cart state with localStorage persistence (`food-port-cart`, `food-port-restaurant`), handles multi-restaurant conflicts with confirmation modal
+- `LoaderProvider` - Global loading state with `useLoader()` hook (`showLoader(msg)`, `hideLoader()`)
+- `NotificationProvider` - Firebase push notifications, manages FCM token storage and notification permissions
+- `QueryProvider` - TanStack React Query client with default settings
+- `GoogleMapsProvider` - Google Maps API loader with Places library
 
 ### Routing Structure
 
@@ -96,3 +102,7 @@ import { Button } from "@/components/ui/button";
 ### Image Handling
 
 Use `processImageUrl()` from `@/lib/utils.js` - handles API images, static assets, and absolute URLs with fallback support.
+
+### Dev Server Proxy
+
+Vite proxies `/api` requests to `VITE_API_BASE_URL` in development, stripping the `/api` prefix. Production builds make direct API calls.

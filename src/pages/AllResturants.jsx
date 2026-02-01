@@ -1,20 +1,21 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MapPin, X } from 'lucide-react';
+import { MapPin, X, SlidersHorizontal } from 'lucide-react';
 import SearchBar from "@/components/home/SearchBar";
 import CardOne from "@/components/Cards/AdsCards/CardOne";
 import DealDiscountCard from "@/components/Cards/DealDiscountCard";
 import AllResturantsSection from "@/components/InnerPages/AllResturantsSection";
-import DialyDeals from "@/components/InnerPages/DialyDeals";
 import ProductModal from "@/components/InnerPages/ProductModal";
 import HeroBannerInner from "@/components/InnerPages/HeroBannerInner";
 import ProductFilters from "@/components/InnerPages/ProductFilters";
 import { useBannerAds } from "@/hooks/api";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 function AllResturants() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const categoryId = location.state?.categoryId;
@@ -28,6 +29,10 @@ function AllResturants() {
   // Fetch banner ads
   const { data: adsData, isLoading: adsLoading } = useBannerAds();
   const ads = Array.isArray(adsData?.data) ? adsData.data.filter(item => item.product !== null) : [];
+
+  // Split ads for left and right sidebars
+  const leftSidebarAds = ads.slice(0, 3);
+  const rightSidebarAds = ads.slice(3, 8);
 
   // State for filters - initialize with category and location from route state
   const [filters, setFilters] = useState({
@@ -145,12 +150,18 @@ function AllResturants() {
     }
   };
 
-
+  // Ad loading skeleton component
+  const AdSkeleton = () => (
+    <div className="animate-pulse">
+      <div className="bg-gray-200 rounded-lg h-40 sm:h-48"></div>
+    </div>
+  );
 
   return (
     <>
       <div className="h-[72px]" />
       <HeroBannerInner />
+
       {/* SearchBar - same as home page */}
       <SearchBar
         initialLocationName={debouncedFilters.locationName}
@@ -158,10 +169,11 @@ function AllResturants() {
         initialLongitude={debouncedFilters.longitude}
         onLocationSelect={handleLocationSelect}
       />
+
       <div className='w-full max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8'>
         {/* Location Filter Indicator */}
         {debouncedFilters.latitude && debouncedFilters.longitude && debouncedFilters.locationName && (
-          <div className='pt-4 max-w-[90%] mx-auto'>
+          <div className='pt-4'>
             <div className="flex items-center gap-2 mb-4">
               <span className="text-sm text-gray-600">Showing results near:</span>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
@@ -176,73 +188,87 @@ function AllResturants() {
                 </button>
               </div>
             </div>
-          </div >
-        )
-        }
-        <div className={`flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-[30px] ${debouncedFilters.latitude && debouncedFilters.longitude && debouncedFilters.locationName ? 'pt-4' : 'pt-8 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-28'} pb-8 sm:pb-12`}>
+          </div>
+        )}
 
-          {/* Left Sidebar - Filters and Ads */}
-          <aside className="w-full lg:w-[22%] 2xl:w-[20%] order-1 lg:order-1">
-            {/* Filters Section */}
-            <div className="mb-6">
+        {/* Mobile Filter Button */}
+        <div className="lg:hidden pt-4 pb-2">
+          <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+            <SheetTrigger asChild>
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="text-sm font-medium">Filters</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto">
+              <SheetHeader className="mb-4">
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
               <ProductFilters
                 filters={filters}
                 onFiltersChange={handleFiltersChange}
               />
-            </div>
+            </SheetContent>
+          </Sheet>
+        </div>
 
-            {/* Left side ads - CardOne only - Hidden on mobile, visible on tablet+ */}
-            <div className="hidden md:block space-y-4 lg:space-y-6">
-              {adsLoading ? (
-                // Loading skeleton
-                Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-lg h-40 sm:h-48"></div>
-                  </div>
-                ))
-              ) : (
-                ads.slice(0, 4).map((campaign, index) => (
-                  <div
-                    key={campaign?.id || index}
-                    onClick={() => handleAdClick(campaign)}
-                    className="cursor-pointer transition-transform hover:scale-[1.02]"
-                  >
-                    <CardOne
-                      campaignData={campaign}
-                      image={campaign?.media_path || '/images/placeholder1.jpg'}
-                    />
-                  </div>
-                ))
-              )}
+        {/* Main Three-Column Layout */}
+        <div className={`flex flex-col lg:flex-row gap-6 xl:gap-8 ${debouncedFilters.latitude && debouncedFilters.longitude && debouncedFilters.locationName ? 'pt-4' : 'pt-8 sm:pt-12 lg:pt-16 xl:pt-20'} pb-8 sm:pb-12`}>
+
+          {/* Left Sidebar - Filters and Ads */}
+          <aside className="hidden lg:block w-full lg:w-[250px] xl:w-[280px] flex-shrink-0">
+            {/* Filters Section */}
+            <div className="sticky top-24">
+              <ProductFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+
+              {/* Left sidebar ads */}
+              <div className="mt-6 space-y-4">
+                {adsLoading ? (
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <AdSkeleton key={i} />
+                  ))
+                ) : (
+                  leftSidebarAds.map((campaign, index) => (
+                    <div
+                      key={campaign?.id || index}
+                      onClick={() => handleAdClick(campaign)}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <CardOne
+                        campaignData={campaign}
+                        image={campaign?.media_path || '/images/placeholder1.jpg'}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </aside>
 
-          {/* Main Content */}
-          <main className="w-full lg:w-[56%] xl:w-[60%] order-2 lg:order-2">
-            <div className="space-y-8 sm:space-y-10">
-              <DialyDeals />
-              <AllResturantsSection filters={debouncedFilters} />
-            </div>
+          {/* Main Content - Center */}
+          <main className="flex-1 min-w-0">
+            {/* All Restaurants Section with Pagination */}
+            <AllResturantsSection filters={debouncedFilters} />
           </main>
 
-          {/* Right Sidebar - Mixed Ads - Hidden on mobile and tablet, visible on desktop */}
-          <aside className="w-full lg:w-[22%] xl:w-[20%] order-3 lg:order-3 hidden lg:block">
-            <div className="space-y-4 lg:space-y-6">
+          {/* Right Sidebar - Ads Only */}
+          <aside className="hidden lg:block w-full lg:w-[250px] xl:w-[280px] flex-shrink-0">
+            <div className="sticky top-24 space-y-4">
               {adsLoading ? (
-                // Loading skeleton
-                Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-lg h-40 sm:h-48"></div>
-                  </div>
+                Array.from({ length: 4 }).map((_, i) => (
+                  <AdSkeleton key={i} />
                 ))
               ) : (
-                ads.slice(4).map((campaign, index) => (
+                rightSidebarAds.map((campaign, index) => (
                   <div
                     key={campaign?.id || index}
                     onClick={() => handleAdClick(campaign)}
                     className="cursor-pointer transition-transform hover:scale-[1.02]"
                   >
-                    {index % 3 === 0 ? (
+                    {index % 2 === 0 ? (
                       <CardOne
                         campaignData={campaign}
                         image={campaign?.media_path || '/images/placeholder1.jpg'}
@@ -260,8 +286,8 @@ function AllResturants() {
           </aside>
         </div>
 
-        {/* Mobile Bottom Ads Section - Only visible on mobile/tablet */}
-        <div className="lg:hidden pb-8 space-y-4">
+        {/* Mobile/Tablet Bottom Ads Section */}
+        <div className="lg:hidden pb-8">
           {!adsLoading && ads.length > 0 && (
             <>
               <h3 className="text-lg sm:text-xl font-semibold mb-4">Featured Deals</h3>
@@ -282,7 +308,7 @@ function AllResturants() {
             </>
           )}
         </div>
-      </div >
+      </div>
 
       <ProductModal
         open={isProductModalOpen}

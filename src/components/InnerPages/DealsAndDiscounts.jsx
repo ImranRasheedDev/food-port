@@ -37,16 +37,16 @@ const DealsAndDiscounts = ({
           onSwiper={(swiper) => (swiperRef.current = swiper)}
           breakpoints={{
             640: {
-              slidesPerView: 1,
-              spaceBetween: 10,
+              slidesPerView: 1.5,
+              spaceBetween: 12,
             },
             768: {
-              slidesPerView: 1,
-              spaceBetween: 20,
+              slidesPerView: 2,
+              spaceBetween: 16,
             },
             1024: {
-              slidesPerView: 1,
-              spaceBetween: 30,
+              slidesPerView: 3,
+              spaceBetween: 20,
             },
           }}
           className="mySwiper"
