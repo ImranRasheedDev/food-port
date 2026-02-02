@@ -29,6 +29,14 @@ export default function Advertisement() {
                 Reach thousands of hungry customers in your area. Whether you own a restaurant, food truck, or want to
                 promote a food-related business, our advertising platform helps you connect with the right audience.
               </p>
+              <a
+                href={`https://myfoodport.com/ad_campaign?user=${window.user?.user_id || ''}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-[#f15a24] hover:bg-[#d14a1a] text-white font-semibold px-8 py-3 rounded-lg transition-colors"
+              >
+                View your ads
+              </a>
             </div>
           </div>
         </div>

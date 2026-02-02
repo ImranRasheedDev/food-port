@@ -34,9 +34,11 @@ The app uses a bootstrap pattern that initializes window globals before React mo
 - `window.user` - Current authenticated user (from encrypted localStorage)
 - `window.constants` - Environment config (`src/config/constants.js`)
 - `window.helper` - Encryption/storage helpers (`src/helpers/index.js`)
-  - `getStorageData(key)` / `setStorageData(key, value)` - Encrypted localStorage
-  - `sweetAlert(type, title, msg, callback)` - SweetAlert2 wrapper
+  - `getStorageData(key)` / `setStorageData(key, value)` - Encrypted localStorage (AES-GCM)
+  - `sweetAlert(type, title, msg, callback)` - SweetAlert2 wrapper with confirm/cancel
   - `getLocationDetails(lat, lng, destLat, destLng)` - Google Maps geocoding + distance
+  - `truncateText(text, maxLength)` - Text truncation with ellipsis
+  - `getCountryName(countryCode)` - ISO/phone code to country name
 - `window.lodash` - Lodash utility library
 
 Authentication token is accessed via `window.user?.access_token` throughout the app.
@@ -58,9 +60,9 @@ Query caching: 5min stale time, 10min cache time, 2 retries.
 
 ### Context Providers
 
-Provider wrapping order (outer to inner): `BrowserRouter` → `QueryProvider` → `GoogleMapsProvider` → `NotificationProvider` → `LoaderProvider` → `CartProvider`
+Provider wrapping order (outer to inner in `main.jsx`): `BrowserRouter` → `QueryProvider` → `GoogleMapsProvider` → `NotificationProvider` → then in `App.jsx`: `LoaderProvider` → `CartProvider`
 
-- `CartProvider` - Shopping cart state with localStorage persistence (`food-port-cart`, `food-port-restaurant`), handles multi-restaurant conflicts with confirmation modal
+- `CartProvider` - Shopping cart state with localStorage persistence (`food-port-cart`, `food-port-restaurant`), handles multi-restaurant conflicts, includes cart drawer state (`openCartDrawer()`, `closeCartDrawer()`, `toggleCartDrawer()`)
 - `LoaderProvider` - Global loading state with `useLoader()` hook (`showLoader(msg)`, `hideLoader()`)
 - `NotificationProvider` - Firebase push notifications, manages FCM token storage and notification permissions
 - `QueryProvider` - TanStack React Query client with default settings
@@ -106,3 +108,11 @@ Use `processImageUrl()` from `@/lib/utils.js` - handles API images, static asset
 ### Dev Server Proxy
 
 Vite proxies `/api` requests to `VITE_API_BASE_URL` in development, stripping the `/api` prefix. Production builds make direct API calls.
+
+### Bootstrap Flow
+
+The app initializes through `src/bootstrap.js` before React mounts:
+1. Sets up window globals (`lodash`, `constants`, `helper`)
+2. Decrypts and loads user data from localStorage
+3. Shows `InitialLoader` during bootstrap
+4. Then mounts React with all providers
