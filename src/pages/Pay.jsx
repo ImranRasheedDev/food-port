@@ -84,11 +84,11 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
   const { items, clearCart } = useCart();
 
   const { data: restaurantData } = useRestaurantDetail(restaurantId, { enabled: !!restaurantId });
-  
+
   const placeOrderMutation = usePlaceOrder({
     onSuccess: async (data) => {
       clearCart();
-      
+
       // Save restaurant data to localStorage for directions
       if (restaurantData?.data) {
         const restaurantInfo = {
@@ -100,7 +100,7 @@ function Checkout({ clientSecret, paymentIntentId, finalTotalCents, restaurantId
         };
         await window.helper.setStorageData("lastOrderRestaurant", restaurantInfo);
       }
-      
+
       navigate("/order-waiting", { state: { orderData: data } });
     },
     onError: () => toast.error("Failed to place order. Please try again."),
@@ -517,10 +517,10 @@ export default function Pay() {
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">${(totals.finalTotalCents / 100 - (detail.delivery_fee || 0) - (totals.finalTotalCents / 100 * (detail.tax || 0) / 100)).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  {/* <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Delivery Fee</span>
                     <span className="font-medium">${(detail.delivery_fee || 0).toFixed(2)}</span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Tax ({(detail.tax || 0)}%)</span>
                     <span className="font-medium">${((totals.finalTotalCents / 100) * (detail.tax || 0) / 100).toFixed(2)}</span>
@@ -532,7 +532,7 @@ export default function Pay() {
                 </div>
 
                 {/* Delivery Address */}
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                {/* <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-start gap-3">
                     <div>
                       <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
@@ -544,7 +544,7 @@ export default function Pay() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
